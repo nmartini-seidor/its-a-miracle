@@ -71,3 +71,11 @@ Every task must have:
 - Finding disposition for medium/high issues.
 - QA sign-off.
 - Confirmation no prohibited actions occurred.
+
+## Research-agent implementation rules
+- Dashboard-triggered research agents may use `opencode` with a lightweight web client (`lightweb`) or equivalent controlled browser only as a bounded evidence-collection worker.
+- Research agents must not write to Mirakl, approve candidates, generate final exports, or mutate product baseline records.
+- Research output must be schema-validated before persistence.
+- Every candidate must include source evidence or be marked no-evidence/low-confidence.
+- Retailer evidence is supporting evidence only; prefer manufacturer and official documentation.
+- No full-page copyrighted content should be copied into the database; store URLs, access dates, short snippets, and field mappings.

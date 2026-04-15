@@ -133,3 +133,23 @@ Use `Card`, `Table`, `Badge`, `Chart` if needed.
 - Every planned screen maps to shadcn primitives.
 - Diff/review UX is described as shadcn composition, not custom design-system primitives.
 - Review state transitions are visible and actionable.
+
+## Product detail enrichment dashboard additions
+
+The product detail page must show three layers side by side:
+
+1. **Mirakl baseline** — current values from Mirakl/MCM, including warnings and noisy text.
+2. **Orange source** — parsed values from the public Orange page when available.
+3. **Candidate target** — proposed values from Orange + external research, with confidence and evidence.
+
+Recommended shadcn composition:
+- `Tabs`: Baseline, Orange Source, Research Candidates, Evidence, Review, Export History.
+- `Table`: field-by-field baseline/source/candidate comparison.
+- `Badge`: source type, confidence, warning/error state.
+- `Sheet`: evidence detail with URL/snippet/access date.
+- `Alert`: missing brand, noisy description, category mismatch, low confidence, conflicting evidence.
+- `Button`: "Research missing info", "Accept field", "Reject field", "Request more evidence".
+
+For products like Huawei FreeClip 2, the UI should make obvious that the Mirakl description is storefront noise and that a cleaner candidate description exists from research sources.
+
+The research launch button must create a job and show progress/history. It must not directly update Mirakl.

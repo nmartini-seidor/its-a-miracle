@@ -72,3 +72,15 @@ Retention exceptions require an `audit_events` record with approver, reason, new
 - Enrichment agents have explicit rules for allowed/rejected/pending sources.
 - Reviewers can see why a candidate is high/medium/low confidence.
 - Raw content retention is not assumed; it is approval-gated.
+
+## External retailer/reference sources
+
+External retailer pages may be used to propose candidate information when official sources are missing or insufficient. They are supporting evidence, not the primary authority.
+
+Rules:
+- Prefer manufacturer official pages and datasheets over retailers.
+- Retailer pages such as MaxMovil can support fields like EAN, color, Bluetooth version, dimensions, battery capacity, and launch date when the source is public and accessible without login.
+- Store only URL, access date, source type, and short supporting snippets by default.
+- Do not copy full product pages or copyrighted long-form content into the database.
+- Mark retailer-sourced candidates as `medium` or `low` confidence unless corroborated by official sources.
+- If a retailer source conflicts with Orange or manufacturer data, mark it as conflicting evidence for reviewer decision.

@@ -89,3 +89,16 @@ Use these states consistently across app APIs, UI, audit events, and Mirakl inte
 `CANDIDATE_PROPOSED` -> `FIELD_APPROVED`/`FIELD_REJECTED` -> `EXPORT_DRAFT_REQUESTED` -> `EXPORT_DRAFT_VALIDATED` -> `EXPORT_LOCKED` -> `IMPORT_SUBMISSION_APPROVED` -> `IMPORT_SUBMITTED` -> `IMPORT_POLLING` -> `IMPORT_COMPLETED`/`IMPORT_PARTIAL_FAILURE`/`IMPORT_FAILED` -> `SOURCE_STATUS_RECHECKED`.
 
 Reviewer approval of a field is not the same as operator approval to submit to Mirakl. Draft package generation is a separate operator-requested step; Mirakl import submission is a later explicit approval step.
+
+## Research-agent execution from dashboard
+
+Add a future server-side research job path that can be triggered from a product detail page.
+
+Recommended shape:
+- `POST /api/products/{id}/research-jobs` creates an `enrichment_jobs` record with type `external_research`.
+- The server invokes a controlled worker/subagent runner, e.g. `opencode` with a `lightweb` client, passing a bounded mission payload and allowed-source policy.
+- The runner writes only to candidate/evidence tables; it must not call Mirakl write/import endpoints.
+- Job output is validated against schema before persistence.
+- Every external source fetch stores provenance: URL, source type, access time, snippet, and field mapping.
+
+The job must have a hard budget: max URLs, max runtime, allowed domains/source types, and a no-login/no-bypass/no-form-submit rule. Failures should leave the product unchanged and show a retryable job error in the dashboard.

@@ -65,3 +65,28 @@ Covers docs milestone and future implementation validation. No tests are created
 - 90%+ criteria are testable by command, checklist, or review artifact.
 - High-risk paths have explicit negative tests.
 - QA cannot pass without evidence.
+
+## Research-agent workflow tests
+
+### Unit tests
+- Research mission builder includes Mirakl baseline, Orange source fields, allowed source policy, and requested focus fields.
+- Candidate validator rejects research output without evidence links.
+- Confidence scorer lowers retailer-only evidence below official/manufacturer evidence.
+- Description cleaner detects storefront noise such as pricing, login prompts, cart text, and tariff descriptions.
+
+### Integration tests
+- `POST /api/products/{id}/research-jobs` creates an `external_research` job without mutating Mirakl.
+- A mocked `opencode-lightweb` runner writes evidence and candidates only.
+- Candidate review creates append-only `review_decisions`.
+- Accepted candidates are visible in export preview but not submitted to Mirakl without approval.
+
+### E2E tests
+- Open a product with noisy Mirakl baseline, e.g. Huawei FreeClip 2.
+- Launch research from product detail page.
+- Verify candidates include cleaner description and missing attributes with evidence.
+- Accept one field, reject another, and confirm the baseline remains unchanged until export approval.
+
+### Safety tests
+- The research agent cannot log in, submit forms, add to cart, or bypass controls.
+- The research agent respects max URL/runtime budget.
+- Retailer evidence is stored as snippets/metadata, not full copied pages.

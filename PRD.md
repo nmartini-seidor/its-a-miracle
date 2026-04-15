@@ -74,3 +74,22 @@ Orange.es device product pages depend on Mirakl catalog data. Product descriptio
 
 ## Export/import approval state model
 Reviewer field approval, operator draft-package request, export locking, and Mirakl submission approval are separate controls. A field can be approved for inclusion in a draft without authorizing immediate Mirakl import submission. Mirakl submission requires a locked draft package and explicit operator approval.
+
+## Clarification: Mirakl baseline + enrichment target workflow
+
+The application should treat Mirakl as the current baseline catalog, even when the baseline is incomplete or polluted by storefront text. A product detail page should show the Mirakl record as-is, then show candidate improvements discovered from Orange public product pages and approved external sources.
+
+Example baseline problem:
+- Mirakl product: `Huawei FreeClip 2` in `Orange Audio y Hi-Fi / Orange Auriculares`.
+- Mirakl has noisy storefront description text, missing required brand, and incomplete attributes.
+- Orange page has structured attributes such as Bluetooth, MP3, weight, dimensions, battery conversation duration, charger power unit, and OS compatibility.
+- External sources such as manufacturer pages or retailer pages may provide richer feature descriptions and additional specs such as Bluetooth version, charging case dimensions, microphone/noise reduction, battery capacity, release date, and real EAN.
+
+The product detail workflow must therefore support:
+1. Mirakl baseline snapshot display.
+2. Orange-source comparison.
+3. External research/evidence collection launched from the dashboard.
+4. Field-level candidate proposals with confidence and source evidence.
+5. Human accept/discard before Mirakl export/import.
+
+The dashboard should make this distinction explicit: **baseline value**, **candidate target value**, **evidence**, **confidence**, and **review decision**.

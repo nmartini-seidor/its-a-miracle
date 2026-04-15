@@ -61,3 +61,33 @@ These are separate systems with separate permissions. Development agents must no
 - Strategy aligns with `EVIDENCE_POLICY.md` and `SCORING_MODEL.md`.
 - Retailer/competitor pages are not treated as authoritative.
 - Candidate generation remains review-only until approved by humans.
+
+## Dashboard-triggered research agents
+
+The dashboard product page should allow an operator to launch an internal research job for a specific product. The job may use an `opencode`-driven subagent with a lightweight web client (`lightweb`) or equivalent controlled browsing tool to search for better product information.
+
+The research agent must not directly mutate Mirakl. Its only allowed output is a set of draft candidates and evidence records.
+
+### Research job inputs
+- Mirakl baseline snapshot: title, category, EAN/source identifiers, current description, current attributes, missing required fields, warnings.
+- Orange source URL and parsed Orange attributes when available.
+- Allowed source policy from `EVIDENCE_POLICY.md`.
+- Category-specific attribute expectations from Mirakl and from the product category mapping.
+
+### Research job behavior
+1. Search official manufacturer pages first.
+2. Search official datasheets/manuals where available.
+3. Search approved retailer/reference pages such as MaxMovil only as supporting evidence and not as the final authority.
+4. Extract candidate descriptions, bullet features, attributes, EAN/GTIN, release date, color, battery details, connectivity, dimensions, weights, included accessories, and compatibility.
+5. Save evidence snippets, URLs, access dates, source type, confidence, and extraction method.
+6. Produce field-level candidates such as `bluetooth_version`, `case_dimensions_mm`, `battery_capacity_mah`, `noise_reduction`, `microphone_count`, or improved `description [en]` / localized description.
+7. Mark conflicts when Orange, Mirakl, and external sources disagree.
+
+### Example: Huawei FreeClip 2 enrichment
+For a Mirakl baseline with missing brand and noisy description, the research job should be able to propose:
+- brand: Huawei, mapped to accepted Mirakl brand code once configured.
+- cleaner description: concise product-focused description rather than storefront checkout/pricing text.
+- attributes from Orange: Bluetooth=true, MP3=true, weight_g=37.8gr, dimensions_mm=25.4 x 26.7 x 18.8mm, battery_talk_duration=9h/38h with case, charger_power_unit=W, OS compatibility.
+- attributes from external evidence: EAN=6942103169434, color=Negro, Bluetooth version=6.0, USB-C charging, microphone/noise reduction, case dimensions, battery capacity, release date.
+
+All of these remain candidates until a reviewer accepts them.

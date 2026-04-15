@@ -308,3 +308,23 @@ Every task below is defined with:
 - Review gate: catalog-model reviewer confirms variant grouping is intentional.
 - QA gate: verifier checks no unrelated products share a variant group.
 - Rollback/deferral note: if a bad variant family exists, do not rely on re-import alone; use Mirakl UI/back-office cleanup or reject/delete pending source products.
+
+### T3.4 — Implement dashboard-triggered external research jobs
+- Objective: Let operators launch a bounded research job from a product detail page to improve missing/noisy Mirakl data.
+- Inputs: Mirakl baseline snapshot, Orange source record, evidence policy, category attribute expectations, `ENRICHMENT_STRATEGY.md`.
+- Outputs: server route/action, job runner integration, `external_research_runs`, evidence records, candidate records, tests.
+- Acceptance criteria: job can draft candidates for description, EAN, brand/category mapping, and missing attributes; it cannot approve fields or call Mirakl write/import endpoints.
+- Validation evidence: mocked opencode/lightweb run creates evidence and candidates; no Mirakl mutation occurs; product detail page shows job status and candidates.
+- Review gate: security-reviewer validates source policy and no write path; test-engineer validates job/candidate tests.
+- QA gate: verifier runs product-detail E2E with a noisy baseline example.
+- Rollback/deferral note: disable research launch behind a feature flag if source policy or runner integration is not ready.
+
+### T4.4 — Build enriched product detail comparison UI
+- Objective: Show Mirakl baseline, Orange source, external evidence candidates, and review decisions in one shadcn-only product page.
+- Inputs: `UI.md`, `DATA_MODEL.md`, `API_REFERENCE.md`, `EVIDENCE_POLICY.md`.
+- Outputs: product detail route/tabs, comparison table, evidence sheet, research launch button, candidate review controls.
+- Acceptance criteria: operators can see baseline vs candidate values, evidence URLs/snippets, confidence, conflicts, and accept/reject controls; Mirakl baseline is not overwritten by viewing candidates.
+- Validation evidence: component tests and E2E test for Huawei FreeClip-style noisy baseline.
+- Review gate: designer verifies shadcn composition; security-reviewer verifies no unsafe source display.
+- QA gate: verifier confirms accepted candidates remain drafts until export approval.
+- Rollback/deferral note: hide research tab/launch button if candidate backend is not ready.

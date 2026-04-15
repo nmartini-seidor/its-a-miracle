@@ -107,3 +107,26 @@ sequenceDiagram
 - Mirakl mutation paths are explicitly approval-gated.
 - Attribute schema drift and stale source snapshots are modeled.
 - Evidence, review, export, import, and score events are auditable.
+
+## Sequence: dashboard-triggered external research
+
+```mermaid
+sequenceDiagram
+  participant Operator
+  participant UI as Next.js Product Detail UI
+  participant API as Server Route / Action
+  participant DB as Supabase
+  participant Agent as opencode + lightweb research worker
+  participant Web as Approved public sources
+  Operator->>UI: Click "Research missing info"
+  UI->>API: POST /api/products/{id}/research-jobs
+  API->>DB: Create enrichment_jobs(type=external_research)
+  API->>Agent: Launch bounded mission with baseline + policy
+  Agent->>Web: Fetch approved sources only
+  Agent->>DB: Save evidence_sources and enrichment_candidates
+  Agent->>DB: Mark job succeeded/failed with audit_events
+  UI->>DB: Display candidates, evidence, confidence, conflicts
+```
+
+The research worker is a suggestion engine, not an importer. Mirakl writes remain behind the existing approval/export workflow.
+```

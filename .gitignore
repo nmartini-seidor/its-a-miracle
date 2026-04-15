@@ -6,3 +6,8 @@
 __pycache__/
 *.py[cod]
 /data/mirakl/imports/
+node_modules/
+.next/
+tsconfig.tsbuildinfo
+.env.local
+.env*.local

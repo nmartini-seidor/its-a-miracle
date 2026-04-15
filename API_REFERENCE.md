@@ -90,3 +90,42 @@ These are design targets for future implementation.
 - `POST /api/export-batches` requests `EXPORT_DRAFT_REQUESTED` and can produce `EXPORT_DRAFT_VALIDATED` / `EXPORT_LOCKED`; it never submits to Mirakl.
 - `POST /api/export-batches/{id}/approve-submission` records `IMPORT_SUBMISSION_APPROVED` after operator review of the locked draft.
 - `POST /api/export-batches/{id}/submit` is allowed only after `IMPORT_SUBMISSION_APPROVED` and creates `IMPORT_SUBMITTED` / `IMPORT_POLLING`.
+
+## Research job APIs
+
+### Create research job
+`POST /api/products/{id}/research-jobs`
+
+Creates a bounded external research job for one product.
+
+Request body:
+```json
+{
+  "focus": ["description", "missing_attributes", "ean", "brand", "feature_bullets"],
+  "max_urls": 10,
+  "source_policy": "default-approved-public-sources"
+}
+```
+
+Response:
+```json
+{
+  "job_id": "uuid",
+  "status": "QUEUED"
+}
+```
+
+### Get research job
+`GET /api/research-jobs/{job_id}`
+
+Returns status, sources visited, evidence count, candidate count, warnings, and errors.
+
+### List product candidates
+`GET /api/products/{id}/candidates?kind=&status=`
+
+Returns field-level candidates with evidence links and confidence.
+
+### Review candidate
+`POST /api/candidates/{id}/review-decisions`
+
+Accepts/rejects a candidate. This does not submit to Mirakl.

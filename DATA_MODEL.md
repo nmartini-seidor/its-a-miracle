@@ -259,3 +259,44 @@ Legend: `S` select, `I` insert, `U` update, `D` delete. `SRV` means server-only 
 - Supports materialized scores and stale flags.
 - Supports Mirakl import lifecycle and partial failures.
 - Supports table-level RLS planning before migrations are written.
+
+## Research and enrichment extension
+
+To support dashboard-triggered product research, extend the model with the following concepts before implementation:
+
+### `product_baseline_snapshots`
+Mirakl baseline captured before enrichment.
+- `id uuid pk`
+- `product_id uuid references products`
+- `source_product_identifier text`
+- `mirakl_status text`
+- `category_code text`
+- `brand_code text null`
+- `title text`
+- `description text`
+- `attributes jsonb`
+- `warnings jsonb`
+- `errors jsonb`
+- `captured_at timestamptz`
+- `source_hash text`
+
+### `external_research_runs`
+Specialized enrichment job payload/results for web research.
+- `id uuid pk`
+- `enrichment_job_id uuid references enrichment_jobs`
+- `product_id uuid references products`
+- `mission jsonb`
+- `allowed_sources jsonb`
+- `status text` (`QUEUED`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED`)
+- `runner text` (for example `opencode-lightweb`)
+- `started_at timestamptz`
+- `completed_at timestamptz`
+- `summary text`
+- `error_summary text`
+
+### Candidate/evidence additions
+- `evidence_sources.source_type` should include `manufacturer_page`, `manufacturer_pdf`, `retailer_reference`, `orange_page`, `mirakl_baseline`, and `manual_operator_note`.
+- `enrichment_candidates` should support `candidate_kind` (`description`, `attribute`, `brand_mapping`, `category_mapping`, `ean`, `media`, `feature_bullet`).
+- `candidate_evidence_links.support_type` should include `direct`, `inferred`, `conflicting`, and `context_only`.
+
+The UI must never overwrite baseline fields directly. It should create accepted candidate decisions that later feed controlled export/import generation.
