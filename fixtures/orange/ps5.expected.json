@@ -1,0 +1,27 @@
+{
+  "source_url": "https://www.orange.es/dispositivos/gaming/sony/playstation-5-chasise-blanco/3711191.html",
+  "brand": "Sony",
+  "product_name": "PlayStation 5 Chasis E",
+  "item_no": "3711191",
+  "required_description_snippet": "La consola PlayStation 5 Chasis E ofrece",
+  "required_groups": [
+    "Sistema operativo",
+    "Memoria",
+    "Conectividad",
+    "Características destacadas",
+    "Dimensiones",
+    "Conectores",
+    "Otros detalles"
+  ],
+  "required_attributes": {
+    "Sistema operativo / Tipo de sistema operativo": "Propio de PS5",
+    "Memoria / Memoria interna (almacenamiento) (GB)": "1000",
+    "Memoria / Memoria RAM (GB)": "16",
+    "Conectividad / Wifi": true,
+    "Conectividad / Bluetooth": true,
+    "Dimensiones / Peso del dispositivo (gr)": "3200",
+    "Dimensiones / Tamaño (largo x ancho x fondo) (mm)": "358 × 96 × 216",
+    "Conectores / USB tipo C": true
+  },
+  "required_box_contents": ["Mando inalámbrico", "Cable HDMI", "Cable USB", "Cable alimentación", "Astro"]
+}

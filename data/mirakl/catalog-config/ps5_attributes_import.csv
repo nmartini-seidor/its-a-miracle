@@ -1,0 +1,13 @@
+code;label;type;hierarchy-code;required;description
+os_type;Tipo de sistema operativo;TEXT;orange_gaming_console;false;Operating system type
+storage_gb;Memoria interna (almacenamiento) (GB);DECIMAL;orange_gaming_console;false;Internal storage in GB
+ram_gb;Memoria RAM (GB);DECIMAL;orange_gaming_console;false;RAM in GB
+wifi;Wifi;TEXT;orange_gaming_console;false;Wifi support
+bluetooth;Bluetooth;TEXT;orange_gaming_console;false;Bluetooth support
+voice_commands;Comandos de voz;TEXT;orange_gaming_console;false;Voice commands
+hands_free;Manos libres;TEXT;orange_gaming_console;false;Hands free
+mp4;MP4;TEXT;orange_gaming_console;false;MP4 support
+weight_g;Peso del dispositivo (gr);DECIMAL;orange_gaming_console;false;Device weight in grams
+dimensions_mm;Tamaño (largo x ancho x fondo) (mm);TEXT;orange_gaming_console;false;Dimensions in mm
+usb_c;USB tipo C;TEXT;orange_gaming_console;false;USB-C connector
+box_contents;Contenido de la caja;LONG_TEXT;orange_gaming_console;false;Box contents

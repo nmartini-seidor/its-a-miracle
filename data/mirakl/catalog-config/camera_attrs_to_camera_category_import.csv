@@ -1,0 +1,9 @@
+code;label;type;hierarchy-code;required;description
+screen_type;Tipo de pantalla;TEXT;orange_camaras_reflex;false;Screen type
+rear_camera_mpx;Resolución de la cámara trasera (Mpx);TEXT;orange_camaras_reflex;false;Rear camera resolution in megapixels
+wifi;Wifi;TEXT;orange_camaras_reflex;false;Wifi support
+bluetooth;Bluetooth;TEXT;orange_camaras_reflex;false;Bluetooth support
+weight_g;Peso del dispositivo (gr);TEXT;orange_camaras_reflex;false;Device weight in grams
+dimensions_mm;Tamaño (largo x ancho x fondo) (mm);TEXT;orange_camaras_reflex;false;Dimensions in mm
+battery_standby_mins;Duración de la batería en espera (mins);TEXT;orange_camaras_reflex;false;Battery standby duration in minutes
+charger_power_unit;Unidad de Potencia Cargador;TEXT;orange_camaras_reflex;false;Charger power unit

@@ -1,0 +1,4 @@
+code;label;type;hierarchy-code;required;description
+storage_gb;Memoria interna (almacenamiento) (GB);TEXT;orange_gaming_console;false;Internal storage in GB
+ram_gb;Memoria RAM (GB);TEXT;orange_gaming_console;false;RAM in GB
+weight_g;Peso del dispositivo (gr);TEXT;orange_gaming_console;false;Device weight in grams

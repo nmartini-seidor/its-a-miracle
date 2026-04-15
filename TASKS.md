@@ -268,3 +268,43 @@ Every task below is defined with:
 - Review gate: release review.
 - QA gate: smoke/e2e tests pass.
 - Rollback/deferral note: rollback deployment or disable project if critical issue.
+
+### T5.0 — Preload Mirakl value-list values before product imports
+- Objective: Ensure list-backed attributes such as `brand` accept all values needed by extracted Orange products before product import.
+- Inputs: Orange product JSONL/CSV, `MIRAKL_INTEGRATION.md`, Mirakl `GET /api/products/attributes`, Mirakl `GET /api/values_lists`.
+- Outputs: value-list diff report, value-list import draft, value-list import status report, refreshed mapping table.
+- Acceptance criteria: every product row with a list-backed attribute has an accepted Mirakl value or is blocked with a manual mapping decision; no placeholder brand substitutions.
+- Validation evidence: `brand-values` diff before/after, value-list import id/status, zero missing required brand mappings before product import generation.
+- Review gate: integration reviewer confirms only value-list endpoints were used and no product import was generated before value-list validation.
+- QA gate: verifier confirms product import is blocked while missing required value-list entries remain.
+- Rollback/deferral note: if value-list import fails, do not push affected product rows; keep them in mapping-needed state.
+
+### T5.-1 — Create or map Mirakl attributes before product imports
+- Objective: Ensure category-specific Orange attributes (for example PS5 memory/connectivity/dimensions/box contents) exist as Mirakl attributes or have explicit mappings before product import.
+- Inputs: Orange extracted attributes, `MIRAKL_INTEGRATION.md`, Mirakl `GET /api/products/attributes`, Mirakl category/hierarchy model.
+- Outputs: attribute diff report, proposed Mirakl attribute model changes, approved mapping table, refreshed product import template.
+- Acceptance criteria: every CSV column intended for import is accepted by Mirakl for the target hierarchy; unmapped Orange attributes are blocked or intentionally stored as evidence-only enrichment candidates.
+- Validation evidence: before/after attribute config export, product import dry-run/transformed file showing discrete columns preserved, zero unexpected ignored columns.
+- Review gate: catalog-model reviewer confirms attribute names/types and category assignment.
+- QA gate: verifier confirms PS5 attributes appear as discrete mapped fields or are explicitly documented as not imported.
+- Rollback/deferral note: if Mirakl attribute creation is not approved, do not push those fields; keep them in enrichment candidate/evidence storage until the model is ready.
+
+### T5.-2 — Verify Mirakl catalog-configuration permissions
+- Objective: Confirm the configured Mirakl credential can update value lists, hierarchies, and product attributes before bulk import work begins.
+- Inputs: approved Mirakl operator credential, draft value-list/hierarchy/attribute import files.
+- Outputs: permission check report for `POST /api/values_lists/imports`, `POST /api/hierarchies/imports`, and `POST /api/products/attributes/imports`.
+- Acceptance criteria: all required catalog-configuration endpoints accept imports or the task is blocked with a permission escalation request; product imports are not generated for unmapped attributes/brands while permissions are missing.
+- Validation evidence: import IDs/statuses for accepted config imports, or redacted `403 Forbidden` responses proving missing permissions.
+- Review gate: integration reviewer confirms no product import proceeds while config imports are forbidden.
+- QA gate: verifier confirms missing permission blocks bulk push.
+- Rollback/deferral note: if permission is missing, request an operator role/token with catalog configuration rights and keep products in mapping-needed state.
+
+### T5.-3 — Validate variant grouping before import
+- Objective: Prevent unrelated products from being grouped into persistent Mirakl variant families.
+- Inputs: product import draft, category model, variant-axis requirements.
+- Outputs: variant grouping validation report.
+- Acceptance criteria: standalone products omit `variantGroupCode`; true variants share a group only when category, variant attributes, and variant-axis values are complete and consistent.
+- Validation evidence: no `size-variant-code-is-null`, no irrelevant-category variant warnings, transformed file shows expected variant-axis values.
+- Review gate: catalog-model reviewer confirms variant grouping is intentional.
+- QA gate: verifier checks no unrelated products share a variant group.
+- Rollback/deferral note: if a bad variant family exists, do not rely on re-import alone; use Mirakl UI/back-office cleanup or reject/delete pending source products.

@@ -1,0 +1,5 @@
+code;label;type;hierarchy-code;required;description
+screen_type;Tipo de pantalla;TEXT;orange_gaming_console;false;Screen type
+rear_camera_mpx;Resolución de la cámara trasera (Mpx);TEXT;orange_gaming_console;false;Rear camera resolution in megapixels
+battery_standby_mins;Duración de la batería en espera (mins);TEXT;orange_gaming_console;false;Battery standby duration in minutes
+charger_power_unit;Unidad de Potencia Cargador;TEXT;orange_gaming_console;false;Charger power unit

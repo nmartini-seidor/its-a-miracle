@@ -1,0 +1,4 @@
+code;label;type;hierarchy-code;required;description
+nfc;NFC;TEXT;orange_gaming_console;false;NFC support
+water_resistant;Resistente al agua;TEXT;orange_gaming_console;false;Water resistant
+battery_talk_duration;Duración de la batería en conversación;TEXT;orange_gaming_console;false;Battery duration in conversation
