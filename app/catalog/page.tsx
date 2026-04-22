@@ -1,23 +1,21 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { listProducts } from "@/server/data"
 
 export default async function CatalogPage() {
   const products = await listProducts()
-  const productsNeedingEnrichment = products.filter((product) => product.listingStatus !== "READY_FOR_REVIEW")
-  const schemaCoverage = new Set(products.map((product) => product.schemaId)).size
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
       <section className="flex flex-col gap-2">
         <h1 className="text-3xl font-semibold tracking-tight">Catalog</h1>
-        <p className="max-w-3xl text-muted-foreground">
-          Review the imported Mirakl baseline catalog before research, candidate approval, or export-preview work begins.
-        </p>
+        <p className="max-w-3xl text-muted-foreground">Understand the imported Mirakl baseline catalog before research, candidate approval, or export-preview work begins.</p>
       </section>
       <Alert>
         <AlertTitle>Baseline catalog only</AlertTitle>
-        <AlertDescription>This section summarizes imported demo records. It is safe to inspect and does not perform live Mirakl mutations.</AlertDescription>
+        <AlertDescription>This page summarizes imported demo records and schema assignment. It is safe to inspect and does not perform live Mirakl mutations.</AlertDescription>
       </Alert>
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -28,24 +26,47 @@ export default async function CatalogPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{productsNeedingEnrichment.length}</CardTitle>
-            <CardDescription>Products currently needing enrichment</CardDescription>
+            <CardTitle>{products.filter((product) => product.listingStatus !== "READY_FOR_REVIEW").length}</CardTitle>
+            <CardDescription>Baselines currently needing enrichment</CardDescription>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{schemaCoverage}</CardTitle>
-            <CardDescription>Schemas already represented in the demo catalog</CardDescription>
+            <CardTitle>{new Set(products.map((product) => product.schemaId)).size}</CardTitle>
+            <CardDescription>Schema families already assigned</CardDescription>
           </CardHeader>
         </Card>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Catalog handoff</CardTitle>
-          <CardDescription>Later tasks will deepen this section with richer baseline status, filters, and catalog-specific framing.</CardDescription>
+          <CardTitle>Imported baseline records</CardTitle>
+          <CardDescription>Catalog framing is distinct from triage: this table focuses on imported status, schema assignment, and baseline readiness.</CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          For now, this page proves the top-level information architecture and keeps the workspace navigation aligned with the approved spec.
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead>Mirakl ID</TableHead>
+                <TableHead>Schema</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Warnings</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>{product.title}</TableCell>
+                  <TableCell>{product.miraklProductId}</TableCell>
+                  <TableCell>{product.schemaId}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{product.listingStatus}</Badge>
+                  </TableCell>
+                  <TableCell>{product.warnings.length}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </main>
