@@ -1,65 +1,185 @@
-import { products } from "@/lib/fixtures"
-import type { EnrichmentCandidate, EvidenceSource } from "@/lib/types"
+import { products as seededProducts } from "../lib/fixtures.ts"
+import { isExportableAttributeField } from "../lib/demo-contract.ts"
+import type {
+  CandidateRecord,
+  ContractFieldId,
+  EvidenceRecord,
+  ExportPreview,
+  ProductRecord,
+  ResearchJob,
+  ReviewDecision,
+} from "../lib/types.ts"
 
-type ReviewDecision = {
+type ReviewDecisionRecord = {
   id: string
   candidateId: string
-  decision: "APPROVE" | "REJECT" | "REQUEST_MORE_EVIDENCE"
+  decision: ReviewDecision
   reason?: string
   createdAt: string
 }
 
-type ResearchRun = {
-  id: string
-  productId: string
-  status: "QUEUED" | "SUCCEEDED"
-  runner: "mock-opencode-lightweb"
-  createdAt: string
-  summary: string
-  evidenceIds: string[]
-  candidateIds: string[]
+type DemoCatalogState = {
+  products: ProductRecord[]
+  researchRuns: Map<string, ResearchJob>
+  reviewDecisions: ReviewDecisionRecord[]
 }
 
-const researchRuns = new Map<string, ResearchRun>()
-const reviewDecisions: ReviewDecision[] = []
+const demoState: DemoCatalogState = {
+  products: structuredClone(seededProducts),
+  researchRuns: new Map<string, ResearchJob>(),
+  reviewDecisions: [],
+}
 
-function now() { return new Date().toISOString() }
+function now() {
+  return new Date().toISOString()
+}
+
+export function listStoredProducts() {
+  return demoState.products
+}
+
+export function getStoredProduct(productId: string) {
+  return demoState.products.find((item) => item.id === productId) ?? null
+}
+
+function getLatestAcceptedCandidates(candidates: CandidateRecord[]) {
+  const byField = new Map<ContractFieldId, CandidateRecord>()
+
+  for (const candidate of candidates) {
+    if (candidate.status !== "accepted") continue
+    byField.set(candidate.fieldName, candidate)
+  }
+
+  return [...byField.values()]
+}
+
+export function buildExportPreview(product: ProductRecord): ExportPreview {
+  const rows = getLatestAcceptedCandidates(product.candidates).reduce<ExportPreview["rows"]>((acc, candidate) => {
+    if (!isExportableAttributeField(candidate.fieldName)) return acc
+    acc.push({
+      field: candidate.fieldName,
+      value: candidate.candidateValue,
+      evidenceIds: candidate.sourceEvidenceIds,
+    })
+    return acc
+  }, [])
+
+  return {
+    productId: product.id,
+    miraklProductId: product.miraklProductId,
+    status: "DRAFT_PREVIEW_ONLY",
+    rows,
+    safetyMessage: "Preview only; no Mirakl export file has been generated or submitted.",
+  }
+}
+
+export function applyReviewDecisionToProduct(product: ProductRecord, candidateId: string, decision: ReviewDecision, reason?: string) {
+  const candidate = product.candidates.find((item) => item.id === candidateId)
+  if (!candidate) return null
+
+  if (decision === "APPROVE") {
+    for (const sibling of product.candidates) {
+      if (sibling.id !== candidateId && sibling.fieldName === candidate.fieldName && sibling.status === "accepted") {
+        sibling.status = "rejected"
+        sibling.reason = "Superseded by a newer accepted candidate."
+      }
+    }
+  }
+
+  candidate.status = decision === "APPROVE" ? "accepted" : decision === "REJECT" ? "rejected" : "needs_evidence"
+  if (reason) candidate.reason = reason
+  return candidate
+}
 
 export function createMockResearchRun(productId: string) {
-  const product = products.find((item) => item.id === productId)
+  const product = getStoredProduct(productId)
   if (!product) return null
-  const runId = `mock-research-${product.id}-${researchRuns.size + 1}`
-  const evidence: EvidenceSource = { id: `ev-research-${product.id}-${researchRuns.size + 1}`, sourceType: "manufacturer_page", title: `${product.title} official research placeholder`, accessedAt: now(), excerpt: "Mock bounded research runner found candidate fields without mutating Mirakl.", confidence: "medium" }
-  const candidate: EnrichmentCandidate = { id: `cand-research-${product.id}-${researchRuns.size + 1}`, fieldPath: "Research summary", currentValue: null, candidateValue: `Research job ${runId} produced additional evidence for ${product.title}.`, confidence: "medium", status: "proposed", evidenceIds: [evidence.id] }
+
+  const sequence = demoState.researchRuns.size + 1
+  const runId = `mock-research-${product.id}-${sequence}`
+  const evidenceId = `ev-research-${product.id}-${sequence}`
+  const candidateId = `cand-research-${product.id}-${sequence}`
+  const timestamp = now()
+
+  const evidence: EvidenceRecord = {
+    id: evidenceId,
+    productId: product.id,
+    aggregatorId: "internal-reference",
+    sourceName: "Internal reference library",
+    sourceType: "internal_reference",
+    title: `${product.title} demo research note`,
+    summary: "Mock research added a demo-safe reference note without changing the Mirakl baseline.",
+    extractedFields: {
+      researchSummary: "Research completed in preview mode",
+    },
+    capturedAt: timestamp,
+    confidence: "medium",
+  }
+
+  const candidate: CandidateRecord = {
+    id: candidateId,
+    productId: product.id,
+    fieldName: "researchSummary",
+    currentValue: null,
+    candidateValue: `Research job ${runId} produced additional demo evidence for ${product.title}.`,
+    confidence: "medium",
+    status: "proposed",
+    sourceEvidenceIds: [evidence.id],
+    reason: "Generated by the preview-mode research workflow.",
+  }
+
   product.evidence.push(evidence)
   product.candidates.push(candidate)
-  const run: ResearchRun = { id: runId, productId, status: "SUCCEEDED", runner: "mock-opencode-lightweb", createdAt: now(), summary: "Mock research completed. No Mirakl writes were performed.", evidenceIds: [evidence.id], candidateIds: [candidate.id] }
-  researchRuns.set(runId, run)
+
+  const run: ResearchJob = {
+    id: runId,
+    productId,
+    status: "SUCCEEDED",
+    runner: "mock-opencode-lightweb",
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    summary: "Mock research completed. No Mirakl writes were performed.",
+    evidenceIds: [evidence.id],
+    candidateIds: [candidate.id],
+  }
+
+  demoState.researchRuns.set(runId, run)
   return run
 }
 
-export function getResearchRun(id: string) { return researchRuns.get(id) ?? null }
+export function getResearchRun(id: string) {
+  return demoState.researchRuns.get(id) ?? null
+}
 
 export function findCandidate(candidateId: string) {
-  for (const product of products) {
+  for (const product of demoState.products) {
     const candidate = product.candidates.find((item) => item.id === candidateId)
     if (candidate) return { product, candidate }
   }
   return null
 }
 
-export function addReviewDecision(candidateId: string, decision: ReviewDecision["decision"], reason?: string) {
+export function addReviewDecision(candidateId: string, decision: ReviewDecision, reason?: string) {
   const found = findCandidate(candidateId)
   if (!found) return null
-  const record: ReviewDecision = { id: `review-${reviewDecisions.length + 1}`, candidateId, decision, reason, createdAt: now() }
-  reviewDecisions.push(record)
-  found.candidate.status = decision === "APPROVE" ? "accepted" : decision === "REJECT" ? "rejected" : "needs_evidence"
+
+  const updatedCandidate = applyReviewDecisionToProduct(found.product, candidateId, decision, reason)
+  if (!updatedCandidate) return null
+
+  const record: ReviewDecisionRecord = {
+    id: `review-${demoState.reviewDecisions.length + 1}`,
+    candidateId,
+    decision,
+    reason,
+    createdAt: now(),
+  }
+
+  demoState.reviewDecisions.push(record)
   return record
 }
 
 export function exportPreview(productId: string) {
-  const product = products.find((item) => item.id === productId)
+  const product = getStoredProduct(productId)
   if (!product) return null
-  const accepted = product.candidates.filter((candidate) => candidate.status === "accepted")
-  return { product_id: product.id, source_sku: product.sourceSku, status: "DRAFT_PREVIEW_ONLY", rows: accepted.map((candidate) => ({ field: candidate.fieldPath, value: candidate.candidateValue, evidence_ids: candidate.evidenceIds })), safety: "Preview only; no Mirakl import is generated or submitted." }
+  return buildExportPreview(product)
 }

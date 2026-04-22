@@ -1,79 +1,403 @@
-import type { ProductBaseline } from "@/lib/types"
-import { qualityScore } from "@/lib/scoring"
+import {
+  DEMO_AGGREGATOR_BLUEPRINTS,
+  DEMO_SCHEMA_BLUEPRINTS,
+  MOCK_DOMAIN_CONTRACT_VERSION,
+  MOCK_STATE_OWNERSHIP,
+} from "./demo-contract.ts"
+import { qualityScore } from "./scoring.ts"
+import type {
+  AggregatorDefinition,
+  CandidateRecord,
+  EvidenceRecord,
+  ProductRecord,
+  SchemaDefinition,
+  SettingsSnapshot,
+} from "./types.ts"
 
-const freeClipAttributes = {
-  "Brand": null,
-  "Bluetooth": "true",
-  "MP3": "true",
-  "Peso del dispositivo (gr)": "37.8gr",
-  "Duración de la batería en conversación": "9 horas después de una carga completa y 38 horas cuando se utiliza con el estuche de carga.",
-  "Unidad de Potencia Cargador": "W",
-  "Tamaño (largo x ancho x fondo) (mm)": "25.4 x 26.7 x 18.8mm",
-  "USB tipo C": null
-}
+const capturedAt = "2026-04-15T00:00:00Z"
 
-const orangeFreeClipAttributes = {
-  "Versión del sistema operativo": "Compatibles con iOS y Android",
-  "Bluetooth": "true",
-  "MP3": "true",
-  "Peso del dispositivo (gr)": "37.8 gr",
-  "Tamaño (largo x ancho x fondo) (mm)": "25.4 x 26.7 x 18.8 mm",
-  "Duración de la batería en conversación": "9 horas después de una carga completa y 38 horas cuando se utiliza con el estuche de carga.",
-  "Tecnología": "Li-Ion",
-  "Unidad de Potencia Cargador": "W"
-}
-
-const noisyDescription = "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Huawei Huawei FreeClip 2 Abrir ventana modal: Información sobre el cargador 2.5 - 7.5 W Este producto se vende sin cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 7.5 vatios para alcanzar la máxima velocidad de carga. No Compatible USB-PD. Ver Opiniones En 24 plazos Desde +0 € pago inicial Total en 24 plazos: 126€ Ahorra 73€ vs PVPr Vendido y enviado por Orange..."
-
-const freeClipEvidence = [
+export const aggregators: AggregatorDefinition[] = [
   {
-    id: "ev-orange-freeclip",
-    sourceType: "orange_page" as const,
-    title: "Orange Huawei FreeClip 2",
-    url: "https://www.orange.es/dispositivos/auriculares/huawei/freeclip-2-negro/3711247.html",
-    accessedAt: "2026-04-15T00:00:00Z",
-    excerpt: "Bluetooth, MP3, peso 37.8 gr, dimensiones 25.4 x 26.7 x 18.8 mm, batería 9 horas y 38 horas con estuche.",
-    confidence: "high" as const
+    id: "official-manufacturer",
+    name: "Official manufacturer",
+    type: "manufacturer",
+    baseUrl: "https://manufacturer.example",
+    authorityScore: 95,
+    defaultConfidence: "high",
+    enabled: true,
+    coverageTags: ["branding", "core-specs", "descriptions"],
+    sampleDomains: ["manufacturer.example"],
+    description: "Highest-confidence source for branding, core specifications, and canonical product messaging.",
+    confidencePolicy: "Use as the primary source for branding and technical facts published by the vendor.",
   },
   {
-    id: "ev-maxmovil-freeclip",
-    sourceType: "retailer_reference" as const,
-    title: "MaxMovil Huawei FreeClip 2",
-    url: "https://www.maxmovil.com/es/huawei-freeclip-2-auriculares-inalambricos-negro-black.html",
-    accessedAt: "2026-04-15T00:00:00Z",
-    excerpt: "EAN 6942103169434, Bluetooth 6.0, USB-C, micrófono integrado, reducción de ruido, batería 537 mAh.",
-    confidence: "medium" as const
-  }
+    id: "trusted-retailer",
+    name: "Trusted retailer",
+    type: "retailer",
+    baseUrl: "https://retailer.example",
+    authorityScore: 70,
+    defaultConfidence: "medium",
+    enabled: true,
+    coverageTags: ["commercial-copy", "visible-specs", "availability"],
+    sampleDomains: ["retailer.example"],
+    description: "Supporting source for visible specs, merchandising language, and package details.",
+    confidencePolicy: "Use as corroborating evidence for visible specifications and merchandising details.",
+  },
+  {
+    id: "spec-database",
+    name: "Specification database",
+    type: "spec_database",
+    baseUrl: "https://specs.example",
+    authorityScore: 85,
+    defaultConfidence: "high",
+    enabled: true,
+    coverageTags: ["technical-fields", "dimensions", "battery"],
+    sampleDomains: ["specs.example"],
+    description: "Structured technical source for dimensions, battery, and connectivity fields.",
+    confidencePolicy: "Use for structured technical fields when corroborated by manufacturer or retailer evidence.",
+  },
+  {
+    id: "marketplace-listing",
+    name: "Marketplace listing",
+    type: "marketplace",
+    baseUrl: "https://market.example",
+    authorityScore: 45,
+    defaultConfidence: "low",
+    enabled: true,
+    coverageTags: ["corroboration", "title-variants"],
+    sampleDomains: ["market.example"],
+    description: "Low-authority corroborating source for title variants and merchandising claims.",
+    confidencePolicy: "Use only as supporting evidence, never as sole proof for canonical fields.",
+  },
+  {
+    id: "internal-reference",
+    name: "Internal reference library",
+    type: "internal_reference",
+    baseUrl: "https://reference.example",
+    authorityScore: 80,
+    defaultConfidence: "medium",
+    enabled: true,
+    coverageTags: ["operator-notes", "internal-rules"],
+    sampleDomains: ["reference.example"],
+    description: "Internal operator guidance for demo-safe review and export policies.",
+    confidencePolicy: "Use for internal review notes and policy-aligned guidance only.",
+  },
 ]
 
-const product: ProductBaseline = {
-  id: "freeclip-2",
-  sourceSku: "ORANGE_3711247",
-  title: "Huawei FreeClip 2",
-  brand: null,
-  categoryPath: ["Orange Audio y Hi-Fi", "Orange Auriculares"],
-  ean: "1233711247139",
-  status: "NOT_SYNCHRONIZED",
-  score: 0,
-  scoreBand: "red",
-  miraklDescription: noisyDescription,
-  orangeDescription: "Huawei FreeClip 2 con diseño C-bridge ligero, Bluetooth, batería de larga duración y compatibilidad con iOS y Android.",
-  orangeUrl: "https://www.orange.es/dispositivos/auriculares/huawei/freeclip-2-negro/3711247.html",
-  warnings: ["Brand is required", "Description contains storefront noise", "Candidate EAN differs from Mirakl baseline"],
-  attributes: freeClipAttributes,
-  orangeAttributes: orangeFreeClipAttributes,
-  evidence: freeClipEvidence,
-  candidates: [
-    { id: "cand-brand", fieldPath: "Brand", currentValue: null, candidateValue: "Huawei", confidence: "high", status: "proposed", evidenceIds: ["ev-orange-freeclip"] },
-    { id: "cand-ean", fieldPath: "EAN", currentValue: "1233711247139", candidateValue: "6942103169434", confidence: "medium", status: "proposed", evidenceIds: ["ev-maxmovil-freeclip"] },
-    { id: "cand-description", fieldPath: "Description", currentValue: noisyDescription, candidateValue: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with a C-bridge design, Bluetooth connectivity, long battery life with charging case, and USB-C charging.", confidence: "medium", status: "proposed", evidenceIds: ["ev-orange-freeclip", "ev-maxmovil-freeclip"] },
-    { id: "cand-bt-version", fieldPath: "Bluetooth version", currentValue: null, candidateValue: "6.0", confidence: "medium", status: "proposed", evidenceIds: ["ev-maxmovil-freeclip"] },
-    { id: "cand-noise", fieldPath: "Noise reduction", currentValue: null, candidateValue: "Integrated noise reduction for calls", confidence: "medium", status: "proposed", evidenceIds: ["ev-maxmovil-freeclip"] }
-  ]
+export const schemas: SchemaDefinition[] = [
+  {
+    id: DEMO_SCHEMA_BLUEPRINTS[0].id,
+    slug: DEMO_SCHEMA_BLUEPRINTS[0].slug,
+    name: DEMO_SCHEMA_BLUEPRINTS[0].name,
+    linkedCategories: ["Audio", "Wearable audio"],
+    requiredAttributes: ["brand", "productName", "ean", "connectivity", "weight", "batteryLife", "description"],
+    recommendedAttributes: ["bluetoothVersion", "usbC", "microphone", "noiseReduction", "compatibility"],
+    warningRules: ["Brand missing", "Description contains storefront noise", "Required schema field missing"],
+    scoringRules: ["Missing brand = -15", "Missing EAN = -20", "Weak description = -10"],
+    exampleProductIds: ["freeclip-2"],
+  },
+  {
+    id: DEMO_SCHEMA_BLUEPRINTS[1].id,
+    slug: DEMO_SCHEMA_BLUEPRINTS[1].slug,
+    name: DEMO_SCHEMA_BLUEPRINTS[1].name,
+    linkedCategories: ["Phones"],
+    requiredAttributes: ["brand", "model", "ean", "displaySize", "storage", "ram", "description"],
+    recommendedAttributes: ["cameraResolution", "batteryCapacity", "connectivity"],
+    warningRules: ["Required schema field missing", "Inconsistent attribute units"],
+    scoringRules: ["Missing required field = -10 each"],
+    exampleProductIds: ["galaxy-a55"],
+  },
+  {
+    id: DEMO_SCHEMA_BLUEPRINTS[2].id,
+    slug: DEMO_SCHEMA_BLUEPRINTS[2].slug,
+    name: DEMO_SCHEMA_BLUEPRINTS[2].name,
+    linkedCategories: ["TV & Home cinema"],
+    requiredAttributes: ["brand", "model", "ean", "displaySize", "resolution", "panelTechnology", "description"],
+    recommendedAttributes: ["refreshRate", "hdmiPorts"],
+    warningRules: ["Required schema field missing", "Description is too weak"],
+    scoringRules: ["Low image count = -5", "Weak attribute completeness = -10"],
+    exampleProductIds: ["lg-oled-c4-55"],
+  },
+  {
+    id: DEMO_SCHEMA_BLUEPRINTS[3].id,
+    slug: DEMO_SCHEMA_BLUEPRINTS[3].slug,
+    name: DEMO_SCHEMA_BLUEPRINTS[3].name,
+    linkedCategories: ["Tablets"],
+    requiredAttributes: ["brand", "model", "ean", "displaySize", "storage", "description"],
+    recommendedAttributes: ["stylusSupport", "batteryCapacity", "connectivity"],
+    warningRules: ["Missing required field", "Noisy storefront copy"],
+    scoringRules: ["Weak description = -10"],
+    exampleProductIds: ["redmi-pad-pro"],
+  },
+  {
+    id: DEMO_SCHEMA_BLUEPRINTS[4].id,
+    slug: DEMO_SCHEMA_BLUEPRINTS[4].slug,
+    name: DEMO_SCHEMA_BLUEPRINTS[4].name,
+    linkedCategories: ["Computing"],
+    requiredAttributes: ["brand", "model", "ean", "storage", "ram", "description"],
+    recommendedAttributes: ["displaySize", "batteryLife"],
+    warningRules: ["Missing required field", "Inconsistent units"],
+    scoringRules: ["Missing required field = -10 each"],
+    exampleProductIds: [],
+  },
+]
+
+export const demoSettings: SettingsSnapshot = {
+  miraklBaseUrl: "https://demo.mirakl.example",
+  environment: "demo",
+  fakeResearchMode: true,
+  defaultResearchDelaySeconds: 30,
+  maxEvidencePerProduct: 4,
+  defaultCandidateConfidence: "medium",
+  autoAssignSchemaByCategory: true,
+  enabledAggregatorIds: DEMO_AGGREGATOR_BLUEPRINTS.map((aggregator) => aggregator.id),
 }
 
-const scored = qualityScore(product)
-product.score = scored.score
-product.scoreBand = scored.band
+const heroBaselineAttributes = {
+  brand: null,
+  connectivity: "Bluetooth",
+  bluetooth: "Yes",
+  weight: "37.8 g",
+  batteryLife: "9 hours standalone / 38 hours with case",
+  usbC: null,
+  dimensions: "25.4 x 26.7 x 18.8 mm",
+  compatibility: null,
+  description: "Flexible payment text, charging disclaimers, and storefront promotional copy are mixed into the baseline product description.",
+} satisfies ProductRecord["baselineAttributes"]
 
-export const products: ProductBaseline[] = [product]
+const heroEvidenceFields = {
+  brand: "Huawei",
+  ean: "6942103169434",
+  connectivity: "Bluetooth",
+  bluetoothVersion: "6.0",
+  usbC: "USB-C",
+  dimensions: "25.4 x 26.7 x 18.8 mm",
+  batteryLife: "9 hours standalone / 38 hours with case",
+  compatibility: "iOS and Android",
+  batteryTechnology: "Li-Ion",
+  description: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
+} satisfies ProductRecord["bestEvidenceByField"]
+
+const heroEvidence: EvidenceRecord[] = [
+  {
+    id: "ev-freeclip-manufacturer",
+    productId: "freeclip-2",
+    aggregatorId: "official-manufacturer",
+    sourceName: "Official manufacturer",
+    sourceType: "manufacturer",
+    sourceUrl: "https://manufacturer.example/freeclip-2",
+    title: "Huawei FreeClip 2 official product page",
+    summary: "Open-ear wireless earbuds with long battery life, lightweight construction, and broad device compatibility.",
+    extractedFields: {
+      brand: "Huawei",
+      compatibility: "iOS and Android",
+      batteryLife: "9 hours standalone / 38 hours with case",
+      description: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
+    },
+    capturedAt,
+    confidence: "high",
+  },
+  {
+    id: "ev-freeclip-retailer",
+    productId: "freeclip-2",
+    aggregatorId: "trusted-retailer",
+    sourceName: "Trusted retailer",
+    sourceType: "retailer",
+    sourceUrl: "https://retailer.example/huawei-freeclip-2",
+    title: "Trusted retailer listing for Huawei FreeClip 2",
+    summary: "Retail listing highlights Bluetooth 6.0, USB-C charging, integrated microphone, and charging case support.",
+    extractedFields: {
+      ean: "6942103169434",
+      bluetoothVersion: "6.0",
+      usbC: "USB-C",
+      noiseReduction: "Integrated noise reduction for calls",
+    },
+    capturedAt,
+    confidence: "medium",
+  },
+]
+
+const heroCandidates: CandidateRecord[] = [
+  {
+    id: "cand-brand",
+    productId: "freeclip-2",
+    fieldName: "brand",
+    currentValue: null,
+    candidateValue: "Huawei",
+    confidence: "high",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
+  },
+  {
+    id: "cand-ean",
+    productId: "freeclip-2",
+    fieldName: "ean",
+    currentValue: "1233711247139",
+    candidateValue: "6942103169434",
+    confidence: "medium",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-retailer"],
+  },
+  {
+    id: "cand-description",
+    productId: "freeclip-2",
+    fieldName: "description",
+    currentValue: heroBaselineAttributes.description,
+    candidateValue: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
+    confidence: "high",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-manufacturer", "ev-freeclip-retailer"],
+  },
+  {
+    id: "cand-bt-version",
+    productId: "freeclip-2",
+    fieldName: "bluetoothVersion",
+    currentValue: null,
+    candidateValue: "6.0",
+    confidence: "medium",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-retailer"],
+  },
+]
+
+const baseProducts: ProductRecord[] = [
+  {
+    id: "freeclip-2",
+    miraklProductId: "MIRAKL_DEMO_3711247",
+    title: "Huawei FreeClip 2",
+    brand: null,
+    categoryPath: ["Audio", "Headphones & Earbuds"],
+    schemaId: "schema-headphones-earbuds",
+    listingStatus: "NEEDS_ENRICHMENT",
+    qualityScore: 0,
+    scoreBand: "red",
+    baselineDescription: heroBaselineAttributes.description ?? "",
+    warnings: ["Brand is required", "Description contains storefront noise", "Candidate EAN differs from Mirakl baseline"],
+    baselineAttributes: heroBaselineAttributes,
+    bestEvidenceByField: heroEvidenceFields,
+    evidence: heroEvidence,
+    candidates: heroCandidates,
+  },
+  {
+    id: "galaxy-a55",
+    miraklProductId: "MIRAKL_DEMO_1002451",
+    title: "Samsung Galaxy A55",
+    brand: "Samsung",
+    categoryPath: ["Phones", "Smartphones"],
+    schemaId: "schema-smartphones",
+    listingStatus: "READY_FOR_REVIEW",
+    qualityScore: 0,
+    scoreBand: "yellow",
+    baselineDescription: "Solid baseline phone description with missing camera detail and inconsistent storage formatting.",
+    warnings: ["Camera resolution missing", "Storage field formatting is inconsistent"],
+    baselineAttributes: {
+      brand: "Samsung",
+      model: "Galaxy A55",
+      storage: "128GB",
+      ram: "8 GB",
+      displaySize: "6.6 in",
+      description: "Balanced mid-range smartphone with AMOLED display and all-day battery life.",
+    },
+    bestEvidenceByField: {
+      cameraResolution: "50 MP",
+      storage: "128 GB",
+      ram: "8 GB",
+    },
+    evidence: [],
+    candidates: [],
+  },
+  {
+    id: "lg-oled-c4-55",
+    miraklProductId: "MIRAKL_DEMO_2045780",
+    title: "LG OLED C4 55",
+    brand: "LG",
+    categoryPath: ["TV & Home cinema", "Televisions"],
+    schemaId: "schema-televisions",
+    listingStatus: "READY_FOR_REVIEW",
+    qualityScore: 0,
+    scoreBand: "yellow",
+    baselineDescription: "Strong baseline TV description missing refresh-rate detail.",
+    warnings: ["Refresh rate missing"],
+    baselineAttributes: {
+      brand: "LG",
+      model: "OLED C4 55",
+      displaySize: "55 in",
+      resolution: "4K",
+      panelTechnology: "OLED",
+      description: "Premium OLED television with cinematic contrast and smart TV features.",
+    },
+    bestEvidenceByField: {
+      refreshRate: "120 Hz",
+      hdmiPorts: "4 ports",
+    },
+    evidence: [],
+    candidates: [],
+  },
+  {
+    id: "sony-wh1000xm5",
+    miraklProductId: "MIRAKL_DEMO_3801122",
+    title: "Sony WH-1000XM5",
+    brand: "Sony",
+    categoryPath: ["Audio", "Headphones & Earbuds"],
+    schemaId: "schema-headphones-earbuds",
+    listingStatus: "READY_FOR_REVIEW",
+    qualityScore: 0,
+    scoreBand: "blue",
+    baselineDescription: "Baseline description is usable but missing microphone details.",
+    warnings: ["Microphone detail missing"],
+    baselineAttributes: {
+      brand: "Sony",
+      productName: "WH-1000XM5",
+      connectivity: "Bluetooth",
+      weight: "250 g",
+      description: "Over-ear wireless headphones with active noise cancellation.",
+    },
+    bestEvidenceByField: {
+      noiseReduction: "Active noise cancellation",
+      microphone: "Integrated beamforming microphone array",
+    },
+    evidence: [],
+    candidates: [],
+  },
+  {
+    id: "redmi-pad-pro",
+    miraklProductId: "MIRAKL_DEMO_5003407",
+    title: "Xiaomi Redmi Pad Pro",
+    brand: "Xiaomi",
+    categoryPath: ["Tablets", "Android tablets"],
+    schemaId: "schema-tablets",
+    listingStatus: "NEEDS_ENRICHMENT",
+    qualityScore: 0,
+    scoreBand: "yellow",
+    baselineDescription: "Tablet record is serviceable but missing stylus compatibility and battery detail.",
+    warnings: ["Stylus support missing", "Battery capacity missing"],
+    baselineAttributes: {
+      brand: "Xiaomi",
+      model: "Redmi Pad Pro",
+      displaySize: "12.1 in",
+      storage: "256 GB",
+      description: "Large Android tablet for media and productivity.",
+    },
+    bestEvidenceByField: {
+      stylusSupport: "Yes",
+      batteryCapacity: "10000 mAh",
+    },
+    evidence: [],
+    candidates: [],
+  },
+]
+
+for (const product of baseProducts) {
+  const scored = qualityScore(product)
+  product.qualityScore = scored.score
+  product.scoreBand = scored.band
+}
+
+export const products: ProductRecord[] = structuredClone(baseProducts)
+export const mockContractMetadata = {
+  version: MOCK_DOMAIN_CONTRACT_VERSION,
+  stateOwnership: MOCK_STATE_OWNERSHIP,
+}
+
+export const heroProductId = "freeclip-2"
+export const heroProduct = products.find((product) => product.id === heroProductId)!
