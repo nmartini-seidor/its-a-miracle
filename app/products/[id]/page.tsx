@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CandidateActions } from "@/components/product/candidate-actions"
 import { ExportPreviewPanel } from "@/components/product/export-preview-panel"
 import { ResearchButton } from "@/components/product/research-button"
+import { ScoreBadge } from "@/components/product/score-badge"
 import { getProduct } from "@/server/data"
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +30,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <ResearchButton productId={product.id} />
       </div>
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardHeader><CardTitle>{product.score}/100</CardTitle><CardDescription>Quality score</CardDescription></CardHeader></Card>
+        <Card><CardHeader><CardTitle><ScoreBadge score={product.score} band={product.scoreBand} /></CardTitle><CardDescription>Quality score</CardDescription></CardHeader></Card>
         <Card><CardHeader><CardTitle>{product.candidates.length}</CardTitle><CardDescription>Candidates</CardDescription></CardHeader></Card>
         <Card><CardHeader><CardTitle>{product.evidence.length}</CardTitle><CardDescription>Evidence sources</CardDescription></CardHeader></Card>
         <Card><CardHeader><CardTitle>{product.warnings.length}</CardTitle><CardDescription>Baseline warnings</CardDescription></CardHeader></Card>

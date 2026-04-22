@@ -1,9 +1,9 @@
 import type { ProductScoreBand } from "@/lib/types"
 
 export function scoreBand(score: number): ProductScoreBand {
-  if (score < 40) return "red"
-  if (score < 70) return "amber"
-  if (score < 85) return "neutral"
+  if (score < 25) return "red"
+  if (score < 70) return "yellow"
+  if (score < 90) return "blue"
   return "green"
 }
 

@@ -1,4 +1,4 @@
-export type ProductScoreBand = "red" | "amber" | "neutral" | "green"
+export type ProductScoreBand = "red" | "yellow" | "blue" | "green"
 export type CandidateStatus = "proposed" | "accepted" | "rejected" | "needs_evidence"
 export type EvidenceType = "mirakl_baseline" | "orange_page" | "retailer_reference" | "manufacturer_page" | "manual_operator_note"
 
