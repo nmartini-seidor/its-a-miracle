@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { getFieldLabel } from "@/lib/demo-contract"
 import { listAggregators, listProducts } from "@/server/data"
 
 function getAuthorityTier(authorityScore: number) {
@@ -282,7 +283,7 @@ export default async function AggregatorsPage() {
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <p>{provider.confidencePolicy}</p>
                   <p>
-                    Extracted fields in the current demo: {provider.uniqueFields.length > 0 ? provider.uniqueFields.join(", ") : "No live fields yet"}
+                    Extracted fields in the current demo: {provider.uniqueFields.length > 0 ? provider.uniqueFields.map((field) => getFieldLabel(field as never)).join(", ") : "No live fields yet"}
                   </p>
                 </div>
               </div>
