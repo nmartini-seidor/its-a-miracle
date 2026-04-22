@@ -11,9 +11,11 @@ import { CandidateActions } from "@/components/product/candidate-actions"
 import { ExportPreviewPanel } from "@/components/product/export-preview-panel"
 import { ResearchButton } from "@/components/product/research-button"
 import { ScoreBadge } from "@/components/product/score-badge"
-import { getFieldLabel, isAttributeFieldId } from "@/lib/demo-contract"
+import { getFieldLabel } from "@/lib/demo-contract"
 import type { ContractFieldId } from "@/lib/types"
-import { getProduct } from "@/server/data"
+import { cn } from "@/lib/utils"
+import { buildReviewFieldRows } from "@/lib/product-review"
+import { getProduct, getSchemaById } from "@/server/data"
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -21,26 +23,26 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   if (!product) notFound()
 
+  const schema = await getSchemaById(product.schemaId)
   const evidenceById = new Map(product.evidence.map((evidence) => [evidence.id, evidence]))
-  const fields = Array.from(
-    new Set([
-      ...Object.keys(product.baselineAttributes),
-      ...Object.keys(product.bestEvidenceByField),
-      ...product.candidates.map((candidate) => candidate.fieldName),
-    ])
-  )
+  const reviewRows = buildReviewFieldRows(product, schema)
 
   return (
     <main className="mx-auto flex max-w-7xl flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <Button asChild variant="ghost" size="sm" className="w-fit">
             <Link href="/">← Back</Link>
           </Button>
-          <h1 className="text-3xl font-semibold tracking-tight">{product.title}</h1>
-          <p className="text-muted-foreground">
-            {product.categoryPath.join(" / ")} · {product.miraklProductId}
-          </p>
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline">{product.miraklProductId}</Badge>
+              <Badge variant="secondary">{schema?.name ?? product.schemaId}</Badge>
+              <Badge variant="outline">{product.listingStatus}</Badge>
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight">{product.title}</h1>
+            <p className="text-muted-foreground">{product.categoryPath.join(" / ")}</p>
+          </div>
         </div>
         <ResearchButton productId={product.id} />
       </div>
@@ -102,21 +104,23 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {fields.map((field) => {
-                    const candidate = product.candidates.find((item) => item.fieldName === field)
-                    const isAttributeField = isAttributeFieldId(field)
-                    const fieldLabel = isAttributeField ? getFieldLabel(field) : getFieldLabel(candidate?.fieldName ?? "researchSummary")
-                    const baselineValue = isAttributeField ? product.baselineAttributes[field] : null
-                    const bestEvidenceValue = isAttributeField ? product.bestEvidenceByField[field] : null
-                    return (
-                      <TableRow key={field}>
-                        <TableCell className="font-medium">{fieldLabel}</TableCell>
-                        <TableCell>{baselineValue ?? <span className="text-muted-foreground">Missing</span>}</TableCell>
-                        <TableCell>{bestEvidenceValue ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                        <TableCell>{candidate ? <Badge variant="secondary">{candidate.candidateValue}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
-                      </TableRow>
-                    )
-                  })}
+                  {reviewRows.map((row) => (
+                    <TableRow key={row.field} className={cn(row.baselineMissing && "bg-amber-50/70", row.hasCandidate && "border-l-4 border-l-primary/50")}>
+                      <TableCell className="font-medium">
+                        <div className="flex flex-col gap-2">
+                          <span>{row.label}</span>
+                          <div className="flex flex-wrap gap-2">
+                            {row.baselineMissing && <Badge variant="outline">Baseline missing</Badge>}
+                            {row.hasCandidate && <Badge variant="secondary">Candidate ready</Badge>}
+                            {row.differsFromEvidence && <Badge variant="outline">Candidate differs from best evidence</Badge>}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{row.baselineValue ?? <span className="text-muted-foreground">Missing</span>}</TableCell>
+                      <TableCell>{row.evidenceValue ?? <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>{row.candidateValue ? <Badge variant="secondary">{row.candidateValue}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </CardContent>

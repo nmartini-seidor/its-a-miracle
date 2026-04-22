@@ -25,3 +25,7 @@ export async function getDemoSettings() {
 export async function getMockContractVersion() {
   return MOCK_DOMAIN_CONTRACT_VERSION
 }
+
+export async function getSchemaById(id: string) {
+  return schemas.find((schema) => schema.id === id) ?? null
+}
