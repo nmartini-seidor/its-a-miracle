@@ -12,3 +12,5 @@ tsconfig.tsbuildinfo
 .env.local
 .env*.local
 .DS_Store
+
+/data/demo-state.json
