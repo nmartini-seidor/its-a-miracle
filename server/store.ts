@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { products as seededProducts } from "../lib/fixtures.ts"
 import { isExportableAttributeField } from "../lib/demo-contract.ts"
@@ -64,7 +64,9 @@ function readState(): DemoCatalogState {
 }
 
 function writeState(state: DemoCatalogState) {
-  writeFileSync(stateFilePath, JSON.stringify(state, null, 2))
+  const tempFilePath = `${stateFilePath}.tmp`
+  writeFileSync(tempFilePath, JSON.stringify(state, null, 2))
+  renameSync(tempFilePath, stateFilePath)
 }
 
 export function resetDemoState() {

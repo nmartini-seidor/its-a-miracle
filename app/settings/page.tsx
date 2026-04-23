@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ResetDemoButton } from "@/components/settings/reset-demo-button"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { listAggregators, listSchemas, getDemoSettings } from "@/server/data"
@@ -256,6 +257,21 @@ export default async function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reset the demo walkthrough</CardTitle>
+          <CardDescription>Use this whenever you want to replay the product research and approval flow from the original seeded baseline.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>The local demo state is file-backed, not a real database. Resetting it rewrites the seeded walkthrough state and clears prior review decisions and mock research runs.</p>
+          <ResetDemoButton />
+          <p>You can also run <code>npm run reset:demo</code> from the terminal.</p>
+        </CardContent>
+      </Card>
+
+
 
       <Card>
         <CardHeader>

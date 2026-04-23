@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --experimental-specifier-resolution=node --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --experimental-specifier-resolution=node --test --test-concurrency=1 tests/*.test.mjs",
+    "reset:demo": "node --experimental-strip-types -e \"import('./server/store.ts').then((m) => m.resetDemoState())\""
   },
   "dependencies": {
     "@hookform/resolvers": "latest",
