@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
-import { DM_Sans } from "next/font/google"
+import { Fira_Code, Fira_Sans } from "next/font/google"
 import Link from "next/link"
-import { SparklesIcon } from "lucide-react"
+import { ShieldCheckIcon } from "lucide-react"
 import { MobileNav } from "@/components/app/mobile-nav"
 import { SidebarNav } from "@/components/app/sidebar-nav"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 
-const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-sans" })
+const firaSans = Fira_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-sans" })
+const firaCode = Fira_Code({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
   title: "Mirakl Product Enrichment",
@@ -19,39 +20,40 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={cn(dmSans.variable, "font-sans antialiased")}>
+      <body className={cn(firaSans.variable, firaCode.variable, "font-sans antialiased")}>
         <div className="dashboard-surface min-h-screen text-foreground">
-          <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r bg-sidebar p-4 text-sidebar-foreground shadow-sm md:flex">
+          <aside className="fixed inset-y-0 left-0 hidden w-76 flex-col border-r bg-sidebar p-4 text-sidebar-foreground shadow-xl md:flex">
             <Link
               href="/"
-              className="group flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+              className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-sidebar-border bg-sidebar-accent/35 p-3 transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
             >
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-transform duration-200 group-hover:scale-105">
-                <SparklesIcon data-icon="inline-start" />
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-accent text-accent-foreground shadow-sm transition-transform duration-200 group-hover:-rotate-3">
+                <ShieldCheckIcon data-icon="inline-start" />
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="font-semibold tracking-tight">Mirakl Enrichment</span>
-                <span className="text-xs text-sidebar-foreground/70">Product intelligence</span>
+                <span className="font-black tracking-[-0.04em]">Mirakl <span className="text-accent">Control</span></span>
+                <span className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-sidebar-foreground/65">Enrichment desk</span>
               </div>
             </Link>
-            <Separator className="my-4 bg-sidebar-border" />
+            <Separator className="my-5 bg-sidebar-border" />
             <SidebarNav />
-            <div className="mt-auto rounded-xl border border-sidebar-border bg-sidebar-accent/70 p-4 text-sm text-sidebar-accent-foreground shadow-sm">
-              <p className="font-medium">Review-first workflow</p>
-              <p className="mt-1 text-sidebar-foreground/70">Research creates candidates. Mirakl writes stay approval-gated until a later export step.</p>
+            <div className="mt-auto rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-4 text-sm text-sidebar-accent-foreground shadow-sm">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-sidebar-foreground/60">Safety state</p>
+              <p className="mt-3 font-semibold">Review-first workflow</p>
+              <p className="mt-1 text-sidebar-foreground/70">Research creates candidates. Mirakl writes remain approval-gated.</p>
             </div>
           </aside>
-          <div className="md:pl-72">
-            <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-card/90 px-4 shadow-sm backdrop-blur md:px-6">
+          <div className="md:pl-76">
+            <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between border-b bg-card/88 px-4 shadow-sm backdrop-blur md:px-6">
               <div className="flex items-center gap-3 md:hidden">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <SparklesIcon data-icon="inline-start" />
+                <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                  <ShieldCheckIcon data-icon="inline-start" />
                 </div>
-                <span className="font-semibold">Mirakl Enrichment</span>
+                <span className="font-black tracking-[-0.04em]">Mirakl <span className="text-accent">Control</span></span>
               </div>
               <div className="hidden flex-col md:flex">
-                <span className="text-sm font-medium text-primary">Workspace</span>
-                <span className="text-xs text-muted-foreground">Baseline, evidence, candidates, review</span>
+                <span className="font-mono text-xs uppercase tracking-[0.22em] text-primary">Workspace</span>
+                <span className="text-sm text-muted-foreground">Baseline · evidence · candidates · guarded preview</span>
               </div>
               <Button variant="outline" size="sm">Preview mode</Button>
             </header>

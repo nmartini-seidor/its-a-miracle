@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { ArrowRightIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Panel } from "@/components/app/page-chrome"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScoreBadge } from "@/components/product/score-badge"
 import { filterProducts, sortProducts, type TriageFilterId, type TriageSortId } from "@/lib/triage"
@@ -30,16 +31,15 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
   const visibleProducts = useMemo(() => sortProducts(filterProducts(products, activeFilter), activeSort), [products, activeFilter, activeSort])
 
   return (
-    <Card>
-      <CardHeader className="gap-4">
-        <div className="flex flex-col gap-2">
-          <CardTitle>Catalog triage</CardTitle>
-          <CardDescription>Start with the weakest Mirakl baselines, then move into evidence-backed candidate review.</CardDescription>
-        </div>
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <Panel
+      title="Catalog triage queue"
+      description="The table is the workspace now: filter, sort, scan the warnings, then open only the product that needs review."
+    >
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3 rounded-xl border bg-muted/35 p-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">
             {filterOptions.map((filter) => (
-              <Button key={filter.id} type="button" size="sm" variant={activeFilter === filter.id ? "secondary" : "outline"} onClick={() => setActiveFilter(filter.id)}>
+              <Button key={filter.id} type="button" size="sm" variant={activeFilter === filter.id ? "default" : "outline"} onClick={() => setActiveFilter(filter.id)}>
                 {filter.label}
               </Button>
             ))}
@@ -52,8 +52,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
             ))}
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
+
         <Table>
           <TableHeader>
             <TableRow>
@@ -72,30 +71,33 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
               <TableRow key={product.id}>
                 <TableCell>
                   <div className="flex flex-col gap-1">
-                    <span className="font-medium">{product.title}</span>
-                    <span className="text-xs text-muted-foreground">{product.miraklProductId}</span>
+                    <span className="font-semibold tracking-[-0.02em]">{product.title}</span>
+                    <span className="font-mono text-xs text-muted-foreground">{product.miraklProductId}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{product.listingStatus}</Badge>
                 </TableCell>
-                <TableCell>{product.categoryPath.join(" / ")}</TableCell>
+                <TableCell className="max-w-72 text-sm text-muted-foreground">{product.categoryPath.join(" / ")}</TableCell>
                 <TableCell>
                   <ScoreBadge score={product.qualityScore} band={product.scoreBand} />
                 </TableCell>
-                <TableCell>{product.warnings.length}</TableCell>
+                <TableCell className={product.warnings.length > 0 ? "font-semibold text-destructive" : undefined}>{product.warnings.length}</TableCell>
                 <TableCell>{product.candidates.length}</TableCell>
                 <TableCell>{product.evidence.length}</TableCell>
                 <TableCell className="text-right">
                   <Button asChild size="sm">
-                    <Link href={`/products/${product.id}`}>Review</Link>
+                    <Link href={`/products/${product.id}`}>
+                      Review
+                      <ArrowRightIcon data-icon="inline-end" />
+                    </Link>
                   </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </Panel>
   )
 }

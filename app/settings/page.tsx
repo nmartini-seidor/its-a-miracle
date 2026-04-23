@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
 import { ResetDemoButton } from "@/components/settings/reset-demo-button"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -25,75 +25,38 @@ export default async function SettingsPage() {
   const enabledAggregators = aggregators.filter((aggregator) => settings.enabledAggregatorIds.includes(aggregator.id))
 
   return (
-    <main className="mx-auto flex max-w-7xl flex-col gap-6 p-6">
-      <section className="flex flex-col gap-3">
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">Local + mock only</Badge>
-          <Badge variant="outline">Preview-safe controls</Badge>
-        </div>
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
-          <p className="max-w-3xl text-muted-foreground">
-            Review the demo workspace configuration that shapes Mirakl baseline handling, mock research behavior,
-            schema assignment, and aggregator trust policy without touching any live integration.
-          </p>
-        </div>
-      </section>
+    <PageShell>
+      <PageHeader
+        eyebrow="Settings"
+        title="Controls, not confusion."
+        description="The workspace configuration is preview-safe, local, and explicit about what cannot happen from this demo environment."
+        badges={
+          <>
+            <Badge variant="secondary">Local + mock only</Badge>
+            <Badge variant="outline">Preview-safe controls</Badge>
+          </>
+        }
+      />
 
       <Alert>
         <AlertTitle>Read-only demo configuration</AlertTitle>
         <AlertDescription>
-          Every value on this page is local to the preview environment. Operators can inspect the planned controls,
-          but no credentials, Mirakl submissions, or provider-side mutations are executed from this route.
+          Every value on this page is local to the preview environment. Operators can inspect planned controls, but no credentials, Mirakl submissions, or provider-side mutations are executed from this route.
         </AlertDescription>
       </Alert>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardDescription>Mirakl environment</CardDescription>
-            <CardTitle>{settings.environment.toUpperCase()}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">All exports remain draft-only and approval-gated.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Enabled aggregators</CardDescription>
-            <CardTitle>{enabledAggregators.length}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Only configured mock providers participate in the demo narrative.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Schema families staged</CardDescription>
-            <CardTitle>{schemas.length}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Category-driven assignment stays local to the workspace shell.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Research pacing</CardDescription>
-            <CardTitle>{settings.defaultResearchDelaySeconds}s</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Mock jobs wait before surfacing evidence and candidate updates.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <MetricStrip
+        metrics={[
+          { label: "Environment", value: settings.environment.toUpperCase(), detail: "All exports remain draft-only." },
+          { label: "Aggregators", value: enabledAggregators.length, detail: "Mock providers enabled in the demo.", tone: "success" },
+          { label: "Schemas", value: schemas.length, detail: "Category families staged locally." },
+          { label: "Research delay", value: `${settings.defaultResearchDelaySeconds}s`, detail: "Mock job pacing for walkthroughs.", tone: "warning" },
+        ]}
+      />
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Mirakl workspace mode</CardTitle>
-            <CardDescription>Connection metadata is visible for operator confidence, but the demo keeps all live behaviors disabled.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+        <Panel title="Mirakl workspace mode" description="Connection metadata is visible for operator confidence, while every live behavior remains disabled.">
+          <div className="flex flex-col gap-4">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -106,120 +69,97 @@ export default async function SettingsPage() {
                 <TableRow>
                   <TableCell>Mirakl base URL</TableCell>
                   <TableCell className="font-mono text-xs">{settings.miraklBaseUrl}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">Visible only</Badge>
-                  </TableCell>
+                  <TableCell><Badge variant="outline">Visible only</Badge></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Environment</TableCell>
                   <TableCell>{settings.environment}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">Demo sandbox</Badge>
-                  </TableCell>
+                  <TableCell><Badge variant="secondary">Demo sandbox</Badge></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Submission mode</TableCell>
                   <TableCell>No export file generation</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">Disabled</Badge>
-                  </TableCell>
+                  <TableCell><Badge variant="outline">Disabled</Badge></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Credential handling</TableCell>
                   <TableCell>Not exposed in preview</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">Server-only later</Badge>
-                  </TableCell>
+                  <TableCell><Badge variant="outline">Server-only later</Badge></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Operator approval</TableCell>
                   <TableCell>Required before any export path</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">Mandatory</Badge>
-                  </TableCell>
+                  <TableCell><Badge variant="secondary">Mandatory</Badge></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
-            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-              <p>The page mirrors how a real workspace would stage environment settings without pretending that review decisions already leave the demo boundary.</p>
-              <p>Actual Mirakl import/export submission remains intentionally deferred to a later, explicitly approved implementation phase.</p>
-            </div>
-          </CardContent>
-        </Card>
+            <p className="text-sm leading-6 text-muted-foreground">Actual Mirakl import/export submission remains intentionally deferred to a later, explicitly approved implementation phase.</p>
+          </div>
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Preview guardrails</CardTitle>
-            <CardDescription>These rules keep the settings surface credible while remaining safe for demos and reviews.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+        <Panel title="Preview guardrails" description="Plain-language boundaries keep the settings page credible during demos and reviews.">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary">No live writes</Badge>
               <Badge variant="secondary">No credential edits</Badge>
               <Badge variant="secondary">No provider calls</Badge>
             </div>
             <Separator />
-            <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-              {previewGuardrails.map((rule) => (
-                <p key={rule}>• {rule}</p>
-              ))}
+            <div className="flex flex-col gap-3 text-sm leading-6 text-muted-foreground">
+              {previewGuardrails.map((rule) => <p key={rule}>• {rule}</p>)}
             </div>
-          </CardContent>
-        </Card>
+            <Separator />
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-muted-foreground">Replay the seeded walkthrough state and clear prior review decisions or mock research runs.</p>
+              <ResetDemoButton />
+              <p className="text-xs text-muted-foreground">Terminal equivalent: <code className="rounded bg-muted px-1 py-0.5">npm run reset:demo</code></p>
+            </div>
+          </div>
+        </Panel>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Research orchestration defaults</CardTitle>
-            <CardDescription>These controls shape the simulated evidence pipeline and candidate drafting cadence.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Control</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Meaning</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Fake research mode</TableCell>
-                  <TableCell>{formatToggle(settings.fakeResearchMode)}</TableCell>
-                  <TableCell>Research jobs stay local and deterministic for demo walkthroughs.</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Default job delay</TableCell>
-                  <TableCell>{settings.defaultResearchDelaySeconds} seconds</TableCell>
-                  <TableCell>Gives operators time to see QUEUED and RUNNING states before completion.</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Max evidence per product</TableCell>
-                  <TableCell>{settings.maxEvidencePerProduct}</TableCell>
-                  <TableCell>Caps how much supporting material the preview presents per baseline.</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Default candidate confidence</TableCell>
-                  <TableCell>{formatConfidence(settings.defaultCandidateConfidence)}</TableCell>
-                  <TableCell>Newly drafted candidates start from a moderate confidence assumption.</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Export posture</TableCell>
-                  <TableCell>Draft preview only</TableCell>
-                  <TableCell>Only accepted values can appear, and only in a non-submittable preview.</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <Panel title="Research orchestration defaults" description="These settings shape the simulated evidence pipeline and candidate drafting cadence.">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Control</TableHead>
+                <TableHead>Value</TableHead>
+                <TableHead>Meaning</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Fake research mode</TableCell>
+                <TableCell>{formatToggle(settings.fakeResearchMode)}</TableCell>
+                <TableCell>Research jobs stay local and deterministic for demo walkthroughs.</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Default job delay</TableCell>
+                <TableCell>{settings.defaultResearchDelaySeconds} seconds</TableCell>
+                <TableCell>Gives operators time to see queued and running states before completion.</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Max evidence per product</TableCell>
+                <TableCell>{settings.maxEvidencePerProduct}</TableCell>
+                <TableCell>Caps how much supporting material the preview presents per baseline.</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Default candidate confidence</TableCell>
+                <TableCell>{formatConfidence(settings.defaultCandidateConfidence)}</TableCell>
+                <TableCell>Newly drafted candidates start from a moderate confidence assumption.</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Export posture</TableCell>
+                <TableCell>Draft preview only</TableCell>
+                <TableCell>Only accepted values can appear, and only in a non-submittable preview.</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Panel>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Schema governance defaults</CardTitle>
-            <CardDescription>Schema matching and scoring stay visible so reviewers understand how the demo decides what to compare.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+        <Panel title="Schema governance defaults" description="Schema matching and scoring stay visible so reviewers understand how comparison rules are chosen.">
+          <div className="flex flex-col gap-4">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -248,66 +188,41 @@ export default async function SettingsPage() {
             </Table>
             <Separator />
             <div className="flex flex-wrap gap-2">
-              {schemas.map((schema) => (
-                <Badge key={schema.id} variant="outline">
-                  {schema.name}
-                </Badge>
-              ))}
+              {schemas.map((schema) => <Badge key={schema.id} variant="outline">{schema.name}</Badge>)}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
       </div>
 
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Reset the demo walkthrough</CardTitle>
-          <CardDescription>Use this whenever you want to replay the product research and approval flow from the original seeded baseline.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>The local demo state is file-backed, not a real database. Resetting it rewrites the seeded walkthrough state and clears prior review decisions and mock research runs.</p>
-          <ResetDemoButton />
-          <p>You can also run <code>npm run reset:demo</code> from the terminal.</p>
-        </CardContent>
-      </Card>
-
-
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Aggregator trust policy</CardTitle>
-          <CardDescription>Enabled providers are ordered for believable demo evidence collection without implying any live research integration.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Provider</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Authority</TableHead>
-                <TableHead>Default confidence</TableHead>
-                <TableHead>Coverage</TableHead>
+      <Panel title="Aggregator trust policy" description="Enabled providers are ordered for believable demo evidence collection without implying any live research integration.">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Provider</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Authority</TableHead>
+              <TableHead>Default confidence</TableHead>
+              <TableHead>Coverage</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {enabledAggregators.map((aggregator) => (
+              <TableRow key={aggregator.id}>
+                <TableCell>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">{aggregator.name}</span>
+                    <span className="text-xs text-muted-foreground">{aggregator.description}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{aggregator.type.replaceAll("_", " ")}</TableCell>
+                <TableCell>{aggregator.authorityScore}/100</TableCell>
+                <TableCell>{formatConfidence(aggregator.defaultConfidence)}</TableCell>
+                <TableCell>{aggregator.coverageTags.join(", ")}</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {enabledAggregators.map((aggregator) => (
-                <TableRow key={aggregator.id}>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <span className="font-medium">{aggregator.name}</span>
-                      <span className="text-xs text-muted-foreground">{aggregator.description}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{aggregator.type.replaceAll("_", " ")}</TableCell>
-                  <TableCell>{aggregator.authorityScore}/100</TableCell>
-                  <TableCell>{formatConfidence(aggregator.defaultConfidence)}</TableCell>
-                  <TableCell>{aggregator.coverageTags.join(", ")}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </main>
+            ))}
+          </TableBody>
+        </Table>
+      </Panel>
+    </PageShell>
   )
 }

@@ -23,7 +23,7 @@ export function SidebarNav() {
         const Icon = sectionIcons[item.label]
         const isActive = isSectionActive(pathname, item.href)
         return (
-          <Button key={item.label} asChild variant={isActive ? "secondary" : "ghost"} className="justify-start gap-3 px-3">
+          <Button key={item.label} asChild variant={isActive ? "secondary" : "ghost"} className="h-11 justify-start gap-3 rounded-xl px-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-accent data-[active=true]:text-accent-foreground" data-active={isActive}>
             <Link href={item.href}>
               <Icon data-icon="inline-start" />
               {item.label}
