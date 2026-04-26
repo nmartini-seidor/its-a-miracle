@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip } from "@/components/app/page-chrome"
 import { TriageDashboard } from "@/components/product/triage-dashboard"
@@ -14,24 +13,17 @@ export default async function DashboardPage() {
     <PageShell>
       <PageHeader
         eyebrow="Triage"
-        title="Find the broken records first."
-        description="A cleaner operating desk for Mirakl product data: one readable queue, direct review actions, and visible guardrails instead of stacks of cards."
-        badges={<Badge variant="outline">Local evidence simulation</Badge>}
+        title="Product triage"
+        description="Review low-quality Mirakl records, compare evidence, and open only the products that need operator attention."
+        badges={<Badge variant="outline">Evidence workflow</Badge>}
       />
-
-      <Alert>
-        <AlertTitle>Preview-safe workflow</AlertTitle>
-        <AlertDescription>
-          This demo simulates research, evidence, and candidate decisions locally. It does not mutate Mirakl directly.
-        </AlertDescription>
-      </Alert>
 
       <MetricStrip
         metrics={[
-          { label: "Demo catalog", value: products.length, detail: "Products available for triage." },
+          { label: "Catalog", value: products.length, detail: "Products available for triage." },
           { label: "Need enrichment", value: productsNeedingReview.length, detail: "Records that should not pass review yet.", tone: "danger" },
           { label: "Candidates", value: candidateCount, detail: "Suggested field improvements staged for review.", tone: "success" },
-          { label: "Evidence", value: evidenceCount, detail: "Sources attached to the local walkthrough.", tone: "warning" },
+          { label: "Evidence", value: evidenceCount, detail: "Sources attached to product records.", tone: "warning" },
         ]}
       />
 

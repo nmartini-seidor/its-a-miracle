@@ -4,23 +4,23 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.973 0.014 88);
+  --background: #ffffff;
   --foreground: oklch(0.205 0.055 258);
-  --card: oklch(0.995 0.006 88);
+  --card: #ffffff;
   --card-foreground: oklch(0.205 0.055 258);
-  --popover: oklch(0.995 0.006 88);
+  --popover: #ffffff;
   --popover-foreground: oklch(0.205 0.055 258);
   --primary: oklch(0.42 0.145 263);
   --primary-foreground: oklch(0.985 0.008 88);
-  --secondary: oklch(0.93 0.035 88);
+  --secondary: #f8fafc;
   --secondary-foreground: oklch(0.30 0.07 258);
-  --muted: oklch(0.94 0.018 88);
+  --muted: #f8fafc;
   --muted-foreground: oklch(0.43 0.035 258);
   --accent: oklch(0.78 0.145 77);
   --accent-foreground: oklch(0.23 0.052 55);
   --destructive: oklch(0.55 0.18 27);
-  --border: oklch(0.84 0.025 88);
-  --input: oklch(0.84 0.025 88);
+  --border: #e2e8f0;
+  --input: #e2e8f0;
   --ring: oklch(0.52 0.16 263);
   --sidebar: oklch(0.19 0.06 258);
   --sidebar-foreground: oklch(0.96 0.016 88);
@@ -67,7 +67,7 @@
 * { border-color: var(--border); }
 html { scroll-behavior: smooth; }
 body {
-  background: var(--background);
+  background: #ffffff;
   color: var(--foreground);
   font-feature-settings: "ss01" 1, "ss03" 1, "tnum" 1;
   line-height: 1.6;
@@ -77,12 +77,7 @@ button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 ::selection { background: color-mix(in oklab, var(--accent) 45%, transparent); color: var(--accent-foreground); }
 
 .dashboard-surface {
-  background:
-    linear-gradient(90deg, color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px),
-    linear-gradient(180deg, color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px),
-    radial-gradient(circle at 15% 0%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 28rem),
-    linear-gradient(135deg, color-mix(in oklab, var(--background) 95%, white), var(--background));
-  background-size: 48px 48px, 48px 48px, auto, auto;
+  background: #ffffff;
 }
 
 @media (prefers-reduced-motion: reduce) {

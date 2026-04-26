@@ -51,6 +51,16 @@ test('schemas and hero fixtures use canonical field identifiers', () => {
   assert.equal(heroProduct.bestEvidenceByField.ean, '6942103169434')
 })
 
+test('seeded catalog uses Orange electronics imports instead of unrelated retail products', () => {
+  const orangeImports = products.filter((product) => product.id.startsWith('orange-orange-'))
+  const rejectedCatalogTerms = /Fanta|Sprite|Nestea|Aquarius|Soda|T-Shirt|Black Stripe|Coca Cola|Bitter Rosso|Nordic Mist/i
+
+  assert.equal(orangeImports.length, 50)
+  assert.equal(products.some((product) => rejectedCatalogTerms.test(`${product.title} ${product.brand} ${product.categoryPath.join(' ')}`)), false)
+  assert.equal(orangeImports.every((product) => product.evidence.some((record) => record.sourceName === 'Orange source catalog')), true)
+  assert.equal(orangeImports.every((product) => product.categoryPath.some((entry) => /gaming|computing|phones|tablets/i.test(entry))), true)
+})
+
 test('export preview includes only exportable accepted candidate values and preserves one accepted candidate per field', () => {
   const draftProduct = structuredClone(heroProduct)
   draftProduct.candidates.push({

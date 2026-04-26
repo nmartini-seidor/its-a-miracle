@@ -3,7 +3,7 @@ export type ConfidenceLevel = "high" | "medium" | "low"
 export type CandidateStatus = "proposed" | "accepted" | "rejected" | "needs_evidence"
 export type ReviewDecision = "APPROVE" | "REJECT" | "REQUEST_MORE_EVIDENCE"
 export type AggregatorType = "manufacturer" | "retailer" | "marketplace" | "spec_database" | "review_site" | "internal_reference" | "partner_feed"
-export type ProductListingStatus = "READY_FOR_REVIEW" | "NEEDS_ENRICHMENT" | "RESEARCH_IN_PROGRESS" | "EXPORT_PREVIEW_AVAILABLE"
+export type ProductListingStatus = "READY_FOR_REVIEW" | "NEEDS_ENRICHMENT" | "RESEARCH_IN_PROGRESS" | "EXPORT_READY"
 export type ResearchJobStatus = "QUEUED" | "RUNNING" | "SUCCEEDED"
 export type AttributeFieldId =
   | "brand"
@@ -109,7 +109,7 @@ export interface ResearchJob {
   id: string
   productId: string
   status: ResearchJobStatus
-  runner: "mock-opencode-lightweb"
+  runner: "opencode-lightweb"
   createdAt: string
   updatedAt: string
   summary: string
@@ -126,9 +126,9 @@ export interface ExportPreviewRow {
 export interface ExportPreview {
   productId: string
   miraklProductId: string
-  status: "DRAFT_PREVIEW_ONLY"
+  status: "READY"
   rows: ExportPreviewRow[]
-  safetyMessage: string
+  message: string
 }
 
 export interface SettingsSnapshot {

@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -13,20 +12,15 @@ export default async function CatalogPage() {
     <PageShell>
       <PageHeader
         eyebrow="Catalog"
-        title="Imported baseline, without the clutter."
-        description="A read-only view of the demo records, schema assignment, and baseline readiness before any research or export-preview work begins."
+        title="Catalog baseline"
+        description="Inspect imported records, schema assignment, and baseline readiness before review work begins."
         badges={<Badge variant="outline">Baseline catalog only</Badge>}
       />
-
-      <Alert>
-        <AlertTitle>Baseline catalog only</AlertTitle>
-        <AlertDescription>This page summarizes imported demo records and schema assignment. It is safe to inspect and does not perform live Mirakl mutations.</AlertDescription>
-      </Alert>
 
       <MetricStrip
         columns="xl:grid-cols-3"
         metrics={[
-          { label: "Imported", value: products.length, detail: "Demo products available." },
+          { label: "Imported", value: products.length, detail: "Products available." },
           { label: "Need enrichment", value: needsEnrichment, detail: "Baselines below the desired review bar.", tone: "danger" },
           { label: "Schema families", value: schemaCount, detail: "Category rule sets already assigned.", tone: "warning" },
         ]}

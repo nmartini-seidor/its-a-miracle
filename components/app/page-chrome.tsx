@@ -12,7 +12,7 @@ const toneClassNames: Record<Tone, string> = {
 }
 
 export function PageShell({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cn("mx-auto flex w-full max-w-[96rem] flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8", className)}>{children}</main>
+  return <main className={cn("mx-auto flex w-full max-w-[92rem] flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8", className)}>{children}</main>
 }
 
 export function PageHeader({
@@ -29,30 +29,23 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <section className="overflow-hidden rounded-[2rem] border bg-card shadow-sm">
-      <div className="grid gap-0 lg:grid-cols-[1fr_20rem]">
-        <div className="flex flex-col gap-6 p-6 sm:p-8 lg:p-10">
+    <section className="rounded-2xl border bg-card px-5 py-4 shadow-sm sm:px-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="font-mono uppercase tracking-[0.24em]">
+            <Badge variant="secondary" className="font-mono text-[0.65rem] uppercase tracking-[0.18em]">
               {eyebrow}
             </Badge>
             {badges}
           </div>
-          <div className="flex flex-col gap-3">
-            <h1 className="max-w-5xl text-4xl font-black leading-[0.95] tracking-[-0.06em] text-foreground sm:text-6xl lg:text-7xl">
+          <div className="flex flex-col gap-1">
+            <h1 className="max-w-4xl text-2xl font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-3xl">
               {title}
             </h1>
-            <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">{description}</p>
+            <p className="max-w-4xl text-sm leading-6 text-muted-foreground sm:text-base">{description}</p>
           </div>
         </div>
-        <div className="flex min-h-44 flex-col justify-between border-t bg-foreground p-6 text-background lg:border-l lg:border-t-0">
-          <p className="font-mono text-xs uppercase tracking-[0.28em] text-background/65">Operator mode</p>
-          <div className="flex flex-col gap-4">
-            <div className="h-px bg-background/20" />
-            <p className="max-w-64 text-sm leading-6 text-background/80">Preview-only controls. Evidence and export actions stay local until approval.</p>
-            {actions}
-          </div>
-        </div>
+        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">{actions}</div>}
       </div>
     </section>
   )
@@ -68,14 +61,14 @@ export function MetricStrip({
   return (
     <section className={cn("grid overflow-hidden rounded-2xl border bg-card shadow-sm sm:grid-cols-2", columns)}>
       {metrics.map((metric) => (
-        <div key={metric.label} className="flex min-h-36 flex-col justify-between gap-4 border-b p-5 last:border-b-0 sm:border-r sm:last:border-r-0 xl:border-b-0">
+        <div key={metric.label} className="flex min-h-24 flex-col justify-between gap-3 border-b p-4 last:border-b-0 sm:border-r sm:last:border-r-0 xl:border-b-0">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">{metric.label}</p>
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-muted-foreground">{metric.label}</p>
             <span className={cn("size-2 rounded-full border", toneClassNames[metric.tone ?? "default"])} aria-hidden="true" />
           </div>
-          <div className="flex flex-col gap-1">
-            <div className="text-4xl font-black tracking-[-0.05em] text-foreground sm:text-5xl">{metric.value}</div>
-            {metric.detail && <p className="max-w-xs text-sm leading-6 text-muted-foreground">{metric.detail}</p>}
+          <div className="flex items-end justify-between gap-3">
+            <div className="text-2xl font-semibold tracking-[-0.02em] text-foreground sm:text-3xl">{metric.value}</div>
+            {metric.detail && <p className="max-w-48 text-right text-xs leading-5 text-muted-foreground">{metric.detail}</p>}
           </div>
         </div>
       ))}
@@ -86,8 +79,8 @@ export function MetricStrip({
 export function Panel({ title, description, children, className }: { title: string; description?: string; children: ReactNode; className?: string }) {
   return (
     <section className={cn("rounded-2xl border bg-card shadow-sm", className)}>
-      <div className="flex flex-col gap-2 border-b p-5 sm:p-6">
-        <h2 className="text-xl font-black tracking-[-0.03em] text-foreground">{title}</h2>
+      <div className="flex flex-col gap-1.5 border-b px-5 py-4 sm:px-6">
+        <h2 className="text-lg font-semibold tracking-[-0.015em] text-foreground">{title}</h2>
         {description && <p className="max-w-4xl text-sm leading-6 text-muted-foreground">{description}</p>}
       </div>
       <div className="p-5 sm:p-6">{children}</div>

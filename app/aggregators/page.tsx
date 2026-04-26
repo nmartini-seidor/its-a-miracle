@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
 import { Separator } from "@/components/ui/separator"
@@ -14,9 +13,9 @@ function getAuthorityTier(authorityScore: number) {
 }
 
 function getConfidenceSummary({ authorityScore, defaultConfidence, type }: { authorityScore: number; defaultConfidence: string; type: string }) {
-  if (type === "internal_reference") return "Operator guidance only — helps review decisions, never acts as live-source proof."
+  if (type === "internal_reference") return "Operator guidance for review decisions and export policy."
   if (defaultConfidence === "high" && authorityScore >= 90) return "Starts high because the provider can anchor canonical fields when direct evidence is available."
-  if (defaultConfidence === "high") return "Starts high for structured technical evidence, but the review flow should still corroborate it."
+  if (defaultConfidence === "high") return "Starts high for structured technical evidence, with corroboration expected in the review flow."
   if (defaultConfidence === "medium") return "Starts medium until a stronger source confirms the field or the evidence is clearly visible."
   return "Starts low and stays supporting-only unless a stronger source confirms the same claim."
 }
@@ -46,7 +45,7 @@ export default async function AggregatorsPage() {
   })
 
   const activeProviders = providerRows.filter((provider) => provider.evidenceCount > 0)
-  const stagedProviders = providerRows.filter((provider) => provider.evidenceCount === 0)
+  const availableProviders = providerRows.filter((provider) => provider.evidenceCount === 0)
   const canonicalAnchors = providerRows.filter((provider) => provider.authorityScore >= 90).length
   const trustedSpecialists = providerRows.filter((provider) => provider.authorityScore >= 80 && provider.authorityScore < 90).length
 
@@ -54,19 +53,14 @@ export default async function AggregatorsPage() {
     <PageShell>
       <PageHeader
         eyebrow="Aggregators"
-        title="Evidence trust, made explicit."
-        description="Manufacturer, retailer, technical, marketplace, and internal-reference sources are ranked in a single authority model before candidates become export-preview eligible."
-        badges={<Badge variant="outline">Local mock data only</Badge>}
+        title="Evidence providers"
+        description="Review the authority model for manufacturer, retailer, technical, marketplace, and internal-reference sources."
+        badges={<Badge variant="outline">Evidence policy</Badge>}
       />
-
-      <Alert>
-        <AlertTitle>Preview-safe evidence model</AlertTitle>
-        <AlertDescription>Every score, provider, and confidence rule on this page comes from local mock data only. This does not call live providers, scrape the web, or publish anything to Mirakl.</AlertDescription>
-      </Alert>
 
       <MetricStrip
         metrics={[
-          { label: "Providers", value: providerRows.length, detail: "Enabled source providers in the demo." },
+          { label: "Providers", value: providerRows.length, detail: "Source providers in the workflow." },
           { label: "Active", value: activeProviders.length, detail: "Visible in the current review flow.", tone: "success" },
           { label: "Anchors", value: canonicalAnchors, detail: "Authority scores of 90+.", tone: "warning" },
           { label: "Specialists", value: trustedSpecialists, detail: "Technical or policy-heavy sources." },
@@ -92,7 +86,7 @@ export default async function AggregatorsPage() {
         </div>
       </Panel>
 
-      <Panel title="Provider authority matrix" description="Each mocked provider shows its trust tier, coverage, current demo footprint, and review guidance in one table.">
+      <Panel title="Provider authority matrix" description="Each provider shows its trust tier, coverage, current footprint, and review guidance in one table.">
         <Table>
           <TableHeader>
             <TableRow>
@@ -100,7 +94,7 @@ export default async function AggregatorsPage() {
               <TableHead>Trust tier</TableHead>
               <TableHead>Default confidence</TableHead>
               <TableHead>Coverage</TableHead>
-              <TableHead>Current demo footprint</TableHead>
+              <TableHead>Current footprint</TableHead>
               <TableHead>Review guidance</TableHead>
             </TableRow>
           </TableHeader>
@@ -112,7 +106,7 @@ export default async function AggregatorsPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold">{provider.name}</span>
                       <Badge variant="secondary">{provider.type.replace(/_/g, " ")}</Badge>
-                      <Badge variant={provider.enabled ? "outline" : "destructive"}>{provider.enabled ? "Enabled" : "Disabled"}</Badge>
+                      <Badge variant={provider.enabled ? "outline" : "destructive"}>{provider.enabled ? "Enabled" : "Unavailable"}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{provider.description}</p>
                     <p className="font-mono text-xs text-muted-foreground">{provider.sampleDomains.join(" · ")}</p>
@@ -141,8 +135,8 @@ export default async function AggregatorsPage() {
                       </>
                     ) : (
                       <>
-                        <p>Staged for later tasks; no active evidence records yet</p>
-                        <p>{provider.coverageTags.length} coverage tags ready for future drill-downs</p>
+                        <p>No evidence records assigned yet</p>
+                        <p>{provider.coverageTags.length} coverage tags available for future drill-downs</p>
                       </>
                     )}
                   </div>
@@ -160,7 +154,7 @@ export default async function AggregatorsPage() {
       </Panel>
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-        <Panel title="Current hero-flow evidence mix" description="The hero product demonstrates how canonical and corroborating sources combine to unlock stronger candidate review.">
+        <Panel title="Current evidence mix" description="Canonical and corroborating sources combine to unlock stronger candidate review.">
           <div className="divide-y rounded-xl border">
             {activeProviders.map((provider) => (
               <div key={provider.id} className="grid gap-4 p-4 lg:grid-cols-[1fr_1.5fr]">
@@ -175,19 +169,19 @@ export default async function AggregatorsPage() {
                 <div className="text-sm leading-6 text-muted-foreground">
                   <p>{provider.confidencePolicy}</p>
                   <Separator className="my-3" />
-                  <p>Extracted fields: {provider.uniqueFields.length > 0 ? provider.uniqueFields.map((field) => getFieldLabel(field as never)).join(", ") : "No live fields yet"}</p>
+                  <p>Extracted fields: {provider.uniqueFields.length > 0 ? provider.uniqueFields.map((field) => getFieldLabel(field as never)).join(", ") : "No fields recorded yet"}</p>
                 </div>
               </div>
             ))}
           </div>
         </Panel>
 
-        <Panel title="Preview guardrails" description="Confidence explains review posture; it does not simulate a live provider network.">
+        <Panel title="Review policy" description="Confidence explains how evidence should influence field-level candidate decisions.">
           <div className="flex flex-col gap-3 text-sm leading-6 text-muted-foreground">
-            <p>• Provider metadata comes from local fixtures and is safe to inspect.</p>
-            <p>• Low-authority providers never become sole proof for export-preview rows.</p>
-            <p>• Internal-reference guidance helps operators review candidates but does not act as external evidence.</p>
-            <p>• {stagedProviders.length} providers are staged only, so later tasks can expand the demo without implying live coverage today.</p>
+            <p>• Provider metadata supports operator review decisions.</p>
+            <p>• Low-authority providers should not become sole proof for export rows.</p>
+            <p>• Internal-reference guidance supports review decisions and export policy.</p>
+            <p>• {availableProviders.length} providers are available for expanded evidence coverage.</p>
           </div>
         </Panel>
       </div>

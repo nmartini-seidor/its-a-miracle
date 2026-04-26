@@ -23,5 +23,5 @@ test('resetDemoState restores the seeded hero product walkthrough state', () => 
   assert.equal(resetProduct.listingStatus, 'NEEDS_ENRICHMENT')
   assert.equal(resetProduct.candidates.length, 4)
   assert.equal(resetProduct.evidence.length, 2)
-  assert.equal(resetProduct.warnings.includes('Candidate EAN differs from Mirakl baseline'), true)
+  assert.equal(resetProduct.warnings.includes('EAN requires review'), true)
 })

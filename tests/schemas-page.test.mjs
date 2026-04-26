@@ -5,17 +5,17 @@ import { test } from 'node:test'
 const { getFieldLabel } = await import('../lib/demo-contract.ts')
 const { listProducts, listSchemas } = await import('../server/data.ts')
 
-test('schemas page source advertises preview-safe completeness sections', async () => {
+test('schemas page source advertises completeness sections', async () => {
   const source = readFileSync('app/schemas/page.tsx', 'utf8')
   const schemas = await listSchemas()
 
-  assert.equal(source.includes('Preview-safe schema reference'), true)
+  assert.equal(source.includes('Schema rules'), true)
   assert.equal(source.includes('Completeness rules at a glance'), true)
   assert.equal(source.includes('Required to exit review'), true)
   assert.equal(source.includes('Recommended coverage'), true)
   assert.equal(source.includes('Warning pressure'), true)
   assert.equal(source.includes('Scoring guidance'), true)
-  assert.equal(source.includes('Demo products mapped to this schema'), true)
+  assert.equal(source.includes('Products mapped to this schema'), true)
   assert.equal(schemas.length >= 5, true)
 })
 
@@ -38,5 +38,5 @@ test('schema data exposes category-specific completeness rules and mapped produc
 
   const mappedProductTitles = products.filter((product) => product.schemaId === headphones.id).map((product) => product.title)
   assert.deepEqual(mappedProductTitles, ['Huawei FreeClip 2', 'Sony WH-1000XM5'])
-  assert.equal(products.some((product) => product.schemaId === laptops.id), false)
+  assert.equal(products.some((product) => product.schemaId === laptops.id), true)
 })

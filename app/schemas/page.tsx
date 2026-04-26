@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -34,19 +33,14 @@ export default async function SchemasPage() {
     <PageShell>
       <PageHeader
         eyebrow="Schemas"
-        title="Rules you can scan at a glance."
-        description="Category-specific completeness, warning pressure, and scoring expectations are shown as ledgers instead of nested card stacks."
-        badges={<Badge variant="outline">Read-only rule reference</Badge>}
+        title="Schema rules"
+        description="Review category completeness, warning pressure, and scoring expectations for the catalog."
+        badges={<Badge variant="outline">Rule reference</Badge>}
       />
-
-      <Alert>
-        <AlertTitle>Preview-safe schema reference</AlertTitle>
-        <AlertDescription>These schema rules are demo-authored and read-only in this workspace. They do not sync to Mirakl or modify any live marketplace configuration.</AlertDescription>
-      </Alert>
 
       <MetricStrip
         metrics={[
-          { label: "Schema families", value: schemas.length, detail: "Staged for the demo." },
+          { label: "Schema families", value: schemas.length, detail: "Configured for the catalog." },
           { label: "Categories", value: linkedCategoryCount, detail: "Linked category groups covered." },
           { label: "Required", value: totalRequiredFields, detail: "Field obligations before review exit.", tone: "danger" },
           { label: "Recommended", value: totalRecommendedFields, detail: "Enrichments that lift score.", tone: "success" },
@@ -61,7 +55,7 @@ export default async function SchemasPage() {
               <TableHead>Linked categories</TableHead>
               <TableHead>Required to exit review</TableHead>
               <TableHead>Recommended coverage</TableHead>
-              <TableHead>Assigned demo products</TableHead>
+              <TableHead>Assigned products</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -89,13 +83,13 @@ export default async function SchemasPage() {
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <span className="font-semibold">{schema.recommendedAttributes.length} recommended fields</span>
-                    <span className="text-xs text-muted-foreground">{completenessRatio}% of this schema&apos;s rule set is mandatory before export preview</span>
+                    <span className="text-xs text-muted-foreground">{completenessRatio}% of this schema&apos;s rule set is mandatory before export</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <span className="font-semibold">{assignedProducts.length}</span>
-                    <span className="text-xs text-muted-foreground">{assignedProducts.length > 0 ? assignedProducts.map((product) => product.title).join(", ") : "No demo product linked yet"}</span>
+                    <span className="text-xs text-muted-foreground">{assignedProducts.length > 0 ? assignedProducts.map((product) => product.title).join(", ") : "No product linked yet"}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -109,7 +103,7 @@ export default async function SchemasPage() {
           <Panel
             key={schema.id}
             title={schema.name}
-            description={`${schema.linkedCategories.join(" · ")} · ${completenessRatio}% of this schema's rule set is mandatory before export preview.`}
+            description={`${schema.linkedCategories.join(" · ")} · ${completenessRatio}% of this schema's rule set is mandatory before export.`}
           >
             <div className="flex flex-col gap-6">
               <div className="grid gap-3 sm:grid-cols-3">
@@ -135,7 +129,7 @@ export default async function SchemasPage() {
                 </div>
                 <div className="rounded-xl border p-4">
                   <h3 className="font-semibold">Recommended coverage</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">These fields strengthen confidence without blocking the initial export preview.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">These fields strengthen confidence without blocking the initial export.</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {schema.recommendedAttributes.map((field) => <Badge key={field} variant="secondary">{getFieldLabel(field)}</Badge>)}
                   </div>
@@ -158,7 +152,7 @@ export default async function SchemasPage() {
               </div>
 
               <div className="rounded-xl border p-4">
-                <h3 className="font-semibold">Demo products mapped to this schema</h3>
+                <h3 className="font-semibold">Products mapped to this schema</h3>
                 <div className="mt-4 divide-y rounded-lg border">
                   {assignedProducts.length > 0 ? (
                     assignedProducts.map((product) => (
@@ -171,7 +165,7 @@ export default async function SchemasPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="p-3 text-sm text-muted-foreground">No demo product is currently assigned to this schema.</p>
+                    <p className="p-3 text-sm text-muted-foreground">No product is currently assigned to this schema.</p>
                   )}
                 </div>
               </div>

@@ -36,7 +36,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
       description="The table is the workspace now: filter, sort, scan the warnings, then open only the product that needs review."
     >
       <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-3 rounded-xl border bg-muted/35 p-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">
             {filterOptions.map((filter) => (
               <Button key={filter.id} type="button" size="sm" variant={activeFilter === filter.id ? "default" : "outline"} onClick={() => setActiveFilter(filter.id)}>

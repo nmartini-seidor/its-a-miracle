@@ -37,6 +37,6 @@ test('accepting a candidate refreshes export eligibility and listing status', ()
   const preview = exportPreview('freeclip-2')
   const product = getStoredProduct('freeclip-2')
 
-  assert.equal(product.listingStatus, 'EXPORT_PREVIEW_AVAILABLE')
+  assert.equal(product.listingStatus, 'EXPORT_READY')
   assert.equal(preview.rows.some((row) => row.field === 'brand'), true)
 })

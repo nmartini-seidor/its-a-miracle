@@ -8,7 +8,7 @@ import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CandidateActions } from "@/components/product/candidate-actions"
-import { ExportPreviewPanel } from "@/components/product/export-preview-panel"
+import { ExportPayloadPanel } from "@/components/product/export-payload-panel"
 import { ResearchButton } from "@/components/product/research-button"
 import { ScoreBadge } from "@/components/product/score-badge"
 import { getFieldLabel } from "@/lib/demo-contract"
@@ -26,6 +26,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const schema = await getSchemaById(product.schemaId)
   const evidenceById = new Map(product.evidence.map((evidence) => [evidence.id, evidence]))
   const reviewRows = buildReviewFieldRows(product, schema)
+  const evidenceSources = product.evidence.filter((evidence, index, records) =>
+    records.findIndex((item) => item.aggregatorId === evidence.aggregatorId) === index,
+  )
 
   return (
     <PageShell>
@@ -41,7 +44,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <PageHeader
         eyebrow="Product review"
         title={product.title}
-        description={`${product.categoryPath.join(" / ")} · compare the Mirakl baseline against staged evidence and approve only field-level candidates that make sense.`}
+        description={`${product.categoryPath.join(" / ")} · compare Mirakl data against evidence sources and approve only field-level candidates that make sense.`}
         badges={
           <>
             <Badge variant="outline">{product.miraklProductId}</Badge>
@@ -56,7 +59,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         metrics={[
           { label: "Quality", value: <ScoreBadge score={product.qualityScore} band={product.scoreBand} />, detail: "Current baseline readiness." },
           { label: "Candidates", value: product.candidates.length, detail: "Reviewable field changes.", tone: "success" },
-          { label: "Evidence", value: product.evidence.length, detail: "Sources attached locally.", tone: "warning" },
+          { label: "Evidence", value: product.evidence.length, detail: "Sources attached to this product.", tone: "warning" },
           { label: "Warnings", value: product.warnings.length, detail: "Baseline issues still visible.", tone: product.warnings.length > 0 ? "danger" : "default" },
         ]}
       />
@@ -73,36 +76,42 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <TabsTrigger value="compare">Compare</TabsTrigger>
           <TabsTrigger value="candidates">Candidates</TabsTrigger>
           <TabsTrigger value="evidence">Evidence</TabsTrigger>
-          <TabsTrigger value="export">Export preview</TabsTrigger>
+          <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
 
         <TabsContent value="compare">
-          <Panel title="Baseline vs evidence vs candidate" description="Mirakl stays read-only until accepted candidate values are exported in a later approved workflow.">
+          <Panel title="Product data comparison" description="Review Mirakl values against the candidate value and supporting evidence sources.">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Field</TableHead>
-                  <TableHead>Mirakl baseline</TableHead>
-                  <TableHead>Best evidence</TableHead>
+                  <TableHead className="min-w-48">Attribute name</TableHead>
+                  <TableHead>Mirakl</TableHead>
                   <TableHead>Candidate</TableHead>
+                  {evidenceSources.map((source) => (
+                    <TableHead key={source.aggregatorId}>{source.sourceName}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {reviewRows.map((row) => (
-                  <TableRow key={row.field} className={cn(row.baselineMissing && "bg-amber-500/10", row.hasCandidate && "border-l-4 border-l-primary/70")}>
-                    <TableCell className="font-medium">
-                      <div className="flex flex-col gap-2">
-                        <span>{row.label}</span>
-                        <div className="flex flex-wrap gap-2">
-                          {row.baselineMissing && <Badge variant="outline">Baseline missing</Badge>}
-                          {row.hasCandidate && <Badge variant="secondary">Candidate ready</Badge>}
-                          {row.differsFromEvidence && <Badge variant="outline">Differs from evidence</Badge>}
-                        </div>
-                      </div>
+                  <TableRow key={row.field} className={cn(row.candidateValue && "border-l-4 border-l-primary/70")}>
+                    <TableCell className="min-w-48 font-semibold text-foreground">
+                      {row.label}
                     </TableCell>
-                    <TableCell>{row.baselineValue ?? <span className="text-muted-foreground">Missing</span>}</TableCell>
-                    <TableCell>{row.evidenceValue ?? <span className="text-muted-foreground">—</span>}</TableCell>
-                    <TableCell>{row.candidateValue ? <Badge variant="secondary">{row.candidateValue}</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell className="min-w-56">
+                      {row.baselineValue ? <span>{row.baselineValue}</span> : <Badge variant="outline">Missing</Badge>}
+                    </TableCell>
+                    <TableCell className="min-w-56">
+                      {row.candidateValue ? <Badge variant="secondary">{row.candidateValue}</Badge> : <span className="text-muted-foreground">—</span>}
+                    </TableCell>
+                    {evidenceSources.map((source) => {
+                      const value = source.extractedFields[row.field]
+                      return (
+                        <TableCell key={`${row.field}-${source.aggregatorId}`} className="min-w-56">
+                          {value ?? <span className="text-muted-foreground">—</span>}
+                        </TableCell>
+                      )
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
@@ -181,12 +190,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         <TabsContent value="export">
           <div className="flex flex-col gap-4">
-            <Alert>
-              <AlertTitle>Preview only</AlertTitle>
-              <AlertDescription>Accepted candidates appear here as a draft export preview. No Mirakl submission is generated from this screen.</AlertDescription>
-            </Alert>
-            <Panel title="Draft export payload" description="Generate a local preview after accepting candidates. The payload is displayed as read-only JSON.">
-              <ExportPreviewPanel productId={product.id} />
+            <Panel title="Export payload" description="Generate the export payload after accepting candidates. The payload is displayed as JSON.">
+              <ExportPayloadPanel productId={product.id} />
             </Panel>
           </div>
         </TabsContent>
