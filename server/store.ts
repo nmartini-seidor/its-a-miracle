@@ -5,6 +5,7 @@ import { isExportableAttributeField } from "../lib/demo-contract.ts"
 import type {
   CandidateRecord,
   ContractFieldId,
+  AggregatorDefinition,
   EvidenceRecord,
   ExportPreview,
   SettingsSnapshot,
@@ -33,6 +34,7 @@ type DemoCatalogState = {
   reviewDecisions: ReviewDecisionRecord[]
   settings: SettingsSnapshot
   schemaOverrides: Record<string, SchemaDefinition>
+  aggregatorOverrides: Record<string, AggregatorDefinition>
 }
 
 const stateFilePath = path.join(process.cwd(), "data", "demo-state.json")
@@ -73,23 +75,33 @@ function clampNumber(value: number | undefined, min: number, max: number, fallba
   return Math.min(max, Math.max(min, Math.round(value)))
 }
 
-function buildInitialState(settings: SettingsSnapshot = cloneDefaultSettings(), schemaOverrides: Record<string, SchemaDefinition> = {}): DemoCatalogState {
+function buildInitialState(
+  settings: SettingsSnapshot = cloneDefaultSettings(),
+  schemaOverrides: Record<string, SchemaDefinition> = {},
+  aggregatorOverrides: Record<string, AggregatorDefinition> = {},
+): DemoCatalogState {
   return {
     products: structuredClone(seededProducts),
     researchRuns: [],
     reviewDecisions: [],
     settings,
     schemaOverrides,
+    aggregatorOverrides,
   }
 }
 
-function buildEmptyState(settings: SettingsSnapshot = cloneDefaultSettings(), schemaOverrides: Record<string, SchemaDefinition> = {}): DemoCatalogState {
+function buildEmptyState(
+  settings: SettingsSnapshot = cloneDefaultSettings(),
+  schemaOverrides: Record<string, SchemaDefinition> = {},
+  aggregatorOverrides: Record<string, AggregatorDefinition> = {},
+): DemoCatalogState {
   return {
     products: [],
     researchRuns: [],
     reviewDecisions: [],
     settings,
     schemaOverrides,
+    aggregatorOverrides,
   }
 }
 
@@ -111,6 +123,7 @@ function readState(): DemoCatalogState {
     reviewDecisions: state.reviewDecisions ?? [],
     settings: sanitizeSettings(state.settings),
     schemaOverrides: state.schemaOverrides ?? {},
+    aggregatorOverrides: state.aggregatorOverrides ?? {},
   }
 }
 
@@ -122,12 +135,12 @@ function writeState(state: DemoCatalogState) {
 
 export function resetDemoState() {
   const state = readState()
-  writeState(buildEmptyState(state.settings, state.schemaOverrides))
+  writeState(buildEmptyState(state.settings, state.schemaOverrides, state.aggregatorOverrides))
 }
 
 export function importDemoProducts() {
   const currentState = readState()
-  const state = buildInitialState(currentState.settings, currentState.schemaOverrides)
+  const state = buildInitialState(currentState.settings, currentState.schemaOverrides, currentState.aggregatorOverrides)
   writeState(state)
   return state.products.length
 }
@@ -162,6 +175,29 @@ export function updateStoredSchema(baseSchemas: SchemaDefinition[], slug: string
   state.schemaOverrides[existingSchema.slug] = updatedSchema
   writeState(state)
   return updatedSchema
+}
+
+export function listStoredAggregators(baseAggregators: AggregatorDefinition[]) {
+  const overrides = readState().aggregatorOverrides
+  return baseAggregators.map((aggregator) => overrides[aggregator.id] ?? aggregator)
+}
+
+export function updateStoredAggregator(baseAggregators: AggregatorDefinition[], id: string, nextAggregator: AggregatorDefinition) {
+  const existingAggregator = baseAggregators.find((aggregator) => aggregator.id === id)
+  if (!existingAggregator) return null
+
+  const state = readState()
+  const updatedAggregator = {
+    ...existingAggregator,
+    ...nextAggregator,
+    id: existingAggregator.id,
+  }
+  state.aggregatorOverrides[existingAggregator.id] = updatedAggregator
+  state.settings.enabledAggregatorIds = updatedAggregator.enabled
+    ? [...new Set([...state.settings.enabledAggregatorIds, updatedAggregator.id])]
+    : state.settings.enabledAggregatorIds.filter((aggregatorId) => aggregatorId !== updatedAggregator.id)
+  writeState(state)
+  return updatedAggregator
 }
 
 export function listStoredProducts() {

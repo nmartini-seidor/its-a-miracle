@@ -1,6 +1,6 @@
 import { aggregators, schemas } from "../lib/fixtures.ts"
 import { MOCK_DOMAIN_CONTRACT_VERSION } from "../lib/demo-contract.ts"
-import { getStoredProduct, getStoredSettings, listStoredProducts, listStoredSchemas } from "./store.ts"
+import { getStoredProduct, getStoredSettings, listStoredAggregators, listStoredProducts, listStoredSchemas } from "./store.ts"
 
 export async function listProducts() {
   return listStoredProducts()
@@ -15,7 +15,7 @@ export async function listSchemas() {
 }
 
 export async function listAggregators() {
-  return aggregators
+  return listStoredAggregators(aggregators)
 }
 
 export async function getDemoSettings() {

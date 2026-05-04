@@ -189,7 +189,7 @@ export const schemas: SchemaDefinition[] = [
 ]
 
 export const demoSettings: SettingsSnapshot = {
-  miraklBaseUrl: "https://mirakl.example",
+  miraklBaseUrl: "https://seidor-dev.mirakl.net",
   environment: "demo",
   fakeResearchMode: true,
   defaultResearchDelaySeconds: 30,

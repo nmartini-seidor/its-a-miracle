@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, type ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { CheckIcon, DatabaseIcon, FileCheck2Icon, Layers3Icon, Loader2Icon, RadioTowerIcon, SaveIcon, ShieldCheckIcon, SlidersHorizontalIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -126,11 +126,6 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
 
-  const enabledAggregators = useMemo(
-    () => aggregators.filter((aggregator) => settings.enabledAggregatorIds.includes(aggregator.id)),
-    [aggregators, settings.enabledAggregatorIds],
-  )
-
   const dirty = JSON.stringify(settings) !== JSON.stringify(savedSettings)
 
   function updateSetting<Key extends keyof SettingsSnapshot>(key: Key, value: SettingsSnapshot[Key]) {
@@ -176,11 +171,11 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
-            <TabsTrigger key={tab.value} value={tab.value} className="h-auto justify-start gap-3 px-3 py-3 text-left data-[state=active]:bg-slate-950 data-[state=active]:text-white">
+            <TabsTrigger key={tab.value} value={tab.value} className="h-auto min-w-0 justify-start gap-3 whitespace-normal px-3 py-3 text-left data-[state=active]:bg-slate-950 data-[state=active]:text-white">
               <Icon className="size-4 shrink-0" />
-              <span className="min-w-0">
+              <span className="min-w-0 flex-1 overflow-hidden">
                 <span className="block text-sm font-semibold leading-5">{tab.label}</span>
-                <span className="hidden text-xs font-normal leading-5 opacity-75 lg:block">{tab.description}</span>
+                <span className="hidden max-w-full text-wrap break-words text-xs font-normal leading-5 opacity-75 lg:block">{tab.description}</span>
               </span>
             </TabsTrigger>
           )
@@ -189,11 +184,7 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
 
       <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="bg-white">Local configuration</Badge>
-            <Badge variant="outline">{enabledAggregators.length} evidence sources enabled</Badge>
-            <Badge variant="outline">{schemas.length} schema families</Badge>
-          </div>
+          <div className="min-w-0 text-sm font-medium text-slate-600">Changes are saved locally for this operator workspace.</div>
           <div className="flex flex-wrap items-center gap-3">
             <InlineStatus dirty={dirty} saving={saving} status={status} />
             <Button type="button" onClick={saveSettings} disabled={!dirty || saving}>
