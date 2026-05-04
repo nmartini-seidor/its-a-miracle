@@ -12,6 +12,7 @@ import type {
   ResearchJob,
   ResearchJobStatus,
   ReviewDecision,
+  SchemaDefinition,
 } from "../lib/types.ts"
 
 type ReviewDecisionRecord = {
@@ -31,6 +32,7 @@ type DemoCatalogState = {
   researchRuns: StoredResearchJob[]
   reviewDecisions: ReviewDecisionRecord[]
   settings: SettingsSnapshot
+  schemaOverrides: Record<string, SchemaDefinition>
 }
 
 const stateFilePath = path.join(process.cwd(), "data", "demo-state.json")
@@ -71,21 +73,23 @@ function clampNumber(value: number | undefined, min: number, max: number, fallba
   return Math.min(max, Math.max(min, Math.round(value)))
 }
 
-function buildInitialState(settings: SettingsSnapshot = cloneDefaultSettings()): DemoCatalogState {
+function buildInitialState(settings: SettingsSnapshot = cloneDefaultSettings(), schemaOverrides: Record<string, SchemaDefinition> = {}): DemoCatalogState {
   return {
     products: structuredClone(seededProducts),
     researchRuns: [],
     reviewDecisions: [],
     settings,
+    schemaOverrides,
   }
 }
 
-function buildEmptyState(settings: SettingsSnapshot = cloneDefaultSettings()): DemoCatalogState {
+function buildEmptyState(settings: SettingsSnapshot = cloneDefaultSettings(), schemaOverrides: Record<string, SchemaDefinition> = {}): DemoCatalogState {
   return {
     products: [],
     researchRuns: [],
     reviewDecisions: [],
     settings,
+    schemaOverrides,
   }
 }
 
@@ -106,6 +110,7 @@ function readState(): DemoCatalogState {
     researchRuns: state.researchRuns ?? [],
     reviewDecisions: state.reviewDecisions ?? [],
     settings: sanitizeSettings(state.settings),
+    schemaOverrides: state.schemaOverrides ?? {},
   }
 }
 
@@ -116,13 +121,13 @@ function writeState(state: DemoCatalogState) {
 }
 
 export function resetDemoState() {
-  const currentSettings = readState().settings
-  writeState(buildEmptyState(currentSettings))
+  const state = readState()
+  writeState(buildEmptyState(state.settings, state.schemaOverrides))
 }
 
 export function importDemoProducts() {
-  const currentSettings = readState().settings
-  const state = buildInitialState(currentSettings)
+  const currentState = readState()
+  const state = buildInitialState(currentState.settings, currentState.schemaOverrides)
   writeState(state)
   return state.products.length
 }
@@ -136,6 +141,27 @@ export function updateStoredSettings(nextSettings: Partial<SettingsSnapshot>) {
   state.settings = sanitizeSettings({ ...state.settings, ...nextSettings })
   writeState(state)
   return state.settings
+}
+
+export function listStoredSchemas(baseSchemas: SchemaDefinition[]) {
+  const overrides = readState().schemaOverrides
+  return baseSchemas.map((schema) => overrides[schema.slug] ?? schema)
+}
+
+export function updateStoredSchema(baseSchemas: SchemaDefinition[], slug: string, nextSchema: SchemaDefinition) {
+  const existingSchema = baseSchemas.find((schema) => schema.slug === slug)
+  if (!existingSchema) return null
+
+  const state = readState()
+  const updatedSchema = {
+    ...existingSchema,
+    ...nextSchema,
+    id: existingSchema.id,
+    slug: existingSchema.slug,
+  }
+  state.schemaOverrides[existingSchema.slug] = updatedSchema
+  writeState(state)
+  return updatedSchema
 }
 
 export function listStoredProducts() {

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 type Tone = "default" | "danger" | "warning" | "success"
@@ -23,34 +22,22 @@ export function PageShell({ children, className }: { children: ReactNode; classN
 }
 
 export function PageHeader({
-  eyebrow,
   title,
-  description,
-  badges,
   actions,
 }: {
-  eyebrow: string
+  eyebrow?: string
   title: string
-  description: string
+  description?: string
   badges?: ReactNode
   actions?: ReactNode
 }) {
   return (
-    <section className="px-1 py-2">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="border-slate-200 bg-white font-medium text-slate-700 shadow-sm">
-              {eyebrow}
-            </Badge>
-            {badges}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <h1 className="max-w-4xl text-2xl font-semibold leading-[1.08] tracking-[-0.035em] text-slate-950 sm:text-[2rem]">
-              {title}
-            </h1>
-            <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">{description}</p>
-          </div>
+    <section className="px-1 py-1">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="max-w-4xl text-2xl font-semibold leading-[1.08] tracking-[-0.035em] text-slate-950 sm:text-[2rem]">
+            {title}
+          </h1>
         </div>
         {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">{actions}</div>}
       </div>

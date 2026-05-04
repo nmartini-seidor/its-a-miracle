@@ -1,10 +1,9 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import Link from "next/link"
-import { ShieldCheckIcon, SparklesIcon } from "lucide-react"
+import { ShieldCheckIcon, UserRoundIcon } from "lucide-react"
 import { MobileNav } from "@/components/app/mobile-nav"
 import { TopNav } from "@/components/app/top-nav"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 
@@ -44,15 +43,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
               <TopNav />
 
-              <div className="hidden items-center gap-3 md:flex">
-                <div className="hidden flex-col text-right xl:flex">
-                  <span className="text-xs font-medium text-slate-500">Review-first workflow</span>
-                  <span className="text-sm font-semibold text-slate-950">Baseline · evidence · candidates · export</span>
-                </div>
-                <Button variant="outline" size="sm" className="rounded-full">
-                  <SparklesIcon data-icon="inline-start" />
-                  Operator mode
-                </Button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-white py-1.5 pl-2 pr-3 text-sm font-semibold text-slate-900 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/35"
+                  aria-label="Nico user menu"
+                >
+                  <span className="flex size-8 items-center justify-center rounded-full bg-slate-950 text-white transition-transform duration-200 group-hover:scale-105">
+                    <UserRoundIcon className="size-4" />
+                  </span>
+                  <span>Nico</span>
+                </button>
               </div>
             </div>
           </header>
