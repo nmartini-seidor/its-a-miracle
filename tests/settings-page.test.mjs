@@ -29,20 +29,20 @@ test('settings can be changed and reset keeps configuration while clearing catal
     defaultResearchDelaySeconds: 45,
     maxEvidencePerProduct: 6,
     defaultCandidateConfidence: 'high',
-    enabledAggregatorIds: ['official-manufacturer', 'source-catalog'],
+    enabledAggregatorIds: ['official-manufacturer', 'apple-official'],
   })
 
   assert.equal(saved.defaultResearchDelaySeconds, 45)
   assert.equal(saved.maxEvidencePerProduct, 6)
   assert.equal(saved.defaultCandidateConfidence, 'high')
-  assert.deepEqual(saved.enabledAggregatorIds, ['official-manufacturer', 'source-catalog'])
+  assert.deepEqual(saved.enabledAggregatorIds, ['official-manufacturer', 'apple-official'])
 
   resetDemoState()
   const afterReset = await getDemoSettings()
   assert.equal(afterReset.defaultResearchDelaySeconds, 45)
   assert.equal(afterReset.maxEvidencePerProduct, 6)
   assert.equal(afterReset.defaultCandidateConfidence, 'high')
-  assert.deepEqual(afterReset.enabledAggregatorIds, ['official-manufacturer', 'source-catalog'])
+  assert.deepEqual(afterReset.enabledAggregatorIds, ['official-manufacturer', 'apple-official'])
 
   updateStoredSettings(demoSettings)
 })

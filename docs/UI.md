@@ -139,11 +139,11 @@ Use `Card`, `Table`, `Badge`, `Chart` if needed.
 The product detail page must show three layers side by side:
 
 1. **Mirakl baseline** — current values from Mirakl/MCM, including warnings and noisy text.
-2. **Source catalog source** — parsed values from the public Source catalog page when available.
-3. **Candidate target** — proposed values from Source catalog + external research, with confidence and evidence.
+2. **External retailer source** — parsed values from the public Retailer page when available.
+3. **Candidate target** — proposed values from Retailer + external research, with confidence and evidence.
 
 Recommended shadcn composition:
-- `Tabs`: Baseline, Source catalog Source, Research Candidates, Evidence, Review, Export History.
+- `Tabs`: Baseline, Retailer Source, Research Candidates, Evidence, Review, Export History.
 - `Table`: field-by-field baseline/source/candidate comparison.
 - `Badge`: source type, confidence, warning/error state.
 - `Sheet`: evidence detail with URL/snippet/access date.

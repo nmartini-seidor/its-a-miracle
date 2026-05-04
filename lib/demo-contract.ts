@@ -87,7 +87,7 @@ export const MOCK_CONTRACT_COMPATIBILITY_CHECKS = [
   "Bump MOCK_DOMAIN_CONTRACT_VERSION whenever canonical entity shapes change.",
   "Update all touched route handlers, selectors, and fixture builders to the new contract.",
   "Re-run lint, typecheck, tests, and task-specific Playwright QA after a contract shape change.",
-  "Confirm no touched files retain Source catalog-specific terminology, selectors, or user-facing copy.",
+  "Confirm no touched files retain legacy source-specific terminology, selectors, or user-facing copy.",
 ] as const
 
 export const DEMO_AGGREGATOR_BLUEPRINTS: ReadonlyArray<Pick<AggregatorDefinition, "id" | "name" | "type">> = [

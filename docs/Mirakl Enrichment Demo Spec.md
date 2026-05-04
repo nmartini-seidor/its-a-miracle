@@ -370,7 +370,7 @@ Brand
 * Current: Missing
 * Candidate: Huawei
 * Confidence: High
-* Evidence badge: Source catalog Huawei FreeClip 2
+* Evidence badge: Retailer Huawei FreeClip 2
 
 Bluetooth version
 
@@ -751,7 +751,7 @@ Example mapping:
 
 Products dataset
 
-Seed the catalog with all mirakl products we have, but we need to remove the "Source catalog" reference in mirakl first, this is a generic tool, not only for source
+Seed the catalog with all mirakl products we have, but we need to remove the "Retailer" reference in mirakl first, this is a generic tool, not only for source
 
 Schema dataset
 

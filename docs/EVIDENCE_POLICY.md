@@ -83,4 +83,4 @@ Rules:
 - Store only URL, access date, source type, and short supporting snippets by default.
 - Do not copy full product pages or copyrighted long-form content into the database.
 - Mark retailer-sourced candidates as `medium` or `low` confidence unless corroborated by official sources.
-- If a retailer source conflicts with Source catalog or manufacturer data, mark it as conflicting evidence for reviewer decision.
+- If a retailer source conflicts with Retailer or manufacturer data, mark it as conflicting evidence for reviewer decision.

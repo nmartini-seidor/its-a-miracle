@@ -52,7 +52,7 @@ These are separate systems with separate permissions. Development agents must no
 - Enrichment jobs may not submit Mirakl imports.
 
 ## Future validation spikes
-- Evaluate source availability for selected source catalog device categories.
+- Evaluate source availability for selected retailer device categories.
 - Test manufacturer source extraction quality.
 - Test PDF parsing/OCR confidence on approved sample docs.
 - Measure candidate precision/recall against manually reviewed sample products.
@@ -70,7 +70,7 @@ The research agent must not directly mutate Mirakl. Its only allowed output is a
 
 ### Research job inputs
 - Mirakl baseline snapshot: title, category, EAN/source identifiers, current description, current attributes, missing required fields, warnings.
-- Source catalog source URL and parsed Source catalog attributes when available.
+- External retailer source URL and parsed Retailer attributes when available.
 - Allowed source policy from `EVIDENCE_POLICY.md`.
 - Category-specific attribute expectations from Mirakl and from the product category mapping.
 
@@ -81,13 +81,13 @@ The research agent must not directly mutate Mirakl. Its only allowed output is a
 4. Extract candidate descriptions, bullet features, attributes, EAN/GTIN, release date, color, battery details, connectivity, dimensions, weights, included accessories, and compatibility.
 5. Save evidence snippets, URLs, access dates, source type, confidence, and extraction method.
 6. Produce field-level candidates such as `bluetooth_version`, `case_dimensions_mm`, `battery_capacity_mah`, `noise_reduction`, `microphone_count`, or improved `description [en]` / localized description.
-7. Mark conflicts when Source catalog, Mirakl, and external sources disagree.
+7. Mark conflicts when Retailer, Mirakl, and external sources disagree.
 
 ### Example: Huawei FreeClip 2 enrichment
 For a Mirakl baseline with missing brand and noisy description, the research job should be able to propose:
 - brand: Huawei, mapped to accepted Mirakl brand code once configured.
 - cleaner description: concise product-focused description rather than storefront checkout/pricing text.
-- attributes from Source catalog: Bluetooth=true, MP3=true, weight_g=37.8gr, dimensions_mm=25.4 x 26.7 x 18.8mm, battery_talk_duration=9h/38h with case, charger_power_unit=W, OS compatibility.
+- attributes from Retailer: Bluetooth=true, MP3=true, weight_g=37.8gr, dimensions_mm=25.4 x 26.7 x 18.8mm, battery_talk_duration=9h/38h with case, charger_power_unit=W, OS compatibility.
 - attributes from external evidence: EAN=6942103169434, color=Negro, Bluetooth version=6.0, USB-C charging, microphone/noise reduction, case dimensions, battery capacity, release date.
 
 All of these remain candidates until a reviewer accepts them.

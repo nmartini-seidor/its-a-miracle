@@ -69,7 +69,7 @@ Covers docs milestone and future implementation validation. No tests are created
 ## Research-agent workflow tests
 
 ### Unit tests
-- Research mission builder includes Mirakl baseline, Source catalog source fields, allowed source policy, and requested focus fields.
+- Research mission builder includes Mirakl baseline, External retailer source fields, allowed source policy, and requested focus fields.
 - Candidate validator rejects research output without evidence links.
 - Confidence scorer lowers retailer-only evidence below official/manufacturer evidence.
 - Description cleaner detects storefront noise such as pricing, login prompts, cart text, and tariff descriptions.

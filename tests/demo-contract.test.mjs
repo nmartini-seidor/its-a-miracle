@@ -14,7 +14,7 @@ const {
 const { heroProduct, products, schemas } = await import('../lib/fixtures.ts')
 const { applyReviewDecisionToProduct, buildExportPreview } = await import('../server/store.ts')
 
-const skippedScanDirs = new Set(['.git', '.next', 'node_modules'])
+const skippedScanDirs = new Set(['.git', '.next', '.omx', 'node_modules'])
 const forbiddenBrandToken = String.fromCharCode(111, 114, 97, 110, 103, 101)
 
 function collectForbiddenBrandReferences(dir = '.') {
@@ -75,17 +75,17 @@ test('schemas and hero fixtures use canonical field identifiers', () => {
   assert.equal(heroProduct.bestEvidenceByField.ean, '6942103169434')
 })
 
-test('seeded catalog uses Source catalog electronics imports instead of unrelated retail products', () => {
-  const sourceImports = products.filter((product) => product.id.startsWith('source-catalog-'))
+test('seeded catalog uses electronics imports instead of unrelated retail products', () => {
+  const catalogItems = products.filter((product) => product.id.startsWith('catalog-item-'))
   const rejectedCatalogTerms = /Fanta|Sprite|Nestea|Aquarius|Soda|T-Shirt|Black Stripe|Coca Cola|Bitter Rosso|Nordic Mist/i
 
-  assert.equal(sourceImports.length, 50)
+  assert.equal(catalogItems.length, 50)
   assert.equal(products.some((product) => rejectedCatalogTerms.test(`${product.title} ${product.brand} ${product.categoryPath.join(' ')}`)), false)
-  assert.equal(sourceImports.every((product) => product.evidence.some((record) => record.sourceName === 'Imported source catalog')), true)
-  assert.equal(sourceImports.every((product) => product.categoryPath.some((entry) => /gaming|computing|phones|tablets/i.test(entry))), true)
-  assert.equal(sourceImports.some((product) => product.qualityScore === 100), false)
-  assert.equal(sourceImports.find((product) => product.id === 'source-catalog-mkp000919395167').schemaId, 'schema-video-games')
-  assert.equal(Object.hasOwn(sourceImports.find((product) => product.id === 'source-catalog-mkp000919395167').baselineAttributes, 'weight'), false)
+  assert.equal(catalogItems.every((product) => product.evidence.length === 0), true)
+  assert.equal(catalogItems.every((product) => product.categoryPath.some((entry) => /gaming|computing|phones|tablets/i.test(entry))), true)
+  assert.equal(catalogItems.some((product) => product.qualityScore === 100), false)
+  assert.equal(catalogItems.find((product) => product.id === 'catalog-item-mkp000919395167').schemaId, 'schema-video-games')
+  assert.equal(Object.hasOwn(catalogItems.find((product) => product.id === 'catalog-item-mkp000919395167').baselineAttributes, 'weight'), false)
 })
 
 test('workspace does not expose the forbidden legacy brand token', () => {

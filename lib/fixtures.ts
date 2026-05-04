@@ -152,30 +152,6 @@ export const aggregators: AggregatorDefinition[] = [
     confidencePolicy: "Use for internal review notes and policy-aligned guidance only.",
   },
   {
-    id: "source-catalog",
-    name: "Imported source catalog",
-    type: "partner_feed",
-    baseUrl: "https://www.mediamarkt.es",
-    authorityScore: 88,
-    defaultConfidence: "high",
-    enabled: true,
-    coverageTags: ["source-import", "mirakl-source", "device-catalog"],
-    sampleDomains: [
-      "mediamarkt.es",
-      "bestbuy.com",
-      "bhphotovideo.com",
-      "currys.co.uk",
-      "fnac.com",
-      "pccomponentes.com",
-      "coolblue.nl",
-      "boulanger.com",
-      "elcorteingles.es",
-      "saturn.de",
-    ],
-    description: "Imported electronics catalog artifacts used as source rows for enrichment examples.",
-    confidencePolicy: "Use as the imported catalog baseline for device titles, identifiers, and visible product specs.",
-  },
-  {
     id: "apple-official",
     name: "Apple official",
     type: "manufacturer",
@@ -489,6 +465,7 @@ const heroBaselineAttributes = {
 
 const heroEvidenceFields = {
   brand: "Huawei",
+  productName: "Huawei FreeClip 2",
   ean: "6942103169434",
   connectivity: "Bluetooth",
   bluetoothVersion: "6.0",
@@ -496,6 +473,7 @@ const heroEvidenceFields = {
   dimensions: "25.4 x 26.7 x 18.8 mm",
   batteryLife: "9 hours standalone / 38 hours with case",
   compatibility: "iOS and Android",
+  noiseReduction: "Integrated noise reduction for calls",
   batteryTechnology: "Li-Ion",
   description: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
 } satisfies ProductRecord["bestEvidenceByField"]
@@ -512,8 +490,10 @@ const heroEvidence: EvidenceRecord[] = [
     summary: "Open-ear wireless earbuds with long battery life, lightweight construction, and broad device compatibility.",
     extractedFields: {
       brand: "Huawei",
+      productName: "Huawei FreeClip 2",
       compatibility: "iOS and Android",
       batteryLife: "9 hours standalone / 38 hours with case",
+      batteryTechnology: "Li-Ion",
       description: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
     },
     capturedAt,
@@ -561,6 +541,16 @@ const heroCandidates: CandidateRecord[] = [
     sourceEvidenceIds: ["ev-freeclip-retailer"],
   },
   {
+    id: "cand-product-name",
+    productId: "freeclip-2",
+    fieldName: "productName",
+    currentValue: null,
+    candidateValue: "Huawei FreeClip 2",
+    confidence: "high",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
+  },
+  {
     id: "cand-description",
     productId: "freeclip-2",
     fieldName: "description",
@@ -569,6 +559,16 @@ const heroCandidates: CandidateRecord[] = [
     confidence: "high",
     status: "proposed",
     sourceEvidenceIds: ["ev-freeclip-manufacturer", "ev-freeclip-retailer"],
+  },
+  {
+    id: "cand-usb-c",
+    productId: "freeclip-2",
+    fieldName: "usbC",
+    currentValue: null,
+    candidateValue: "USB-C",
+    confidence: "medium",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-retailer"],
   },
   {
     id: "cand-bt-version",
@@ -580,9 +580,39 @@ const heroCandidates: CandidateRecord[] = [
     status: "proposed",
     sourceEvidenceIds: ["ev-freeclip-retailer"],
   },
+  {
+    id: "cand-compatibility",
+    productId: "freeclip-2",
+    fieldName: "compatibility",
+    currentValue: null,
+    candidateValue: "iOS and Android",
+    confidence: "high",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
+  },
+  {
+    id: "cand-noise-reduction",
+    productId: "freeclip-2",
+    fieldName: "noiseReduction",
+    currentValue: null,
+    candidateValue: "Integrated noise reduction for calls",
+    confidence: "medium",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-retailer"],
+  },
+  {
+    id: "cand-battery-technology",
+    productId: "freeclip-2",
+    fieldName: "batteryTechnology",
+    currentValue: null,
+    candidateValue: "Li-Ion",
+    confidence: "high",
+    status: "proposed",
+    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
+  },
 ]
 
-type SourceCatalogImportedRow = {
+type CatalogItemRow = {
   id: string
   sku: string
   title: string
@@ -595,9 +625,9 @@ type SourceCatalogImportedRow = {
   warnings: readonly string[]
 }
 
-const sourceCatalogImportedRows = [
+const catalogItemRows = [
   {
-    "id": "source-catalog-mkp000919395167",
+    "id": "catalog-item-mkp000919395167",
     "sku": "SRC_MKP000919395167",
     "title": "Nintendo Videojuego Luigi's Mansion 3 Switch",
     "brand": "Nintendo",
@@ -621,7 +651,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000919369436",
+    "id": "catalog-item-mkp000919369436",
     "sku": "SRC_MKP000919369436",
     "title": "Nintendo Videojuego Mario vs Donkey Kong Switch",
     "brand": "Nintendo",
@@ -644,7 +674,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000919026648",
+    "id": "catalog-item-mkp000919026648",
     "sku": "SRC_MKP000919026648",
     "title": "Nintendo Videojuego Monster Hunter Rise Switch",
     "brand": "Nintendo",
@@ -667,7 +697,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000911904588",
+    "id": "catalog-item-mkp000911904588",
     "sku": "SRC_MKP000911904588",
     "title": "Nintendo NBA 2K26 Nintendo Switch Caja Código Descarga Dig.",
     "brand": "Nintendo",
@@ -690,7 +720,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000917601064",
+    "id": "catalog-item-mkp000917601064",
     "sku": "SRC_MKP000917601064",
     "title": "Nintendo Videojuego Shin Megami Tensei V Vengeance Switch",
     "brand": "Nintendo",
@@ -713,7 +743,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000914595450",
+    "id": "catalog-item-mkp000914595450",
     "sku": "SRC_MKP000914595450",
     "title": "Nintendo SMBros.Wonder Switch 2 Ed+Encuentro Parque Belabel",
     "brand": "Nintendo",
@@ -736,7 +766,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000916055291",
+    "id": "catalog-item-mkp000916055291",
     "sku": "SRC_MKP000916055291",
     "title": "Nintendo Videojuego Totally Spies Cyber Mission Switch",
     "brand": "Nintendo",
@@ -757,7 +787,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-mkp000905189074",
+    "id": "catalog-item-mkp000905189074",
     "sku": "SRC_MKP000905189074",
     "title": "Nintendo Consola Nintendo Switch 2 + Super Mario Galaxy 1y2",
     "brand": "Nintendo",
@@ -780,7 +810,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000904208354",
+    "id": "catalog-item-mkp000904208354",
     "sku": "SRC_MKP000904208354",
     "title": "Nintendo Switch (Versión OLED) Mandos -Blanca",
     "brand": "Nintendo",
@@ -802,7 +832,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-mkp000904580307",
+    "id": "catalog-item-mkp000904580307",
     "sku": "SRC_MKP000904580307",
     "title": "Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon",
     "brand": "Nintendo",
@@ -812,12 +842,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.mediamarkt.es/consolas-y-videojuegos/nintendo/nintendo-switch2-mas-super-mario-galaxy-1y2-mas-joycon/MKP000904580307.html",
-    "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Source catalog Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
+    "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Retailer Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon",
       "ean": "1239045803072",
-      "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Source catalog Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
+      "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Retailer Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
       "compatibility": "Nintendo Switch 2"
     },
     "warnings": [
@@ -825,7 +855,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000907953660",
+    "id": "catalog-item-mkp000907953660",
     "sku": "SRC_MKP000907953660",
     "title": "Nintendo Switch 2 + Animal Crossing + SuperMario Galaxy 1y2",
     "brand": "Nintendo",
@@ -846,7 +876,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-mkp000906664010",
+    "id": "catalog-item-mkp000906664010",
     "sku": "SRC_MKP000906664010",
     "title": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon",
     "brand": "Nintendo",
@@ -856,12 +886,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.mediamarkt.es/consolas-y-videojuegos/nintendo/switch-2-mas-animalcrossing-mas-sm-galaxy-1y2-mas-joycon/MKP000906664010.html",
-    "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Source catalog Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
+    "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Retailer Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon",
       "ean": "1239066640106",
-      "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Source catalog Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
+      "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Retailer Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
       "compatibility": "Nintendo Switch 2"
     },
     "warnings": [
@@ -869,7 +899,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711228",
+    "id": "catalog-item-3711228",
     "sku": "SRC_3711228",
     "title": "Nintendo Switch 2",
     "brand": "Nintendo",
@@ -896,7 +926,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3240446",
+    "id": "catalog-item-3240446",
     "sku": "SRC_3240446",
     "title": "Nintendo Switch + Super Mario Odyssey",
     "brand": "Nintendo",
@@ -906,12 +936,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.mediamarkt.es/consolas-y-videojuegos/nintendo/switch-gris-super-mario-odyssey/3240446.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 360€ Ahorra 50€ vs PVPr Vendido y enviado por Source catalog Entrega desde lun, 20 al jue, 23 Item No.; 3240446 Hay 1 persona viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponi…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 360€ Ahorra 50€ vs PVPr Vendido y enviado por Retailer Entrega desde lun, 20 al jue, 23 Item No.; 3240446 Hay 1 persona viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponi…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch + Super Mario Odyssey",
       "ean": "1233240446713",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 360€ Ahorra 50€ vs PVPr Vendido y enviado por Source catalog Entrega desde lun, 20 al jue, 23 Item No.; 3240446 Hay 1 persona viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponi…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 360€ Ahorra 50€ vs PVPr Vendido y enviado por Retailer Entrega desde lun, 20 al jue, 23 Item No.; 3240446 Hay 1 persona viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponi…",
       "connectivity": "Wifi / Bluetooth",
       "usbC": "Yes",
       "weight": "399gr",
@@ -923,7 +953,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3240684",
+    "id": "catalog-item-3240684",
     "sku": "SRC_3240684",
     "title": "Nintendo Switch OLED + Super Mario Bros Wonder",
     "brand": "Nintendo",
@@ -948,7 +978,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-3711234",
+    "id": "catalog-item-3711234",
     "sku": "SRC_3711234",
     "title": "Microsoft Xbox Series X",
     "brand": "Microsoft",
@@ -958,12 +988,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.mediamarkt.es/gaming/microsoft/xbox-series-x-1tb-negro/3711234.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Source catalog Entrega desde lun, 20 al jue, 23 Item No.; 3711234 Hay 5 personas viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponible actualmente. Avísame Gracias por tu interés. Te avisa…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Retailer Entrega desde lun, 20 al jue, 23 Item No.; 3711234 Hay 5 personas viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponible actualmente. Avísame Gracias por tu interés. Te avisa…",
     "attributes": {
       "brand": "Microsoft",
       "productName": "Microsoft Xbox Series X",
       "ean": "1233711234610",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Source catalog Entrega desde lun, 20 al jue, 23 Item No.; 3711234 Hay 5 personas viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponible actualmente. Avísame Gracias por tu interés. Te avisa…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Retailer Entrega desde lun, 20 al jue, 23 Item No.; 3711234 Hay 5 personas viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponible actualmente. Avísame Gracias por tu interés. Te avisa…",
       "connectivity": "Wifi / Bluetooth",
       "weight": "4445gr",
       "dimensions": "301 × 151 × 151mm",
@@ -974,7 +1004,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000432796356",
+    "id": "catalog-item-mkp000432796356",
     "sku": "SRC_MKP000432796356",
     "title": "HP Monitor OMEN 25 FHD 360HZ BG1M4E9",
     "brand": "HP",
@@ -1000,7 +1030,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000430187951",
+    "id": "catalog-item-mkp000430187951",
     "sku": "SRC_MKP000430187951",
     "title": "HP Monitor OMEN 27 G2 FHD 180HZ AV4K1E9",
     "brand": "HP",
@@ -1026,7 +1056,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000432953376",
+    "id": "catalog-item-mkp000432953376",
     "sku": "SRC_MKP000432953376",
     "title": "HP Monitor OMEN 27Q G2 QHD 180HZ AV4H6E9",
     "brand": "HP",
@@ -1050,7 +1080,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-mkp000439042469",
+    "id": "catalog-item-mkp000439042469",
     "sku": "SRC_MKP000439042469",
     "title": "LG Monitor 27\" Panel IPS FHD",
     "brand": "LG",
@@ -1074,7 +1104,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-mkp000435784934",
+    "id": "catalog-item-mkp000435784934",
     "sku": "SRC_MKP000435784934",
     "title": "LG Monitor UltraGear G4 27\" FHD IPS con 144Hz (O/C)",
     "brand": "LG",
@@ -1100,7 +1130,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000439101545",
+    "id": "catalog-item-mkp000439101545",
     "sku": "SRC_MKP000439101545",
     "title": "MSI Monitor PRO MP275Q 27\"",
     "brand": "MSI",
@@ -1126,7 +1156,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000433358152",
+    "id": "catalog-item-mkp000433358152",
     "sku": "SRC_MKP000433358152",
     "title": "Samsung Monitor Curvo 34\" Viefinity S65UC",
     "brand": "Samsung",
@@ -1152,7 +1182,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-mkp000435586633",
+    "id": "catalog-item-mkp000435586633",
     "sku": "SRC_MKP000435586633",
     "title": "Samsung Monitor ViewFinity S6 S60UD QHD",
     "brand": "Samsung",
@@ -1178,7 +1208,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004070",
+    "id": "catalog-item-3004070",
     "sku": "SRC_3004070",
     "title": "Apple iPhone 17 con 5G",
     "brand": "Apple",
@@ -1188,12 +1218,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.mediamarkt.es/moviles/apple/iphone-17-256gb-morado/3004070.html",
-    "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+    "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 con 5G",
       "ean": "1233004070710",
-      "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
       "model": "iPhone 17 con 5G",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -1212,7 +1242,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004067",
+    "id": "catalog-item-3004067",
     "sku": "SRC_3004067",
     "title": "Apple iPhone 17 con 5G",
     "brand": "Apple",
@@ -1222,12 +1252,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.mediamarkt.es/moviles/apple/iphone-17-256gb-negro/3004067.html",
-    "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+    "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 con 5G",
       "ean": "1233004067109",
-      "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
       "model": "iPhone 17 con 5G",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -1246,7 +1276,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004083",
+    "id": "catalog-item-3004083",
     "sku": "SRC_3004083",
     "title": "Apple iPhone 17 Pro con 5G",
     "brand": "Apple",
@@ -1256,12 +1286,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.mediamarkt.es/moviles/apple/iphone-17-pro-256gb-azul/3004083.html",
-    "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+    "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 Pro con 5G",
       "ean": "1233004083109",
-      "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
       "model": "iPhone 17 Pro con 5G",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -1280,7 +1310,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004084",
+    "id": "catalog-item-3004084",
     "sku": "SRC_3004084",
     "title": "Apple iPhone 17 Pro con 5G",
     "brand": "Apple",
@@ -1290,12 +1320,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.mediamarkt.es/moviles/apple/iphone-17-pro-256gb-naranja/3004084.html",
-    "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+    "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 Pro con 5G",
       "ean": "1233004084359",
-      "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
       "model": "iPhone 17 Pro con 5G",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -1314,7 +1344,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004090",
+    "id": "catalog-item-3004090",
     "sku": "SRC_3004090",
     "title": "Apple iPhone 17 Pro Max con 5G",
     "brand": "Apple",
@@ -1348,7 +1378,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004091",
+    "id": "catalog-item-3004091",
     "sku": "SRC_3004091",
     "title": "Apple iPhone 17 Pro Max con 5G",
     "brand": "Apple",
@@ -1382,7 +1412,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004277",
+    "id": "catalog-item-3004277",
     "sku": "SRC_3004277",
     "title": "Apple iPhone 17e con 5G",
     "brand": "Apple",
@@ -1416,7 +1446,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004279",
+    "id": "catalog-item-3004279",
     "sku": "SRC_3004279",
     "title": "Apple iPhone 17e con 5G",
     "brand": "Apple",
@@ -1450,7 +1480,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711297",
+    "id": "catalog-item-3711297",
     "sku": "SRC_3711297",
     "title": "Apple iPad Air M4 Wifi 11",
     "brand": "Apple",
@@ -1481,7 +1511,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-3711299",
+    "id": "catalog-item-3711299",
     "sku": "SRC_3711299",
     "title": "Apple iPad Air M4 Wifi 13",
     "brand": "Apple",
@@ -1512,7 +1542,7 @@ const sourceCatalogImportedRows = [
     "warnings": []
   },
   {
-    "id": "source-catalog-3711223",
+    "id": "catalog-item-3711223",
     "sku": "SRC_3711223",
     "title": "Apple iPad Pro M5",
     "brand": "Apple",
@@ -1545,7 +1575,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711018",
+    "id": "catalog-item-3711018",
     "sku": "SRC_3711018",
     "title": "Apple iPad Wifi 11 2025",
     "brand": "Apple",
@@ -1555,12 +1585,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.mediamarkt.es/tablets/apple/ipad-wifi-11-2025-128gb-plata/3711018.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Source catalog Entrega desde lun, 2…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Retailer Entrega desde lun, 2…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPad Wifi 11 2025",
       "ean": "1233711018135",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Source catalog Entrega desde lun, 2…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Retailer Entrega desde lun, 2…",
       "model": "iPad Wifi 11 2025",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -1577,7 +1607,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3003898",
+    "id": "catalog-item-3003898",
     "sku": "SRC_3003898",
     "title": "Apple iPad Wifi + Cellular 11 2025",
     "brand": "Apple",
@@ -1609,7 +1639,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711229",
+    "id": "catalog-item-3711229",
     "sku": "SRC_3711229",
     "title": "Lenovo Idea Tab 11 256 GB",
     "brand": "Lenovo",
@@ -1642,7 +1672,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711198",
+    "id": "catalog-item-3711198",
     "sku": "SRC_3711198",
     "title": "Samsung Galaxy Tab A11+ Wifi",
     "brand": "Samsung",
@@ -1676,7 +1706,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711109",
+    "id": "catalog-item-3711109",
     "sku": "SRC_3711109",
     "title": "Samsung Galaxy Tab S11 Ultra",
     "brand": "Samsung",
@@ -1710,7 +1740,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711230",
+    "id": "catalog-item-3711230",
     "sku": "SRC_3711230",
     "title": "HP Laptop AMD Ryzen 5",
     "brand": "HP",
@@ -1739,7 +1769,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711104",
+    "id": "catalog-item-3711104",
     "sku": "SRC_3711104",
     "title": "Lenovo Ideapad 3 13420H",
     "brand": "Lenovo",
@@ -1768,7 +1798,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711237",
+    "id": "catalog-item-3711237",
     "sku": "SRC_3711237",
     "title": "Lenovo Ideapad 3 i3",
     "brand": "Lenovo",
@@ -1797,7 +1827,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711105",
+    "id": "catalog-item-3711105",
     "sku": "SRC_3711105",
     "title": "Lenovo IdeaPad 5 13620H",
     "brand": "Lenovo",
@@ -1826,7 +1856,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711261",
+    "id": "catalog-item-3711261",
     "sku": "SRC_3711261",
     "title": "Lenovo Portátil ThinkBook 14 iULTRA5",
     "brand": "Lenovo",
@@ -1854,7 +1884,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3711262",
+    "id": "catalog-item-3711262",
     "sku": "SRC_3711262",
     "title": "Lenovo Portátil ThinkPad X1 iULTRA7",
     "brand": "Lenovo",
@@ -1882,7 +1912,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3710960",
+    "id": "catalog-item-3710960",
     "sku": "SRC_3710960",
     "title": "LG gram Book 15U50T",
     "brand": "LG",
@@ -1911,7 +1941,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3240734",
+    "id": "catalog-item-3240734",
     "sku": "SRC_3240734",
     "title": "Samsung Galaxy Book4 Edge 15 Office 365",
     "brand": "Samsung",
@@ -1939,7 +1969,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004222",
+    "id": "catalog-item-3004222",
     "sku": "SRC_3004222",
     "title": "Samsung Galaxy S26 5G",
     "brand": "Samsung",
@@ -1949,12 +1979,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.mediamarkt.es/moviles/samsung/galaxy-s26-5g-256gb-morado/3004222.html",
-    "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+    "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy S26 5G",
       "ean": "1233004222140",
-      "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
       "model": "Galaxy S26 5G",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -1974,7 +2004,7 @@ const sourceCatalogImportedRows = [
     ]
   },
   {
-    "id": "source-catalog-3004223",
+    "id": "catalog-item-3004223",
     "sku": "SRC_3004223",
     "title": "Samsung Galaxy S26 5G",
     "brand": "Samsung",
@@ -1984,12 +2014,12 @@ const sourceCatalogImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.mediamarkt.es/moviles/samsung/galaxy-s26-5g-256gb-negro/3004223.html",
-    "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+    "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy S26 5G",
       "ean": "1233004223109",
-      "description": "Vende tu móvil usado con Source catalog ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Source catalog Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "description": "Vende tu móvil usado con Retailer ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://www.backmarket.com/en-us/buyback elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Retailer Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
       "model": "Galaxy S26 5G",
       "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
@@ -2008,7 +2038,7 @@ const sourceCatalogImportedRows = [
       "Description contains storefront or promotional copy"
     ]
   }
-] satisfies SourceCatalogImportedRow[]
+] satisfies CatalogItemRow[]
 
 function hasAttributeValue(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0
@@ -2018,7 +2048,7 @@ function getSchemaForProduct(schemaId: string) {
   return schemas.find((schema) => schema.id === schemaId) ?? null
 }
 
-function getMissingRequiredWarnings(row: SourceCatalogImportedRow) {
+function getMissingRequiredWarnings(row: CatalogItemRow) {
   const schema = getSchemaForProduct(row.schemaId)
   if (!schema) return ["Schema assignment missing"]
 
@@ -2031,11 +2061,8 @@ function getInitialStatus(score: number, warnings: readonly string[]) {
   return score >= 90 && warnings.length === 0 ? "READY_FOR_REVIEW" : "NEEDS_ENRICHMENT"
 }
 
-function buildSourceCatalogImportedProducts(rows: readonly SourceCatalogImportedRow[]): ProductRecord[] {
+function buildCatalogItemProducts(rows: readonly CatalogItemRow[]): ProductRecord[] {
   return rows.map((row): ProductRecord => {
-    const extractedFields = Object.fromEntries(
-      Object.entries(row.attributes).filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].length > 0),
-    ) as EvidenceRecord["extractedFields"]
     const schema = getSchemaForProduct(row.schemaId)
     const warnings = [...row.warnings, ...getMissingRequiredWarnings(row)]
 
@@ -2052,22 +2079,8 @@ function buildSourceCatalogImportedProducts(rows: readonly SourceCatalogImported
       baselineDescription: row.description,
       warnings,
       baselineAttributes: row.attributes,
-      bestEvidenceByField: extractedFields,
-      evidence: [
-        {
-          id: `ev-${row.id}-source-catalog`,
-          productId: row.id,
-          aggregatorId: "source-catalog",
-          sourceName: "Imported source catalog",
-          sourceType: "partner_feed",
-          sourceUrl: row.sourceUrl,
-          title: `${row.title} imported source catalog record`,
-          summary: "Imported electronics catalog record used as the electronics source catalog baseline.",
-          extractedFields,
-          capturedAt,
-          confidence: "high",
-        },
-      ],
+      bestEvidenceByField: {},
+      evidence: [],
       candidates: [],
     }
 
@@ -2079,7 +2092,7 @@ function buildSourceCatalogImportedProducts(rows: readonly SourceCatalogImported
   })
 }
 
-const sourceCatalogImportedProducts = buildSourceCatalogImportedProducts(sourceCatalogImportedRows)
+const catalogItemProducts = buildCatalogItemProducts(catalogItemRows)
 
 const baseProducts: ProductRecord[] = [
   {
@@ -2208,7 +2221,7 @@ const baseProducts: ProductRecord[] = [
   },
 ]
 
-baseProducts.push(...sourceCatalogImportedProducts)
+baseProducts.push(...catalogItemProducts)
 
 for (const product of baseProducts) {
   const schema = getSchemaForProduct(product.schemaId)

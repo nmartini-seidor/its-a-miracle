@@ -1,7 +1,7 @@
 .credentials.txt
 .omx/
 
-# Generated Source catalog extraction run outputs
+# Generated Retailer extraction run outputs
 /data/source/runs/
 __pycache__/
 *.py[cod]

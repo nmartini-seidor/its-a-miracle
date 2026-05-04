@@ -11,7 +11,7 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   assert.equal(importDemoProducts(), 55)
   const initialProduct = getStoredProduct('freeclip-2')
   assert.equal(initialProduct.listingStatus, 'NEEDS_ENRICHMENT')
-  assert.equal(initialProduct.candidates.length, 4)
+  assert.equal(initialProduct.candidates.length, 9)
   assert.equal(initialProduct.evidence.length, 2)
 
   const run = createMockResearchRun('freeclip-2')
@@ -19,7 +19,7 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   addReviewDecision('cand-brand', 'APPROVE', 'demo accept')
 
   const mutatedProduct = getStoredProduct('freeclip-2')
-  assert.equal(mutatedProduct.candidates.length > 4, true)
+  assert.equal(mutatedProduct.candidates.length > 9, true)
   assert.equal(mutatedProduct.listingStatus !== 'NEEDS_ENRICHMENT', true)
 
   resetDemoState()
@@ -28,7 +28,7 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   importDemoProducts()
   const resetProduct = getStoredProduct('freeclip-2')
   assert.equal(resetProduct.listingStatus, 'NEEDS_ENRICHMENT')
-  assert.equal(resetProduct.candidates.length, 4)
+  assert.equal(resetProduct.candidates.length, 9)
   assert.equal(resetProduct.evidence.length, 2)
   assert.equal(resetProduct.warnings.includes('EAN requires review'), true)
 })
