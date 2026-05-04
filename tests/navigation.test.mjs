@@ -6,11 +6,11 @@ const { isSectionActive, workspaceSections } = await import('../lib/navigation.t
 
 test('workspace navigation exposes the approved top-level sections', () => {
   assert.deepEqual(workspaceSections, [
-    { label: 'Products', href: '/' },
-    { label: 'Catalog', href: '/catalog' },
-    { label: 'Schemas', href: '/schemas' },
-    { label: 'Aggregators', href: '/aggregators' },
-    { label: 'Settings', href: '/settings' },
+    { label: 'Products', href: '/', icon: 'products' },
+    { label: 'Catalog', href: '/catalog', icon: 'catalog' },
+    { label: 'Schemas', href: '/schemas', icon: 'schemas' },
+    { label: 'Aggregators', href: '/aggregators', icon: 'aggregators' },
+    { label: 'Settings', href: '/settings', icon: 'settings' },
   ])
 })
 
@@ -27,4 +27,12 @@ test('top-level shell sections have concrete route files and a mobile fallback n
     assert.equal(existsSync(`app${section.href}/page.tsx`.replace('//', '/')), true, `${section.href} route file should exist`)
   }
   assert.equal(existsSync('./components/app/mobile-nav.tsx'), true)
+  assert.equal(existsSync('./components/app/navigation-icons.tsx'), true)
+})
+
+test('workspace navigation carries an icon key for every visible section', () => {
+  assert.deepEqual(
+    workspaceSections.map((section) => section.icon),
+    ['products', 'catalog', 'schemas', 'aggregators', 'settings'],
+  )
 })

@@ -1,8 +1,9 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs"
 import path from "node:path"
-import { aggregators, demoSettings, products as seededProducts } from "../lib/fixtures.ts"
+import { aggregators, demoSettings, products as seededProducts, schemas } from "../lib/fixtures.ts"
 import { isExportableAttributeField } from "../lib/demo-contract.ts"
 import type {
+  AttributeFieldId,
   CandidateRecord,
   ContractFieldId,
   AggregatorDefinition,
@@ -75,13 +76,22 @@ function clampNumber(value: number | undefined, min: number, max: number, fallba
   return Math.min(max, Math.max(min, Math.round(value)))
 }
 
+function cloneImportedProducts() {
+  return structuredClone(seededProducts).map((product) => ({
+    ...product,
+    bestEvidenceByField: {},
+    candidates: [],
+    evidence: [],
+  }))
+}
+
 function buildInitialState(
   settings: SettingsSnapshot = cloneDefaultSettings(),
   schemaOverrides: Record<string, SchemaDefinition> = {},
   aggregatorOverrides: Record<string, AggregatorDefinition> = {},
 ): DemoCatalogState {
   return {
-    products: structuredClone(seededProducts),
+    products: cloneImportedProducts(),
     researchRuns: [],
     reviewDecisions: [],
     settings,
@@ -262,57 +272,216 @@ export function applyReviewDecisionToProduct(product: ProductRecord, candidateId
   return candidate
 }
 
-function buildResearchOutcome(product: ProductRecord, sequence: number, timestamp: string) {
-  const evidence: EvidenceRecord = {
-    id: `ev-research-${product.id}-${sequence}`,
-    productId: product.id,
+const researchSourceTemplates = [
+  {
+    aggregatorId: "official-manufacturer",
+    sourceName: "Official manufacturer",
+    sourceType: "manufacturer",
+    baseUrl: "https://www.samsung.com/search/?searchvalue=",
+    confidence: "high",
+  },
+  {
     aggregatorId: "spec-database",
     sourceName: "Specification database",
     sourceType: "spec_database",
-    sourceUrl: "https://www.notebookcheck.net/Open-ear-headphones-with-glamour-factor-Huawei-FreeClip-2-review.1232768.0.html",
-    title: `${product.title} technical field refresh`,
-    summary: "Research validated battery technology and microphone support while keeping the Mirakl baseline unchanged.",
-    extractedFields: {
-      microphone: "Dual microphone call pickup",
-      batteryTechnology: "Li-Ion",
-      researchSummary: "Research completed; review the new technical findings before export.",
-    },
-    capturedAt: timestamp,
+    baseUrl: "https://www.gsmarena.com/results.php3?sQuickSearch=yes&sName=",
     confidence: "high",
-  }
+  },
+  {
+    aggregatorId: "trusted-retailer",
+    sourceName: "Trusted retailer",
+    sourceType: "retailer",
+    baseUrl: "https://www.bestbuy.com/site/searchpage.jsp?st=",
+    confidence: "medium",
+  },
+] as const satisfies readonly {
+  aggregatorId: string
+  sourceName: string
+  sourceType: EvidenceRecord["sourceType"]
+  baseUrl: string
+  confidence: EvidenceRecord["confidence"]
+}[]
 
-  const candidate: CandidateRecord = {
-    id: `cand-research-${product.id}-${sequence}`,
+function hasAttributeValue(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function slugSearch(value: string) {
+  return encodeURIComponent(value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim())
+}
+
+function getProductSchema(product: ProductRecord) {
+  return schemas.find((schema) => schema.id === product.schemaId) ?? null
+}
+
+function deterministicDigits(seed: string, length: number) {
+  let hash = 0
+  for (const character of seed) hash = (hash * 31 + character.charCodeAt(0)) >>> 0
+  let value = String(hash).padStart(length, "0")
+  while (value.length < length) value += value
+  return value.slice(0, length)
+}
+
+function getModelName(product: ProductRecord) {
+  const baselineModel = product.baselineAttributes.model
+  if (hasAttributeValue(baselineModel)) return baselineModel
+  if (product.brand && product.title.toLowerCase().startsWith(product.brand.toLowerCase())) {
+    return product.title.slice(product.brand.length).trim() || product.title
+  }
+  return product.title
+}
+
+function getResearchValue(product: ProductRecord, field: AttributeFieldId) {
+  const baselineValue = product.baselineAttributes[field]
+  const schema = getProductSchema(product)
+  const category = product.categoryPath.join(" / ")
+
+  switch (field) {
+    case "brand":
+      return product.brand ?? product.title.split(" ")[0]
+    case "productName":
+      return product.title
+    case "ean":
+      return hasAttributeValue(baselineValue) ? baselineValue : `84${deterministicDigits(product.id, 11)}`
+    case "description":
+      return `${product.title} is a ${schema?.name.toLowerCase() ?? "consumer electronics"} product reviewed for Mirakl enrichment with normalized identity, specification, and compatibility details.`
+    case "model":
+      return getModelName(product)
+    case "connectivity":
+      if (/tv|monitor/i.test(category)) return "HDMI / Wi-Fi / Bluetooth"
+      if (/gaming/i.test(category)) return "Wi-Fi / Bluetooth / USB-C"
+      return "Wi-Fi / Bluetooth"
+    case "bluetooth":
+      return "Yes"
+    case "bluetoothVersion":
+      return /audio|headphones/i.test(category) ? "5.3" : "5.2"
+    case "usbC":
+      return "USB-C"
+    case "weight":
+      if (hasAttributeValue(baselineValue)) return baselineValue
+      if (/headphones|audio/i.test(category)) return "250 g"
+      if (/phone/i.test(category)) return "190 g"
+      if (/tablet/i.test(category)) return "571 g"
+      return "2.1 kg"
+    case "batteryLife":
+      return hasAttributeValue(baselineValue) ? baselineValue : "Up to 10 hours"
+    case "batteryTechnology":
+      return "Li-Ion"
+    case "dimensions":
+      return hasAttributeValue(baselineValue) ? baselineValue : "Product dimensions verified from technical specification"
+    case "compatibility":
+      if (/video games|gaming/i.test(category)) return "Current-generation console ecosystem"
+      if (/audio|headphones/i.test(category)) return "iOS and Android"
+      return "Windows, macOS, iOS, and Android"
+    case "noiseReduction":
+      return /audio|headphones/i.test(category) ? "Active noise reduction for calls" : "Not applicable"
+    case "microphone":
+      return "Integrated microphone array"
+    case "storage":
+      return hasAttributeValue(baselineValue) ? String(baselineValue).replace(/(\d+)GB/i, "$1 GB") : "256 GB"
+    case "ram":
+      return hasAttributeValue(baselineValue) ? String(baselineValue).replace(/(\d+)GB/i, "$1 GB") : "8 GB"
+    case "displaySize":
+      return hasAttributeValue(baselineValue) ? baselineValue : /tv/i.test(category) ? "55 in" : "6.7 in"
+    case "resolution":
+      return hasAttributeValue(baselineValue) ? baselineValue : /tv|monitor/i.test(category) ? "3840 x 2160" : "2400 x 1080"
+    case "panelTechnology":
+      return hasAttributeValue(baselineValue) ? baselineValue : /tv/i.test(category) ? "OLED" : "IPS"
+    case "refreshRate":
+      return "120 Hz"
+    case "hdmiPorts":
+      return "4 HDMI ports"
+    case "stylusSupport":
+      return /tablet/i.test(category) ? "Compatible stylus supported" : "Not applicable"
+    case "batteryCapacity":
+      if (hasAttributeValue(baselineValue)) return baselineValue
+      if (/phone/i.test(category)) return "5000 mAh"
+      if (/tablet/i.test(category)) return "10000 mAh"
+      return "Rechargeable battery"
+    case "cameraResolution":
+      return hasAttributeValue(baselineValue) ? baselineValue : "50 MP"
+  }
+}
+
+function getResearchCandidateFields(product: ProductRecord) {
+  const schema = getProductSchema(product)
+  const reviewFields = [...(schema?.requiredAttributes ?? []), ...(schema?.recommendedAttributes ?? [])]
+  const preferred = reviewFields.filter((field) => !hasAttributeValue(product.baselineAttributes[field]))
+  const normalized = reviewFields.filter((field) => hasAttributeValue(product.baselineAttributes[field]) && ["description", "storage", "ram", "weight", "dimensions"].includes(field))
+  const selected = [...new Set([...preferred, ...normalized, ...reviewFields])]
+  return selected.slice(0, Math.max(3, Math.min(6, selected.length)))
+}
+
+function fieldsForEvidence(candidateFields: AttributeFieldId[], evidenceIndex: number) {
+  if (evidenceIndex === 0) return candidateFields.filter((_, index) => index % 3 !== 2)
+  if (evidenceIndex === 1) return candidateFields.filter((_, index) => index % 3 !== 0)
+  return candidateFields.filter((_, index) => index % 3 !== 1)
+}
+
+function buildResearchOutcome(product: ProductRecord, sequence: number, timestamp: string) {
+  const candidateFields = getResearchCandidateFields(product)
+  const valuesByField = new Map(candidateFields.map((field) => [field, getResearchValue(product, field)] as const))
+  const search = slugSearch(product.title)
+
+  const evidence = researchSourceTemplates.map((source, index): EvidenceRecord => {
+    const evidenceFields = fieldsForEvidence(candidateFields, index)
+    const extractedFields = evidenceFields.reduce<EvidenceRecord["extractedFields"]>((acc, field) => {
+      const value = valuesByField.get(field)
+      if (value != null) acc[field] = value
+      return acc
+    }, {})
+
+    return {
+      id: `ev-research-${product.id}-${sequence}-${index + 1}`,
+      productId: product.id,
+      aggregatorId: source.aggregatorId,
+      sourceName: source.sourceName,
+      sourceType: source.sourceType,
+      sourceUrl: `${source.baseUrl}${search}`,
+      title: `${source.sourceName} evidence for ${product.title}`,
+      summary: `${source.sourceName} contributed evidence for ${candidateFields.length} candidate product-data fields.`,
+      extractedFields,
+      capturedAt: timestamp,
+      confidence: source.confidence,
+    }
+  })
+
+  const candidates = candidateFields.map((field): CandidateRecord => ({
+    id: `cand-research-${product.id}-${sequence}-${field}`,
     productId: product.id,
-    fieldName: "microphone",
-    currentValue: null,
-    candidateValue: "Dual microphone call pickup",
-    confidence: "high",
+    fieldName: field,
+    currentValue: product.baselineAttributes[field] ?? null,
+    candidateValue: valuesByField.get(field) ?? product.title,
+    confidence: field === "brand" || field === "productName" || field === "ean" ? "high" : "medium",
     status: "proposed",
-    sourceEvidenceIds: [evidence.id],
-    reason: "Generated by the research workflow.",
-  }
+    sourceEvidenceIds: evidence.filter((record) => record.extractedFields[field] != null).map((record) => record.id),
+    reason: "Generated by the research workflow from linked evidence sources.",
+  }))
 
-  return { evidence, candidate }
+  return { evidence, candidates }
 }
 
 function applyResearchOutcome(state: DemoCatalogState, run: StoredResearchJob, timestamp: string) {
   const product = state.products.find((item) => item.id === run.productId)
   if (!product || run.applied) return run
 
-  const { evidence, candidate } = buildResearchOutcome(product, state.researchRuns.length, timestamp)
-  product.evidence.push(evidence)
-  product.candidates.push(candidate)
-  product.bestEvidenceByField.microphone = candidate.candidateValue
+  const { evidence, candidates } = buildResearchOutcome(product, state.researchRuns.length, timestamp)
+  product.evidence.push(...evidence)
+  product.candidates.push(...candidates)
+  for (const candidate of candidates) {
+    if (isExportableAttributeField(candidate.fieldName)) {
+      product.bestEvidenceByField[candidate.fieldName] = candidate.candidateValue
+    }
+  }
   product.listingStatus = "READY_FOR_REVIEW"
   product.warnings = [
     ...product.warnings.filter((warning) => warning !== "Candidate EAN differs from Mirakl baseline"),
     "Research completed; new candidate values are ready for review",
   ]
 
-  run.evidenceIds = [evidence.id]
-  run.candidateIds = [candidate.id]
-  run.summary = "Research completed. New candidate values are ready for review."
+  run.evidenceIds = evidence.map((record) => record.id)
+  run.candidateIds = candidates.map((candidate) => candidate.id)
+  run.summary = `Research completed. ${candidates.length} candidate values backed by ${evidence.length} evidence links are ready for review.`
   run.updatedAt = timestamp
   run.applied = true
   return run

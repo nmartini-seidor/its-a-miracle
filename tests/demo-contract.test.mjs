@@ -60,7 +60,8 @@ test('schemas and hero fixtures use canonical field identifiers', () => {
   assert.equal(products.length >= 5, true)
   assert.equal(heroProduct.categoryPath.some((entry) => /source/i.test(entry)), false)
   assert.equal(/source/i.test(heroProduct.baselineDescription), false)
-  assert.equal(heroProduct.evidence.some((record) => /source/i.test(record.title) || /source/i.test(record.sourceName)), false)
+  assert.equal(heroProduct.evidence.length, 0)
+  assert.equal(heroProduct.candidates.length, 0)
 
   for (const schema of schemas) {
     schema.requiredAttributes.forEach((field) => assert.equal(isAttributeFieldId(field), true))
@@ -72,7 +73,7 @@ test('schemas and hero fixtures use canonical field identifiers', () => {
   heroProduct.candidates.forEach((candidate) => {
     assert.equal(candidate.fieldName === 'researchSummary' || isAttributeFieldId(candidate.fieldName), true)
   })
-  assert.equal(heroProduct.bestEvidenceByField.ean, '6942103169434')
+  assert.deepEqual(heroProduct.bestEvidenceByField, {})
 })
 
 test('seeded catalog uses electronics imports instead of unrelated retail products', () => {
@@ -94,22 +95,48 @@ test('workspace does not expose the forbidden legacy brand token', () => {
 
 test('export preview includes only exportable accepted candidate values and preserves one accepted candidate per field', () => {
   const draftProduct = structuredClone(heroProduct)
-  draftProduct.candidates.push({
-    ...draftProduct.candidates[0],
-    id: 'cand-brand-alt',
-    candidateValue: 'Huawei Audio',
-    status: 'accepted',
-  })
-  draftProduct.candidates.push({
-    id: 'cand-research-summary',
-    productId: draftProduct.id,
-    fieldName: 'researchSummary',
-    currentValue: null,
-    candidateValue: 'Operator note',
-    confidence: 'medium',
-    status: 'accepted',
-    sourceEvidenceIds: [],
-  })
+  draftProduct.candidates.push(
+    {
+      id: 'cand-brand',
+      productId: draftProduct.id,
+      fieldName: 'brand',
+      currentValue: null,
+      candidateValue: 'Huawei',
+      confidence: 'high',
+      status: 'proposed',
+      sourceEvidenceIds: ['ev-brand'],
+    },
+    {
+      id: 'cand-ean',
+      productId: draftProduct.id,
+      fieldName: 'ean',
+      currentValue: null,
+      candidateValue: '6942103169434',
+      confidence: 'high',
+      status: 'proposed',
+      sourceEvidenceIds: ['ev-ean'],
+    },
+    {
+      id: 'cand-brand-alt',
+      productId: draftProduct.id,
+      fieldName: 'brand',
+      currentValue: null,
+      candidateValue: 'Huawei Audio',
+      confidence: 'medium',
+      status: 'accepted',
+      sourceEvidenceIds: ['ev-brand-alt'],
+    },
+    {
+      id: 'cand-research-summary',
+      productId: draftProduct.id,
+      fieldName: 'researchSummary',
+      currentValue: null,
+      candidateValue: 'Operator note',
+      confidence: 'medium',
+      status: 'accepted',
+      sourceEvidenceIds: [],
+    },
+  )
 
   applyReviewDecisionToProduct(draftProduct, 'cand-brand', 'APPROVE')
   applyReviewDecisionToProduct(draftProduct, 'cand-ean', 'APPROVE')

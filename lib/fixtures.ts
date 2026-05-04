@@ -6,14 +6,10 @@ import {
 import { qualityScore } from "./scoring.ts"
 import type {
   AggregatorDefinition,
-  CandidateRecord,
-  EvidenceRecord,
   ProductRecord,
   SchemaDefinition,
   SettingsSnapshot,
 } from "./types.ts"
-
-const capturedAt = "2026-04-15T00:00:00Z"
 
 export const aggregators: AggregatorDefinition[] = [
   {
@@ -463,166 +459,17 @@ const heroBaselineAttributes = {
   description: "Flexible payment text, charging disclaimers, and storefront promotional copy are mixed into the baseline product description.",
 } satisfies ProductRecord["baselineAttributes"]
 
-const heroEvidenceFields = {
-  brand: "Huawei",
-  productName: "Huawei FreeClip 2",
-  ean: "6942103169434",
-  connectivity: "Bluetooth",
-  bluetoothVersion: "6.0",
-  usbC: "USB-C",
-  dimensions: "25.4 x 26.7 x 18.8 mm",
-  batteryLife: "9 hours standalone / 38 hours with case",
-  compatibility: "iOS and Android",
-  noiseReduction: "Integrated noise reduction for calls",
-  batteryTechnology: "Li-Ion",
-  description: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
-} satisfies ProductRecord["bestEvidenceByField"]
-
-const heroEvidence: EvidenceRecord[] = [
-  {
-    id: "ev-freeclip-manufacturer",
-    productId: "freeclip-2",
-    aggregatorId: "official-manufacturer",
-    sourceName: "Official manufacturer",
-    sourceType: "manufacturer",
-    sourceUrl: "https://consumer.huawei.com/uk/headphones/freeclip2/specs",
-    title: "Huawei FreeClip 2 official product page",
-    summary: "Open-ear wireless earbuds with long battery life, lightweight construction, and broad device compatibility.",
-    extractedFields: {
-      brand: "Huawei",
-      productName: "Huawei FreeClip 2",
-      compatibility: "iOS and Android",
-      batteryLife: "9 hours standalone / 38 hours with case",
-      batteryTechnology: "Li-Ion",
-      description: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
-    },
-    capturedAt,
-    confidence: "high",
-  },
-  {
-    id: "ev-freeclip-retailer",
-    productId: "freeclip-2",
-    aggregatorId: "trusted-retailer",
-    sourceName: "Trusted retailer",
-    sourceType: "retailer",
-    sourceUrl: "https://www.boulanger.com/ref/1233204",
-    title: "Trusted retailer listing for Huawei FreeClip 2",
-    summary: "Retail listing highlights Bluetooth 6.0, USB-C charging, integrated microphone, and charging case support.",
-    extractedFields: {
-      ean: "6942103169434",
-      bluetoothVersion: "6.0",
-      usbC: "USB-C",
-      noiseReduction: "Integrated noise reduction for calls",
-    },
-    capturedAt,
-    confidence: "medium",
-  },
-]
-
-const heroCandidates: CandidateRecord[] = [
-  {
-    id: "cand-brand",
-    productId: "freeclip-2",
-    fieldName: "brand",
-    currentValue: null,
-    candidateValue: "Huawei",
-    confidence: "high",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
-  },
-  {
-    id: "cand-ean",
-    productId: "freeclip-2",
-    fieldName: "ean",
-    currentValue: "1233711247139",
-    candidateValue: "6942103169434",
-    confidence: "medium",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-retailer"],
-  },
-  {
-    id: "cand-product-name",
-    productId: "freeclip-2",
-    fieldName: "productName",
-    currentValue: null,
-    candidateValue: "Huawei FreeClip 2",
-    confidence: "high",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
-  },
-  {
-    id: "cand-description",
-    productId: "freeclip-2",
-    fieldName: "description",
-    currentValue: heroBaselineAttributes.description,
-    candidateValue: "Huawei FreeClip 2 are lightweight open-ear wireless earbuds with Bluetooth connectivity, long battery life, a charging case, and USB-C charging.",
-    confidence: "high",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-manufacturer", "ev-freeclip-retailer"],
-  },
-  {
-    id: "cand-usb-c",
-    productId: "freeclip-2",
-    fieldName: "usbC",
-    currentValue: null,
-    candidateValue: "USB-C",
-    confidence: "medium",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-retailer"],
-  },
-  {
-    id: "cand-bt-version",
-    productId: "freeclip-2",
-    fieldName: "bluetoothVersion",
-    currentValue: null,
-    candidateValue: "6.0",
-    confidence: "medium",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-retailer"],
-  },
-  {
-    id: "cand-compatibility",
-    productId: "freeclip-2",
-    fieldName: "compatibility",
-    currentValue: null,
-    candidateValue: "iOS and Android",
-    confidence: "high",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
-  },
-  {
-    id: "cand-noise-reduction",
-    productId: "freeclip-2",
-    fieldName: "noiseReduction",
-    currentValue: null,
-    candidateValue: "Integrated noise reduction for calls",
-    confidence: "medium",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-retailer"],
-  },
-  {
-    id: "cand-battery-technology",
-    productId: "freeclip-2",
-    fieldName: "batteryTechnology",
-    currentValue: null,
-    candidateValue: "Li-Ion",
-    confidence: "high",
-    status: "proposed",
-    sourceEvidenceIds: ["ev-freeclip-manufacturer"],
-  },
-]
-
 type CatalogItemRow = {
   id: string
   sku: string
   title: string
-  brand: string
-  categoryPath: readonly string[]
+  brand: string | null
+  categoryPath: string[]
   schemaId: string
   sourceUrl: string
   description: string
   attributes: ProductRecord["baselineAttributes"]
-  warnings: readonly string[]
+  warnings: string[]
 }
 
 const catalogItemRows = [
@@ -2108,9 +1955,9 @@ const baseProducts: ProductRecord[] = [
     baselineDescription: heroBaselineAttributes.description ?? "",
     warnings: ["Brand is required", "Description contains storefront noise", "EAN requires review"],
     baselineAttributes: heroBaselineAttributes,
-    bestEvidenceByField: heroEvidenceFields,
-    evidence: heroEvidence,
-    candidates: heroCandidates,
+    bestEvidenceByField: {},
+    evidence: [],
+    candidates: [],
   },
   {
     id: "galaxy-a55",
@@ -2132,11 +1979,7 @@ const baseProducts: ProductRecord[] = [
       displaySize: "6.6 in",
       description: "Balanced mid-range smartphone with AMOLED display and all-day battery life.",
     },
-    bestEvidenceByField: {
-      cameraResolution: "50 MP",
-      storage: "128 GB",
-      ram: "8 GB",
-    },
+    bestEvidenceByField: {},
     evidence: [],
     candidates: [],
   },
@@ -2160,10 +2003,7 @@ const baseProducts: ProductRecord[] = [
       panelTechnology: "OLED",
       description: "Premium OLED television with cinematic contrast and smart TV features.",
     },
-    bestEvidenceByField: {
-      refreshRate: "120 Hz",
-      hdmiPorts: "4 ports",
-    },
+    bestEvidenceByField: {},
     evidence: [],
     candidates: [],
   },
@@ -2186,10 +2026,7 @@ const baseProducts: ProductRecord[] = [
       weight: "250 g",
       description: "Over-ear wireless headphones with active noise cancellation.",
     },
-    bestEvidenceByField: {
-      noiseReduction: "Active noise cancellation",
-      microphone: "Integrated beamforming microphone array",
-    },
+    bestEvidenceByField: {},
     evidence: [],
     candidates: [],
   },
@@ -2212,10 +2049,7 @@ const baseProducts: ProductRecord[] = [
       storage: "256 GB",
       description: "Large Android tablet for media and productivity.",
     },
-    bestEvidenceByField: {
-      stylusSupport: "Yes",
-      batteryCapacity: "10000 mAh",
-    },
+    bestEvidenceByField: {},
     evidence: [],
     candidates: [],
   },

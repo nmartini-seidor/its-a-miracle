@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { SearchIcon } from "lucide-react"
+import { BotIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function ResearchButton({ productId }: { productId: string }) {
@@ -53,8 +53,8 @@ export function ResearchButton({ productId }: { productId: string }) {
   return (
     <div className="flex flex-col items-end gap-2">
       <Button onClick={runResearch} disabled={pending}>
-        <SearchIcon data-icon="inline-start" />
-        {pending ? "Researching" : "Research missing info"}
+        <BotIcon data-icon="inline-start" />
+        {pending ? "Researching" : "Run Research Agent"}
       </Button>
       {status && <p className="text-xs text-muted-foreground">{status}</p>}
     </div>

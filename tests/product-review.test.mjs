@@ -14,7 +14,7 @@ test('orderReviewFields prioritizes schema-required fields before evidence extra
   assert.equal(orderedFields.includes('description'), true)
 })
 
-test('buildReviewFieldRows flags missing baseline values and candidate-ready rows', () => {
+test('buildReviewFieldRows starts imported rows without candidate or evidence values', () => {
   const reviewRows = buildReviewFieldRows(heroProduct, heroSchema)
   const brandRow = reviewRows.find((row) => row.field === 'brand')
   const descriptionRow = reviewRows.find((row) => row.field === 'description')
@@ -22,13 +22,13 @@ test('buildReviewFieldRows flags missing baseline values and candidate-ready row
   const noiseReductionRow = reviewRows.find((row) => row.field === 'noiseReduction')
 
   assert.equal(brandRow?.baselineMissing, true)
-  assert.equal(brandRow?.hasCandidate, true)
+  assert.equal(brandRow?.hasCandidate, false)
   assert.equal(descriptionRow?.baselineMissing, false)
-  assert.equal(descriptionRow?.hasCandidate, true)
-  assert.equal(compatibilityRow?.evidenceValue, 'iOS and Android')
-  assert.equal(compatibilityRow?.candidateValue, 'iOS and Android')
-  assert.equal(compatibilityRow?.hasCandidate, true)
-  assert.equal(noiseReductionRow?.evidenceValue, 'Integrated noise reduction for calls')
-  assert.equal(noiseReductionRow?.candidateValue, 'Integrated noise reduction for calls')
-  assert.equal(noiseReductionRow?.hasCandidate, true)
+  assert.equal(descriptionRow?.hasCandidate, false)
+  assert.equal(compatibilityRow?.evidenceValue, null)
+  assert.equal(compatibilityRow?.candidateValue, null)
+  assert.equal(compatibilityRow?.hasCandidate, false)
+  assert.equal(noiseReductionRow?.evidenceValue, null)
+  assert.equal(noiseReductionRow?.candidateValue, null)
+  assert.equal(noiseReductionRow?.hasCandidate, false)
 })

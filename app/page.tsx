@@ -14,7 +14,7 @@ export default async function DashboardPage() {
       <PageHeader
         eyebrow="Triage"
         title="Product triage"
-        description="Review low-quality Mirakl records, compare evidence, and open only the products that need operator attention."
+        description="The table is the workspace now: filter, sort, scan the warnings, then open only the product that needs review."
         badges={<Badge variant="outline">Evidence workflow</Badge>}
       />
 

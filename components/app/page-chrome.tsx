@@ -23,6 +23,7 @@ export function PageShell({ children, className }: { children: ReactNode; classN
 
 export function PageHeader({
   title,
+  description,
   actions,
 }: {
   eyebrow?: string
@@ -38,6 +39,7 @@ export function PageHeader({
           <h1 className="max-w-4xl text-2xl font-semibold leading-[1.08] tracking-[-0.035em] text-slate-950 sm:text-[2rem]">
             {title}
           </h1>
+          {description && <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{description}</p>}
         </div>
         {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">{actions}</div>}
       </div>
@@ -76,7 +78,7 @@ export function MetricStrip({
   )
 }
 
-export function Panel({ title, description, children, className }: { title: string; description?: string; children: ReactNode; className?: string }) {
+export function Panel({ title, description, children, className }: { title?: string; description?: string; children: ReactNode; className?: string }) {
   return (
     <section
       className={cn(
@@ -84,10 +86,12 @@ export function Panel({ title, description, children, className }: { title: stri
         className,
       )}
     >
-      <div className="flex flex-col gap-1.5 border-b border-slate-200/70 bg-slate-50/70 px-5 py-4 sm:px-6">
-        <h2 className="text-lg font-semibold tracking-[-0.025em] text-slate-950">{title}</h2>
-        {description && <p className="max-w-4xl text-sm leading-6 text-slate-600">{description}</p>}
-      </div>
+      {title && (
+        <div className="flex flex-col gap-1.5 border-b border-slate-200/70 bg-slate-50/70 px-5 py-4 sm:px-6">
+          <h2 className="text-lg font-semibold tracking-[-0.025em] text-slate-950">{title}</h2>
+          {description && <p className="max-w-4xl text-sm leading-6 text-slate-600">{description}</p>}
+        </div>
+      )}
       <div className="p-5 sm:p-6">{children}</div>
     </section>
   )

@@ -39,18 +39,6 @@ function providerTypeLabel(type: string) {
   return type.replaceAll("_", " ")
 }
 
-function SectionHeader({ title, description, children }: { title: string; description: string; children?: ReactNode }) {
-  return (
-    <div className="flex flex-col gap-4 border-b border-slate-200/80 bg-white px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6">
-      <div className="min-w-0">
-        <h2 className="text-xl font-semibold tracking-[-0.02em] text-slate-950">{title}</h2>
-        <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">{description}</p>
-      </div>
-      {children && <div className="shrink-0">{children}</div>}
-    </div>
-  )
-}
-
 function FieldRow({
   label,
   description,
@@ -125,8 +113,10 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
   const [savedSettings, setSavedSettings] = useState(initialSettings)
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("workspace")
 
   const dirty = JSON.stringify(settings) !== JSON.stringify(savedSettings)
+  const currentTab = tabs.find((tab) => tab.value === activeTab) ?? tabs[0]
 
   function updateSetting<Key extends keyof SettingsSnapshot>(key: Key, value: SettingsSnapshot[Key]) {
     setSettings((current) => ({ ...current, [key]: value }))
@@ -166,26 +156,26 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
   }
 
   return (
-    <Tabs defaultValue="workspace" className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="grid gap-5 lg:grid-cols-[14rem_minmax(0,1fr)]">
       <TabsList className="grid h-fit w-full grid-cols-2 gap-1 rounded-2xl border-slate-200 bg-white p-1.5 shadow-sm lg:sticky lg:top-5 lg:grid-cols-1 lg:items-stretch">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
-            <TabsTrigger key={tab.value} value={tab.value} className="h-auto min-w-0 justify-start gap-3 whitespace-normal px-3 py-3 text-left data-[state=active]:bg-slate-950 data-[state=active]:text-white">
+            <TabsTrigger key={tab.value} value={tab.value} className="h-auto min-w-0 justify-start gap-3 px-3 py-3 text-left data-[state=active]:bg-slate-950 data-[state=active]:text-white">
               <Icon className="size-4 shrink-0" />
-              <span className="min-w-0 flex-1 overflow-hidden">
-                <span className="block text-sm font-semibold leading-5">{tab.label}</span>
-                <span className="hidden max-w-full text-wrap break-words text-xs font-normal leading-5 opacity-75 lg:block">{tab.description}</span>
-              </span>
+              <span className="truncate text-sm font-semibold leading-5">{tab.label}</span>
             </TabsTrigger>
           )
         })}
       </TabsList>
 
       <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="min-w-0 text-sm font-medium text-slate-600">Changes are saved locally for this operator workspace.</div>
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/80 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+          <div className="min-w-0">
+            <h2 className="text-xl font-semibold tracking-[-0.02em] text-slate-950">{currentTab.label}</h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">{currentTab.description}</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-3">
             <InlineStatus dirty={dirty} saving={saving} status={status} />
             <Button type="button" onClick={saveSettings} disabled={!dirty || saving}>
               {saving ? <Loader2Icon className="size-4 animate-spin" /> : <SaveIcon data-icon="inline-start" />}
@@ -195,7 +185,6 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
         </div>
 
         <TabsContent value="workspace" className="m-0">
-          <SectionHeader title="Workspace" description="Configure the operator-facing connection metadata and manage the local catalog state." />
           <div className="divide-y divide-slate-200/80">
             <FieldRow label="Mirakl base URL" description="Displayed as the configured endpoint. Secrets remain server-side and are never shown here.">
               <TextInput value={settings.miraklBaseUrl} onChange={(event) => updateSetting("miraklBaseUrl", event.target.value)} aria-label="Mirakl base URL" />
@@ -214,7 +203,6 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
         </TabsContent>
 
         <TabsContent value="research" className="m-0">
-          <SectionHeader title="Research defaults" description="Control the evidence collection cadence and the confidence assigned to new candidate values." />
           <div className="divide-y divide-slate-200/80">
             <FieldRow label="Research jobs" description="Enable or pause evidence collection controls for product review workflows.">
               <CheckboxControl
@@ -264,7 +252,6 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
         </TabsContent>
 
         <TabsContent value="schemas" className="m-0">
-          <SectionHeader title="Schema matching" description="Keep category matching explicit so reviewers understand which fields are required for each product family." />
           <div className="divide-y divide-slate-200/80">
             <FieldRow label="Auto-assign by category" description="Use the Mirakl category path to pre-select a schema family before review begins.">
               <CheckboxControl
@@ -305,7 +292,6 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
         </TabsContent>
 
         <TabsContent value="evidence" className="m-0">
-          <SectionHeader title="Evidence sources" description="Enable the aggregators that should appear as evidence columns and candidate sources during review." />
           <div className="divide-y divide-slate-200/80">
             {aggregators.map((aggregator) => {
               const enabled = settings.enabledAggregatorIds.includes(aggregator.id)
@@ -329,7 +315,6 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
         </TabsContent>
 
         <TabsContent value="export" className="m-0">
-          <SectionHeader title="Export governance" description="Keep export behavior narrow: accepted values only, evidence attached, and operator approval before submission." />
           <div className="divide-y divide-slate-200/80">
             <FieldRow label="Export scope" description="Only accepted candidate values are included in export payloads.">
               <Badge variant="secondary" className="bg-emerald-50 text-emerald-900">Accepted values only</Badge>

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 
 const { addReviewDecision, createMockResearchRun, getResearchRun, getStoredProduct, importDemoProducts, listStoredProducts, resetDemoState } = await import('../server/store.ts')
@@ -11,15 +12,18 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   assert.equal(importDemoProducts(), 55)
   const initialProduct = getStoredProduct('freeclip-2')
   assert.equal(initialProduct.listingStatus, 'NEEDS_ENRICHMENT')
-  assert.equal(initialProduct.candidates.length, 9)
-  assert.equal(initialProduct.evidence.length, 2)
+  assert.equal(initialProduct.candidates.length, 0)
+  assert.equal(initialProduct.evidence.length, 0)
 
   const run = createMockResearchRun('freeclip-2')
   getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 4000).toISOString())
-  addReviewDecision('cand-brand', 'APPROVE', 'demo accept')
+  const researchedProduct = getStoredProduct('freeclip-2')
+  assert.equal(researchedProduct.candidates.length >= 3, true)
+  assert.equal(researchedProduct.evidence.length >= 3, true)
 
+  addReviewDecision(researchedProduct.candidates[0].id, 'APPROVE', 'demo accept')
   const mutatedProduct = getStoredProduct('freeclip-2')
-  assert.equal(mutatedProduct.candidates.length > 9, true)
+  assert.equal(mutatedProduct.candidates.length >= 3, true)
   assert.equal(mutatedProduct.listingStatus !== 'NEEDS_ENRICHMENT', true)
 
   resetDemoState()
@@ -28,7 +32,23 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   importDemoProducts()
   const resetProduct = getStoredProduct('freeclip-2')
   assert.equal(resetProduct.listingStatus, 'NEEDS_ENRICHMENT')
-  assert.equal(resetProduct.candidates.length, 9)
-  assert.equal(resetProduct.evidence.length, 2)
+  assert.equal(resetProduct.candidates.length, 0)
+  assert.equal(resetProduct.evidence.length, 0)
   assert.equal(resetProduct.warnings.includes('EAN requires review'), true)
+})
+
+
+test('import control presents a fake 30-second product data import with progress', () => {
+  const source = readFileSync('components/settings/reset-workspace-button.tsx', 'utf8')
+
+  assert.equal(source.includes('fakeImportDurationMs = 30_000'), true)
+  assert.equal(source.includes('fakeImportProductCount = 55'), true)
+  assert.equal(source.includes('Import Product data'), true)
+  assert.equal(source.includes('role="progressbar"'), true)
+  assert.equal(source.includes('w-full py-5 text-left'), true)
+  assert.equal(source.includes('text-2xl font-semibold'), true)
+  assert.equal(source.includes('Found ${fakeImportProductCount} products'), true)
+  assert.equal(source.includes('Importing product ${productIndex}/${fakeImportProductCount}'), true)
+  assert.equal(source.includes('Analyzing Product Data Quality'), true)
+  assert.equal(source.includes('fakeQualityAnalysisDurationMs = 5_000'), true)
 })
