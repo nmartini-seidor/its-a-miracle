@@ -189,6 +189,9 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
             <FieldRow label="Mirakl base URL" description="Displayed as the configured endpoint. Secrets remain server-side and are never shown here.">
               <TextInput value={settings.miraklBaseUrl} onChange={(event) => updateSetting("miraklBaseUrl", event.target.value)} aria-label="Mirakl base URL" />
             </FieldRow>
+            <FieldRow label="Operator API key" description="Operator API credential used by the server for Mirakl catalog and product workflow requests.">
+              <TextInput value="************" readOnly aria-label="Operator API key" className="font-mono tracking-[0.18em] text-slate-600" />
+            </FieldRow>
             <FieldRow label="Execution environment" description="This workspace runs local review flows only. Export and Mirakl write actions remain approval-gated.">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="secondary" className="bg-blue-50 text-blue-900">Operator review</Badge>

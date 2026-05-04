@@ -80,5 +80,23 @@ test('product detail research action is presented as an agent run', () => {
 
   assert.equal(source.includes('BotIcon'), true)
   assert.equal(source.includes('Run Research Agent'), true)
+  assert.equal(source.includes('rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400'), true)
+  assert.equal(source.includes('beginResearchActivity'), true)
+  assert.equal(source.includes('research-flight-orb'), true)
   assert.equal(source.includes('Research missing info'), false)
+})
+
+
+test('research workspace page and navigation animation are wired', () => {
+  const pageSource = readFileSync('app/research/page.tsx', 'utf8')
+  const topNavSource = readFileSync('components/app/top-nav.tsx', 'utf8')
+  const activitySource = readFileSync('components/app/research-activity.ts', 'utf8')
+  const globalsSource = readFileSync('app/globals.css', 'utf8')
+
+  assert.equal(pageSource.includes('Research agent queue'), true)
+  assert.equal(pageSource.includes('listResearchJobs'), true)
+  assert.equal(topNavSource.includes('useResearchActivity'), true)
+  assert.equal(topNavSource.includes('research-nav-active'), true)
+  assert.equal(activitySource.includes('mirakl-research-active-count'), true)
+  assert.equal(globalsSource.includes('research-star-flight'), true)
 })

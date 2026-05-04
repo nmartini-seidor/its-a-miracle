@@ -10,6 +10,8 @@ export type ReviewFieldRow = {
   baselineMissing: boolean
   hasCandidate: boolean
   differsFromEvidence: boolean
+  baselineNeedsAttention: boolean
+  baselineWarnings: string[]
 }
 
 const REVIEW_CANDIDATE_STATUS_PRIORITY = {
@@ -62,14 +64,29 @@ export function orderReviewFields(product: ProductRecord, schema: SchemaDefiniti
   return [...ordered]
 }
 
+function warningMatchesField(warning: string, field: AttributeFieldId) {
+  const normalized = warning.toLowerCase()
+  const label = getFieldLabel(field).toLowerCase()
+
+  if (normalized.includes(field.toLowerCase()) || normalized.includes(label)) return true
+  if (field === "description" && /storefront|promotional|noise/.test(normalized)) return true
+  if (field === "ean" && normalized.includes("ean")) return true
+  if (field === "brand" && normalized.includes("brand")) return true
+  return false
+}
+
 export function buildReviewFieldRows(product: ProductRecord, schema: SchemaDefinition | null): ReviewFieldRow[] {
   const candidateByField = getCandidateByField(product)
+  const requiredFields = new Set(schema?.requiredAttributes ?? [])
 
   return orderReviewFields(product, schema).map((field) => {
     const candidate = candidateByField.get(field) ?? null
     const baselineValue = field in product.baselineAttributes ? product.baselineAttributes[field as keyof typeof product.baselineAttributes] ?? null : null
     const evidenceValue = field in product.bestEvidenceByField ? product.bestEvidenceByField[field as keyof typeof product.bestEvidenceByField] ?? null : null
     const candidateValue = candidate?.candidateValue ?? null
+    const baselineMissing = baselineValue == null
+    const baselineWarnings = product.warnings.filter((warning) => warningMatchesField(warning, field))
+    const baselineNeedsAttention = baselineWarnings.length > 0 || (baselineMissing && requiredFields.has(field))
 
     return {
       field,
@@ -77,9 +94,11 @@ export function buildReviewFieldRows(product: ProductRecord, schema: SchemaDefin
       baselineValue,
       evidenceValue,
       candidateValue,
-      baselineMissing: baselineValue == null,
+      baselineMissing,
       hasCandidate: candidateValue != null,
       differsFromEvidence: evidenceValue != null && candidateValue != null && evidenceValue !== candidateValue,
+      baselineNeedsAttention,
+      baselineWarnings,
     }
   })
 }

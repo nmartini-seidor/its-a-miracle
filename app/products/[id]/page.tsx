@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeftIcon, ExternalLinkIcon } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ArrowLeftIcon, ExternalLinkIcon, FileSearchIcon, GitCompareArrowsIcon, ListChecksIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
@@ -11,11 +10,19 @@ import { CandidateActions } from "@/components/product/candidate-actions"
 import { ExportPayloadPanel } from "@/components/product/export-payload-panel"
 import { ResearchButton } from "@/components/product/research-button"
 import { ScoreBadge } from "@/components/product/score-badge"
+import { SeoDescriptionButton } from "@/components/product/seo-description-button"
 import { getFieldLabel } from "@/lib/demo-contract"
 import { formatEnumLabel } from "@/lib/labels"
 import type { ContractFieldId } from "@/lib/types"
 import { buildReviewFieldRows } from "@/lib/product-review"
+import { cn } from "@/lib/utils"
 import { getProduct, getSchemaById } from "@/server/data"
+
+function confidenceClass(confidence: "high" | "medium" | "low") {
+  if (confidence === "high") return "bg-emerald-50 text-emerald-800 ring-emerald-200"
+  if (confidence === "medium") return "bg-amber-50 text-amber-800 ring-amber-200"
+  return "bg-slate-100 text-slate-700 ring-slate-200"
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -44,7 +51,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <PageHeader
         eyebrow="Product review"
         title={product.title}
-        description={`${product.categoryPath.join(" / ")} · compare Mirakl data against evidence sources and approve only field-level candidates that make sense.`}
+        description={product.categoryPath.join(" / ")}
         badges={
           <>
             <Badge variant="outline">{product.miraklProductId}</Badge>
@@ -64,24 +71,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         ]}
       />
 
-      {product.warnings.length > 0 && (
-        <Alert variant="destructive">
-          <AlertTitle>Baseline needs attention</AlertTitle>
-          <AlertDescription>{product.warnings.join(" · ")}</AlertDescription>
-        </Alert>
-      )}
-
       <Tabs defaultValue="compare" className="flex flex-col gap-4">
-        <TabsList className="w-fit max-w-full justify-start overflow-x-auto">
-          <TabsTrigger value="compare">Compare</TabsTrigger>
-          <TabsTrigger value="candidates">Candidates</TabsTrigger>
-          <TabsTrigger value="evidence">Evidence</TabsTrigger>
-          <TabsTrigger value="export">Export</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList className="w-fit max-w-full justify-start gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-slate-100 p-1 shadow-none">
+            <TabsTrigger value="compare" className="h-8 gap-2 rounded-md px-3 text-sm font-semibold text-slate-600 shadow-none data-[state=active]:bg-white data-[state=active]:text-slate-950 data-[state=active]:shadow-sm"><GitCompareArrowsIcon data-icon="inline-start" aria-hidden="true" />Compare</TabsTrigger>
+            <TabsTrigger value="candidates" className="h-8 gap-2 rounded-md px-3 text-sm font-semibold text-slate-600 shadow-none data-[state=active]:bg-white data-[state=active]:text-slate-950 data-[state=active]:shadow-sm"><ListChecksIcon data-icon="inline-start" aria-hidden="true" />Candidates</TabsTrigger>
+            <TabsTrigger value="evidence" className="h-8 gap-2 rounded-md px-3 text-sm font-semibold text-slate-600 shadow-none data-[state=active]:bg-white data-[state=active]:text-slate-950 data-[state=active]:shadow-sm"><FileSearchIcon data-icon="inline-start" aria-hidden="true" />Evidence</TabsTrigger>
+          </TabsList>
+          <ExportPayloadPanel productId={product.id} />
+        </div>
 
         <TabsContent value="compare">
-          <Panel title="Product data comparison" description="Review Mirakl values against the candidate value and supporting evidence sources.">
-            <Table>
+          <Panel title="Product data comparison" description="Review Mirakl values against the candidate value and supporting evidence sources." headerClassName="bg-white" bodyClassName="p-0 sm:p-0">
+            <Table surface="flush">
               <TableHeader>
                 <TableRow>
                   <TableHead className="min-w-48">Attribute name</TableHead>
@@ -94,11 +96,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </TableHeader>
               <TableBody>
                 {reviewRows.map((row) => (
-                  <TableRow key={row.field}>
-                    <TableCell className="min-w-48 font-semibold text-foreground">
-                      {row.label}
+                  <TableRow key={row.field} className={cn(row.baselineNeedsAttention && "bg-rose-50/70 hover:bg-rose-50")}>
+                    <TableCell className={cn("min-w-48 font-semibold text-foreground", row.baselineNeedsAttention && "text-rose-950")}>
+                      <div className="flex flex-col gap-1">
+                        <span className="flex flex-wrap items-center gap-2">
+                          {row.label}
+                          {row.field === "description" && <SeoDescriptionButton productId={product.id} />}
+                        </span>
+                        {row.baselineNeedsAttention && <span className="text-xs font-medium text-rose-700">Needs attention</span>}
+                      </div>
                     </TableCell>
-                    <TableCell className="min-w-56 bg-sky-50/80 text-sky-950 shadow-[inset_4px_0_0_rgba(37,99,235,0.38)]">
+                    <TableCell className={cn("min-w-56 bg-sky-50/80 text-sky-950 shadow-[inset_4px_0_0_rgba(37,99,235,0.38)]", row.baselineNeedsAttention && "bg-rose-100/80 text-rose-950 shadow-[inset_4px_0_0_rgba(225,29,72,0.55)]")}>
                       {row.baselineValue ? <span>{row.baselineValue}</span> : <Badge variant="outline">Missing</Badge>}
                     </TableCell>
                     <TableCell className="min-w-56">
@@ -126,15 +134,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </TabsContent>
 
         <TabsContent value="candidates">
-          <Panel title="Candidate decisions" description="Each candidate is a field-level decision, not another nested card. Accept, reject, or request more proof directly from the row.">
-            <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+          <Panel bodyClassName="p-0 sm:p-0">
+            <div className="divide-y divide-slate-200">
               {product.candidates.map((candidate) => (
                 <div key={candidate.id} className="grid gap-4 p-4 lg:grid-cols-[12rem_1fr_1fr_18rem] lg:items-center">
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{getFieldLabel(candidate.fieldName)}</p>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary">{candidate.confidence}</Badge>
-                      <Badge variant="outline">{formatEnumLabel(candidate.status)}</Badge>
+                      <Badge variant="outline" className={cn("capitalize ring-1", confidenceClass(candidate.confidence))}>{candidate.confidence}</Badge>
                     </div>
                   </div>
                   <div>
@@ -152,7 +159,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                       ))}
                     </div>
                   </div>
-                  <CandidateActions candidateId={candidate.id} />
+                  <CandidateActions candidateId={candidate.id} status={candidate.status} />
                 </div>
               ))}
             </div>
@@ -160,14 +167,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         </TabsContent>
 
         <TabsContent value="evidence">
-          <Panel title="Evidence sources" description="Source summaries are compact and scannable; extracted fields sit inline under each source.">
-            <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+          <Panel bodyClassName="p-0 sm:p-0">
+            <div className="divide-y divide-slate-200">
               {product.evidence.map((evidence) => (
                 <div key={evidence.id} className="grid gap-4 p-4 xl:grid-cols-[18rem_1fr_18rem]">
                   <div>
                     <h3 className="font-semibold tracking-[-0.02em]">{evidence.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{evidence.sourceName}</p>
-                    <Badge className="mt-3" variant="secondary">{formatEnumLabel(evidence.confidence)}</Badge>
+                    <Badge className={cn("mt-3 capitalize ring-1", confidenceClass(evidence.confidence))} variant="outline">{evidence.confidence}</Badge>
                   </div>
                   <p className="text-sm leading-6">{evidence.summary}</p>
                   <div className="flex flex-col gap-3">
@@ -194,13 +201,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           </Panel>
         </TabsContent>
 
-        <TabsContent value="export">
-          <div className="flex flex-col gap-4">
-            <Panel title="Export payload" description="Generate the export payload after accepting candidates. The payload is displayed as JSON.">
-              <ExportPayloadPanel productId={product.id} />
-            </Panel>
-          </div>
-        </TabsContent>
       </Tabs>
     </PageShell>
   )

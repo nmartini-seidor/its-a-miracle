@@ -65,15 +65,34 @@ test('product triage uses the page subtitle instead of a duplicate panel title',
 
   assert.equal(pageSource.includes('The table is the workspace now: filter, sort, scan the warnings'), true)
   assert.equal(dashboardSource.includes('Catalog triage queue'), false)
-  assert.equal(dashboardSource.includes('<Panel>'), true)
+  assert.equal(dashboardSource.includes('<Panel bodyClassName="p-0 sm:p-0">'), true)
 })
 
 test('research agent controls sit outside the table card and above sort controls', () => {
   const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
 
-  assert.equal(source.indexOf('Run Research Agent') < source.indexOf('<Panel>'), true)
+  assert.equal(source.indexOf('Run Research Agent') < source.indexOf('<Panel bodyClassName="p-0 sm:p-0">'), true)
   assert.equal(source.indexOf('Run Research Agent') < source.indexOf('sortOptions.map'), true)
   assert.equal(source.indexOf('Cancel') < source.indexOf('sortOptions.map'), true)
-  assert.equal(source.includes('bg-blue-600'), true)
+  assert.equal(source.includes('rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400'), true)
+  assert.equal(source.includes('research-flight-orb'), true)
   assert.equal(source.includes('size="lg"'), true)
+})
+
+test('product filters and sorting controls sit outside the flush table panel', () => {
+  const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
+
+  assert.equal(source.indexOf('filterOptions.map') < source.indexOf('<Panel bodyClassName="p-0 sm:p-0">'), true)
+  assert.equal(source.indexOf('sortOptions.map') < source.indexOf('<Panel bodyClassName="p-0 sm:p-0">'), true)
+  assert.equal(source.includes('<Table surface="flush">'), true)
+})
+
+test('empty product state disables research and table controls with a broken-catalog icon', () => {
+  const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
+
+  assert.equal(source.includes('PackageXIcon'), true)
+  assert.equal(source.includes('disabled={!hasProducts || queuePending || (selectionMode && selectedCount === 0)}'), true)
+  assert.equal(source.includes('selectionMode && !queuePending'), true)
+  assert.equal(source.match(/disabled={!hasProducts}/g)?.length, 2)
+  assert.equal(source.includes('max-w-none whitespace-nowrap text-sm'), true)
 })

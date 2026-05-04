@@ -2,6 +2,8 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { aggregators, demoSettings, products as seededProducts, schemas } from "../lib/fixtures.ts"
 import { isExportableAttributeField } from "../lib/demo-contract.ts"
+import { getMockResearchAgentDurationMs } from "../lib/mock-timing.ts"
+import { qualityScore } from "../lib/scoring.ts"
 import type {
   AttributeFieldId,
   CandidateRecord,
@@ -210,12 +212,53 @@ export function updateStoredAggregator(baseAggregators: AggregatorDefinition[], 
   return updatedAggregator
 }
 
+
+function hasBaselineValue(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function getInitialStatus(score: number, warnings: readonly string[]) {
+  return score >= 90 && warnings.length === 0 ? "READY_FOR_REVIEW" : "NEEDS_ENRICHMENT"
+}
+
+function schemaMissingWarnings(product: ProductRecord, schema: SchemaDefinition) {
+  return schema.requiredAttributes
+    .filter((field) => !hasBaselineValue(product.baselineAttributes[field]))
+    .map((field) => `${field} missing for ${schema.name}`)
+}
+
+function recomputeProductForSchema(product: ProductRecord, schema: SchemaDefinition) {
+  product.warnings = [
+    ...product.warnings.filter((warning) => !/ missing for /.test(warning)),
+    ...schemaMissingWarnings(product, schema),
+  ]
+  const scored = qualityScore(product, schema)
+  product.qualityScore = scored.score
+  product.scoreBand = scored.band
+  if (product.listingStatus !== "RESEARCH_IN_PROGRESS" && product.listingStatus !== "EXPORT_READY") {
+    product.listingStatus = getInitialStatus(scored.score, product.warnings)
+  }
+  return product
+}
+
 export function listStoredProducts() {
   return readState().products
 }
 
 export function getStoredProduct(productId: string) {
   return readState().products.find((item) => item.id === productId) ?? null
+}
+
+export function updateStoredProductSchema(baseSchemas: SchemaDefinition[], productId: string, schemaId: string) {
+  const state = readState()
+  const product = state.products.find((item) => item.id === productId)
+  const schema = baseSchemas.map((item) => state.schemaOverrides[item.slug] ?? item).find((item) => item.id === schemaId)
+  if (!product || !schema) return null
+
+  product.schemaId = schema.id
+  recomputeProductForSchema(product, schema)
+  writeState(state)
+  return product
 }
 
 function getLatestAcceptedCandidates(candidates: CandidateRecord[]) {
@@ -331,6 +374,23 @@ function getModelName(product: ProductRecord) {
   return product.title
 }
 
+function buildSeoDescription(product: ProductRecord) {
+  const schema = getProductSchema(product)
+  const brand = product.brand ?? product.baselineAttributes.brand ?? product.title.split(" ")[0]
+  const model = product.baselineAttributes.model ?? product.baselineAttributes.productName ?? product.title
+  const category = schema?.name.toLowerCase() ?? product.categoryPath.at(-1)?.toLowerCase() ?? "electrónica"
+  const highlights = [
+    product.baselineAttributes.displaySize,
+    product.baselineAttributes.storage,
+    product.baselineAttributes.ram,
+    product.baselineAttributes.connectivity,
+    product.baselineAttributes.resolution,
+    product.baselineAttributes.batteryLife,
+  ].filter(hasAttributeValue).slice(0, 3).join(", ")
+  const specText = highlights ? ` Incluye ${highlights} para una ficha clara y fácil de comparar.` : " Incluye información estructurada para facilitar la revisión y la comparación."
+  return `${brand} ${model} es un producto de ${category} preparado para ecommerce, con una descripción optimizada para SEO, orientada a búsqueda, conversión y revisión de atributos en Mirakl.${specText}`
+}
+
 function getResearchValue(product: ProductRecord, field: AttributeFieldId) {
   const baselineValue = product.baselineAttributes[field]
   const schema = getProductSchema(product)
@@ -344,7 +404,7 @@ function getResearchValue(product: ProductRecord, field: AttributeFieldId) {
     case "ean":
       return hasAttributeValue(baselineValue) ? baselineValue : `84${deterministicDigits(product.id, 11)}`
     case "description":
-      return `${product.title} is a ${schema?.name.toLowerCase() ?? "consumer electronics"} product reviewed for Mirakl enrichment with normalized identity, specification, and compatibility details.`
+      return buildSeoDescription(product)
     case "model":
       return getModelName(product)
     case "connectivity":
@@ -489,8 +549,9 @@ function applyResearchOutcome(state: DemoCatalogState, run: StoredResearchJob, t
 
 function deriveResearchStatus(run: StoredResearchJob, currentTime: string): ResearchJobStatus {
   const elapsedMs = toMillis(currentTime) - toMillis(run.createdAt)
-  if (elapsedMs < 1000) return "QUEUED"
-  if (elapsedMs < 2500) return "RUNNING"
+  const durationMs = getMockResearchAgentDurationMs()
+  if (elapsedMs < Math.max(500, durationMs * 0.2)) return "QUEUED"
+  if (elapsedMs < durationMs) return "RUNNING"
   return "SUCCEEDED"
 }
 
@@ -521,6 +582,21 @@ export function createMockResearchRun(productId: string) {
   state.researchRuns.push(run)
   writeState(state)
   return run
+}
+
+export function listResearchRuns() {
+  const state = readState()
+  return state.researchRuns.map((run) => ({
+    id: run.id,
+    productId: run.productId,
+    status: run.status,
+    runner: run.runner,
+    createdAt: run.createdAt,
+    updatedAt: run.updatedAt,
+    summary: run.summary,
+    evidenceIds: [...run.evidenceIds],
+    candidateIds: [...run.candidateIds],
+  }))
 }
 
 export function getResearchRun(id: string, currentTime = now()) {
@@ -568,6 +644,55 @@ export function addReviewDecision(candidateId: string, decision: ReviewDecision,
   found.state.reviewDecisions.push(record)
   writeState(found.state)
   return record
+}
+
+function warningMatchesDescription(warning: string) {
+  return /description|descripci[oó]n|storefront|promotional|promocional|ruido comercial/i.test(warning)
+}
+
+export function generateSeoDescriptionCandidate(productId: string) {
+  const state = readState()
+  const product = state.products.find((item) => item.id === productId)
+  if (!product) return null
+
+  const timestamp = now()
+  const sequence = product.candidates.filter((candidate) => candidate.fieldName === "description").length + 1
+  const evidenceId = `ev-seo-description-${product.id}-${sequence}`
+  const candidateId = `cand-seo-description-${product.id}-${sequence}`
+  const description = buildSeoDescription(product)
+
+  const evidence: EvidenceRecord = {
+    id: evidenceId,
+    productId: product.id,
+    aggregatorId: "ai-seo-agent",
+    sourceName: "AI SEO generator",
+    sourceType: "internal_reference",
+    title: `SEO description generated for ${product.title}`,
+    summary: "Generated Spanish ecommerce description for review before Mirakl synchronization.",
+    extractedFields: { description },
+    capturedAt: timestamp,
+    confidence: "medium",
+  }
+
+  const candidate: CandidateRecord = {
+    id: candidateId,
+    productId: product.id,
+    fieldName: "description",
+    currentValue: product.baselineAttributes.description ?? null,
+    candidateValue: description,
+    confidence: "medium",
+    status: "proposed",
+    sourceEvidenceIds: [evidenceId],
+    reason: "Generated by the AI SEO description workflow for operator review.",
+  }
+
+  product.evidence.push(evidence)
+  product.candidates.push(candidate)
+  product.bestEvidenceByField.description = description
+  product.listingStatus = "READY_FOR_REVIEW"
+  product.warnings = product.warnings.filter((warning) => !warningMatchesDescription(warning))
+  writeState(state)
+  return { product, candidate, evidence }
 }
 
 export function exportPreview(productId: string) {

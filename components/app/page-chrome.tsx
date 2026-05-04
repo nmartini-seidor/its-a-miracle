@@ -78,7 +78,7 @@ export function MetricStrip({
   )
 }
 
-export function Panel({ title, description, children, className }: { title?: string; description?: string; children: ReactNode; className?: string }) {
+export function Panel({ title, description, children, className, headerClassName, bodyClassName }: { title?: string; description?: string; children: ReactNode; className?: string; headerClassName?: string; bodyClassName?: string }) {
   return (
     <section
       className={cn(
@@ -87,12 +87,12 @@ export function Panel({ title, description, children, className }: { title?: str
       )}
     >
       {title && (
-        <div className="flex flex-col gap-1.5 border-b border-slate-200/70 bg-slate-50/70 px-5 py-4 sm:px-6">
+        <div className={cn("flex flex-col gap-1.5 border-b border-slate-200/70 bg-slate-50/70 px-5 py-4 sm:px-6", headerClassName)}>
           <h2 className="text-lg font-semibold tracking-[-0.025em] text-slate-950">{title}</h2>
           {description && <p className="max-w-4xl text-sm leading-6 text-slate-600">{description}</p>}
         </div>
       )}
-      <div className="p-5 sm:p-6">{children}</div>
+      <div className={cn("p-5 sm:p-6", bodyClassName)}>{children}</div>
     </section>
   )
 }

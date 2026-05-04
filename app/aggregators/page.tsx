@@ -64,8 +64,8 @@ export default async function AggregatorsPage() {
         </div>
       </Panel>
 
-      <Panel title="Aggregators" description="Configure each evidence source on its own page. The list stays focused on source importance, usage, and status.">
-        <Table>
+      <Panel title="Aggregators" description="Configure each evidence source on its own page. The list stays focused on source importance, usage, and status." headerClassName="bg-white" bodyClassName="p-0 sm:p-0">
+        <Table surface="flush">
           <TableHeader>
             <TableRow>
               <TableHead>Aggregator</TableHead>

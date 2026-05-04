@@ -352,7 +352,7 @@ export const schemas: SchemaDefinition[] = [
     linkedCategories: ["Audio", "Wearable audio"],
     requiredAttributes: ["brand", "productName", "ean", "connectivity", "weight", "batteryLife", "description"],
     recommendedAttributes: ["bluetoothVersion", "usbC", "microphone", "noiseReduction", "compatibility"],
-    warningRules: ["Brand missing", "Description contains storefront noise", "Required schema field missing"],
+    warningRules: ["Brand missing", "La descripción contiene ruido comercial", "Required schema field missing"],
     scoringRules: ["Missing brand = -15", "Missing EAN = -20", "Weak description = -10"],
     exampleProductIds: ["freeclip-2"],
   },
@@ -440,7 +440,7 @@ export const demoSettings: SettingsSnapshot = {
   miraklBaseUrl: "https://seidor-dev.mirakl.net",
   environment: "demo",
   fakeResearchMode: true,
-  defaultResearchDelaySeconds: 30,
+  defaultResearchDelaySeconds: 5,
   maxEvidencePerProduct: 4,
   defaultCandidateConfidence: "medium",
   autoAssignSchemaByCategory: true,
@@ -449,6 +449,7 @@ export const demoSettings: SettingsSnapshot = {
 
 const heroBaselineAttributes = {
   brand: null,
+  productName: "Huawei FreeClip 2",
   connectivity: "Bluetooth",
   bluetooth: "Yes",
   weight: "37.8 g",
@@ -456,7 +457,7 @@ const heroBaselineAttributes = {
   usbC: null,
   dimensions: "25.4 x 26.7 x 18.8 mm",
   compatibility: null,
-  description: "Flexible payment text, charging disclaimers, and storefront promotional copy are mixed into the baseline product description.",
+  description: "Texto de financiación flexible, avisos de carga y contenido promocional de tienda mezclados en la descripción base del producto.",
 } satisfies ProductRecord["baselineAttributes"]
 
 type CatalogItemRow = {
@@ -493,7 +494,7 @@ const catalogItemRows = [
       "compatibility": "JUEGOS SWITCH"
     },
     "warnings": [
-      "Description contains storefront or promotional copy",
+      "La descripción contiene texto promocional de tienda",
       "Packaging dimensions should not be treated as console hardware specs"
     ]
   },
@@ -517,7 +518,7 @@ const catalogItemRows = [
       "compatibility": "CONSOLAS SWITCH"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -563,7 +564,7 @@ const catalogItemRows = [
       "compatibility": "Nintendo Switch"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -585,7 +586,7 @@ const catalogItemRows = [
       "description": "Shin Megami Tensei V: Vengeance – Nintendo Switch Embárcate en esta versión definitiva de Shin Megami Tensei V , ampliada con una historia nueva que incluye nuevos escenarios, demonios y decisiones que dictarán el destino de toda la existencia. Shin Megami Tensei V: Vengeance consta de dos rutas argumentales completas: • Canon de la Venganza: una dramática historia centrada en los caídos, nuevos personajes y la enigm…"
     },
     "warnings": [
-      "Description contains storefront or promotional copy",
+      "La descripción contiene texto promocional de tienda",
       "Packaging dimensions should not be treated as console hardware specs"
     ]
   },
@@ -609,7 +610,7 @@ const catalogItemRows = [
       "compatibility": "Nintendo Switch"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -653,7 +654,7 @@ const catalogItemRows = [
       "compatibility": "Nintendo Switch y Nintendo Switch 2"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -698,7 +699,7 @@ const catalogItemRows = [
       "compatibility": "Nintendo Switch 2"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -742,7 +743,7 @@ const catalogItemRows = [
       "compatibility": "Nintendo Switch 2"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -769,7 +770,7 @@ const catalogItemRows = [
       "storage": "256GB"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -796,7 +797,7 @@ const catalogItemRows = [
       "storage": "32GB"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -847,7 +848,7 @@ const catalogItemRows = [
       "storage": "1000GB"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -873,7 +874,7 @@ const catalogItemRows = [
       "resolution": "Full HD (1920 x 1080)"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -899,7 +900,7 @@ const catalogItemRows = [
       "resolution": "Full HD (1920 x 1080)"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -973,7 +974,7 @@ const catalogItemRows = [
       "resolution": "Full HD (1920 x 1080)"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -999,7 +1000,7 @@ const catalogItemRows = [
       "resolution": "QHD (2560 x 1440)"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1025,7 +1026,7 @@ const catalogItemRows = [
       "resolution": "QHD (2560 x 1440)"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1051,7 +1052,7 @@ const catalogItemRows = [
       "resolution": "QHD (2560 x 1440)"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1085,7 +1086,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1119,7 +1120,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1153,7 +1154,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1187,7 +1188,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1221,7 +1222,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1255,7 +1256,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1289,7 +1290,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1323,7 +1324,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1418,7 +1419,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Po"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1450,7 +1451,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1482,7 +1483,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1515,7 +1516,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Ion"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1549,7 +1550,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Po"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1583,7 +1584,7 @@ const catalogItemRows = [
       "batteryTechnology": "Li-Po"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1612,7 +1613,7 @@ const catalogItemRows = [
       "displaySize": "15.6p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1641,7 +1642,7 @@ const catalogItemRows = [
       "displaySize": "15.6p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1670,7 +1671,7 @@ const catalogItemRows = [
       "displaySize": "15.6p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1699,7 +1700,7 @@ const catalogItemRows = [
       "displaySize": "16p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1727,7 +1728,7 @@ const catalogItemRows = [
       "displaySize": "14p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1755,7 +1756,7 @@ const catalogItemRows = [
       "displaySize": "14p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1784,7 +1785,7 @@ const catalogItemRows = [
       "displaySize": "15.6p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1812,7 +1813,7 @@ const catalogItemRows = [
       "displaySize": "15.6p"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1847,7 +1848,7 @@ const catalogItemRows = [
       "batteryCapacity": "4300mAh"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   },
   {
@@ -1882,7 +1883,7 @@ const catalogItemRows = [
       "batteryCapacity": "4300mAh"
     },
     "warnings": [
-      "Description contains storefront or promotional copy"
+      "La descripción contiene texto promocional de tienda"
     ]
   }
 ] satisfies CatalogItemRow[]
@@ -1953,7 +1954,7 @@ const baseProducts: ProductRecord[] = [
     qualityScore: 0,
     scoreBand: "red",
     baselineDescription: heroBaselineAttributes.description ?? "",
-    warnings: ["Brand is required", "Description contains storefront noise", "EAN requires review"],
+    warnings: ["Brand is required", "La descripción contiene ruido comercial", "EAN requires review"],
     baselineAttributes: heroBaselineAttributes,
     bestEvidenceByField: {},
     evidence: [],

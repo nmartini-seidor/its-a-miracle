@@ -10,6 +10,7 @@ test('workspace navigation exposes the approved top-level sections', () => {
     { label: 'Catalog', href: '/catalog', icon: 'catalog' },
     { label: 'Schemas', href: '/schemas', icon: 'schemas' },
     { label: 'Aggregators', href: '/aggregators', icon: 'aggregators' },
+    { label: 'Research', href: '/research', icon: 'research' },
     { label: 'Settings', href: '/settings', icon: 'settings' },
   ])
 })
@@ -33,6 +34,6 @@ test('top-level shell sections have concrete route files and a mobile fallback n
 test('workspace navigation carries an icon key for every visible section', () => {
   assert.deepEqual(
     workspaceSections.map((section) => section.icon),
-    ['products', 'catalog', 'schemas', 'aggregators', 'settings'],
+    ['products', 'catalog', 'schemas', 'aggregators', 'research', 'settings'],
   )
 })

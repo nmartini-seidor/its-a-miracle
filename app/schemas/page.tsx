@@ -26,8 +26,8 @@ export default async function SchemasPage() {
     <PageShell>
       <PageHeader title="Schema configuration" />
 
-      <Panel title="Schema families" description="Configure each schema on its own page. This overview stays as a single readable table.">
-        <Table>
+      <Panel title="Schema families" description="Configure each schema on its own page. This overview stays as a single readable table." headerClassName="bg-white" bodyClassName="p-0 sm:p-0">
+        <Table surface="flush">
           <TableHeader>
             <TableRow>
               <TableHead>Schema</TableHead>

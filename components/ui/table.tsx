@@ -1,7 +1,15 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) { return <div className="relative w-full overflow-auto rounded-2xl border border-slate-200"><table className={cn("w-full caption-bottom text-sm", className)} {...props} /></div> }
+type TableProps = React.ComponentProps<"table"> & { surface?: "card" | "flush" }
+
+function Table({ className, surface = "card", ...props }: TableProps) {
+  return (
+    <div className={cn("relative w-full overflow-auto", surface === "card" && "rounded-2xl border border-slate-200")}>
+      <table className={cn("w-full caption-bottom text-sm", className)} {...props} />
+    </div>
+  )
+}
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) { return <thead className={cn("[&_tr]:border-b [&_tr]:bg-slate-50", className)} {...props} /> }
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) { return <tbody className={cn("[&_tr:last-child]:border-0", className)} {...props} /> }
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) { return <tr className={cn("border-b border-slate-200 transition-colors duration-150 hover:bg-blue-50/45", className)} {...props} /> }

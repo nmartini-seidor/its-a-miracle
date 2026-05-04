@@ -107,3 +107,11 @@ test('aggregators table color-codes default confidence and status labels', () =>
   assert.equal(source.includes('border-blue-200 bg-blue-50 text-blue-800'), true)
   assert.equal(source.includes('border-slate-200 bg-slate-100 text-slate-600'), true)
 })
+
+test('aggregators table is flush and uses a distinct panel title band', () => {
+  const source = readFileSync('app/aggregators/page.tsx', 'utf8')
+
+  assert.equal(source.includes('title="Aggregators"'), true)
+  assert.equal(source.includes('headerClassName="bg-white" bodyClassName="p-0 sm:p-0"'), true)
+  assert.equal(source.includes('<Table surface="flush">'), true)
+})

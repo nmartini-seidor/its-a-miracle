@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { DatabaseIcon, LayersIcon, PackageIcon, RadioTowerIcon, SettingsIcon } from "lucide-react"
+import { BotIcon, DatabaseIcon, LayersIcon, PackageIcon, RadioTowerIcon, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { isSectionActive, workspaceSections } from "@/lib/navigation"
 
@@ -11,6 +11,7 @@ const sectionIcons = {
   Catalog: DatabaseIcon,
   Schemas: LayersIcon,
   Aggregators: RadioTowerIcon,
+  Research: BotIcon,
   Settings: SettingsIcon,
 } as const
 

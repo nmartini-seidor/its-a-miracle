@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowDownWideNarrowIcon, ArrowRightIcon, BotIcon, FolderTreeIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react"
+import { ArrowDownWideNarrowIcon, ArrowRightIcon, BotIcon, FolderTreeIcon, PackageXIcon, SparklesIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { beginResearchActivity, endResearchActivity } from "@/components/app/research-activity"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Panel } from "@/components/app/page-chrome"
@@ -37,6 +38,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
   const [queuePending, setQueuePending] = useState(false)
   const [queueStatus, setQueueStatus] = useState<string | null>(null)
 
+  const hasProducts = products.length > 0
   const visibleProducts = useMemo(() => sortProducts(filterProducts(products, activeFilter), activeSort), [products, activeFilter, activeSort])
   const selectedCount = selectedProductIds.length
 
@@ -79,7 +81,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
       statuses.forEach((status) => {
         if (status.body.status === "SUCCEEDED") pendingJobIds.delete(status.jobId)
       })
-      setQueueStatus(`Research agents running… ${jobIds.length - pendingJobIds.size}/${jobIds.length} products completed.`)
+      setQueueStatus(null)
     }
   }
 
@@ -87,54 +89,58 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
     if (selectedCount === 0) return
 
     setQueuePending(true)
-    setQueueStatus(`Queueing research agents for ${selectedCount} ${selectedCount === 1 ? "product" : "products"}…`)
-    const results = await Promise.all(
-      selectedProductIds.map(async (productId) => {
-        const response = await fetch(`/api/products/${productId}/research-jobs`, { method: "POST" })
-        return { response, body: await response.json() }
-      }),
-    )
-
-    const failed = results.find((result) => !result.response.ok)
-
-    if (failed) {
-      setQueuePending(false)
-      setQueueStatus(failed.body.error ?? "Research queue failed")
-      return
-    }
+    setQueueStatus(null)
+    beginResearchActivity()
 
     try {
-      await pollResearchJobs(results.map((result) => result.body.id))
-    } catch (error) {
-      setQueuePending(false)
-      setQueueStatus(error instanceof Error ? error.message : "Research status failed")
-      return
-    }
+      const results = await Promise.all(
+        selectedProductIds.map(async (productId) => {
+          const response = await fetch(`/api/products/${productId}/research-jobs`, { method: "POST" })
+          return { response, body: await response.json() }
+        }),
+      )
 
-    setQueuePending(false)
-    setQueueStatus(`Research completed for ${selectedCount} ${selectedCount === 1 ? "product" : "products"}.`)
-    setSelectionMode(false)
-    setSelectedProductIds([])
-    router.refresh()
+      const failed = results.find((result) => !result.response.ok)
+
+      if (failed) {
+        setQueueStatus(failed.body.error ?? "Research queue failed")
+        return
+      }
+
+      await pollResearchJobs(results.map((result) => result.body.id))
+      setQueueStatus(null)
+      setSelectionMode(false)
+      setSelectedProductIds([])
+      router.refresh()
+    } catch (error) {
+      setQueueStatus(error instanceof Error ? error.message : "Research status failed")
+    } finally {
+      setQueuePending(false)
+      endResearchActivity()
+    }
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
-        {queueStatus ? <p className="text-sm text-muted-foreground">{queueStatus}</p> : <div aria-hidden="true" />}
+        {queueStatus ? <p className="text-sm text-rose-700">{queueStatus}</p> : <div aria-hidden="true" />}
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          {selectionMode && (
+          {selectionMode && !queuePending && (
             <Button type="button" size="lg" variant="ghost" onClick={cancelResearchSelection} className="rounded-full">
               Cancel
             </Button>
           )}
+          {queuePending && <span className="research-flight-orb"><SparklesIcon className="size-5" aria-hidden="true" /></span>}
           <Button
             type="button"
             size="lg"
             variant="default"
-            disabled={queuePending || (selectionMode && selectedCount === 0)}
+            disabled={!hasProducts || queuePending || (selectionMode && selectedCount === 0)}
             onClick={selectionMode ? queueResearchForSelectedProducts : startResearchSelection}
-            className="rounded-full bg-blue-600 px-5 text-white shadow-[0_14px_34px_rgba(37,99,235,0.24)] hover:bg-blue-700 hover:shadow-[0_18px_40px_rgba(37,99,235,0.3)]"
+            className={cn(
+              "rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400 px-5 text-white shadow-[0_14px_34px_rgba(168,85,247,0.28)] hover:from-fuchsia-600 hover:via-violet-600 hover:to-sky-500 hover:shadow-[0_18px_42px_rgba(168,85,247,0.34)]",
+              queuePending && "animate-pulse",
+            )}
           >
             <BotIcon data-icon="inline-start" />
             {selectionMode ? `Queue Research for ${selectedCount} ${selectedCount === 1 ? "Product" : "Products"}` : "Run Research Agent"}
@@ -142,32 +148,31 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
         </div>
       </div>
 
-      <Panel>
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-wrap items-center gap-2">
-              {filterOptions.map((filter) => (
-                <Button key={filter.id} type="button" size="sm" variant={activeFilter === filter.id ? "default" : "outline"} onClick={() => setActiveFilter(filter.id)}>
-                  {filter.label}
-                </Button>
-              ))}
-            </div>
-            <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-              {sortOptions.map((sort) => {
-                const active = activeSort === sort.id
-                const Icon = sort.Icon
+      <div className="flex flex-col gap-3 px-1 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          {filterOptions.map((filter) => (
+            <Button key={filter.id} type="button" size="sm" variant={activeFilter === filter.id ? "default" : "outline"} disabled={!hasProducts} onClick={() => setActiveFilter(filter.id)}>
+              {filter.label}
+            </Button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+          {sortOptions.map((sort) => {
+            const active = activeSort === sort.id
+            const Icon = sort.Icon
 
-                return (
-                  <Button key={sort.id} type="button" size="sm" variant={active ? "secondary" : "outline"} onClick={() => setActiveSort(sort.id)}>
-                    <Icon className={cn("size-4", active ? "text-slate-950" : sort.iconClassName)} aria-hidden="true" />
-                    {sort.label}
-                  </Button>
-                )
-              })}
-            </div>
-          </div>
+            return (
+              <Button key={sort.id} type="button" size="sm" variant={active ? "secondary" : "outline"} disabled={!hasProducts} onClick={() => setActiveSort(sort.id)}>
+                <Icon className={cn("size-4", active ? "text-slate-950" : sort.iconClassName)} aria-hidden="true" />
+                {sort.label}
+              </Button>
+            )
+          })}
+        </div>
+      </div>
 
-          <Table>
+      <Panel bodyClassName="p-0 sm:p-0">
+        <Table surface="flush">
           <TableHeader>
             <TableRow>
               {selectionMode && <TableHead className="w-10">Select</TableHead>}
@@ -185,9 +190,12 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
             {visibleProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={selectionMode ? 9 : 8} className="py-10 text-center">
-                  <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
+                  <div className="mx-auto flex max-w-none flex-col items-center gap-4">
+                    <span className="flex size-12 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-700" aria-hidden="true">
+                      <PackageXIcon className="size-6" />
+                    </span>
                     <p className="font-semibold">No products imported yet</p>
-                    <p className="text-sm leading-6 text-muted-foreground">
+                    <p className="max-w-none whitespace-nowrap text-sm leading-6 text-muted-foreground">
                       Import the electronics catalog, then this triage queue will show scored products for review.
                     </p>
                     <ResetWorkspaceButton compact actions="import" align="center" />
@@ -235,8 +243,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
               </TableRow>
             ))}
           </TableBody>
-          </Table>
-        </div>
+        </Table>
       </Panel>
     </div>
   )
