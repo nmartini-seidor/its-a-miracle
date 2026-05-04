@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 
 const { heroProduct, products } = await import('../lib/fixtures.ts')
@@ -23,4 +24,12 @@ test('sortProducts orders by the selected triage priority', () => {
     'Audio/Headphones & Earbuds',
     'Audio/Headphones & Earbuds',
   ])
+})
+
+test('empty triage state offers direct catalog import', () => {
+  const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
+
+  assert.equal(source.includes('No products imported yet'), true)
+  assert.equal(source.includes('Import the Orange electronics catalog'), true)
+  assert.equal(source.includes('actions="import"'), true)
 })

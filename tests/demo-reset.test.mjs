@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-const { addReviewDecision, createMockResearchRun, getResearchRun, getStoredProduct, resetDemoState } = await import('../server/store.ts')
+const { addReviewDecision, createMockResearchRun, getResearchRun, getStoredProduct, importDemoProducts, listStoredProducts, resetDemoState } = await import('../server/store.ts')
 
-test('resetDemoState restores the seeded hero product walkthrough state', () => {
+test('resetDemoState clears the workspace and importDemoProducts restores the showcase catalog', () => {
   resetDemoState()
+  assert.equal(listStoredProducts().length, 0)
+  assert.equal(getStoredProduct('freeclip-2'), null)
+
+  assert.equal(importDemoProducts(), 55)
   const initialProduct = getStoredProduct('freeclip-2')
   assert.equal(initialProduct.listingStatus, 'NEEDS_ENRICHMENT')
   assert.equal(initialProduct.candidates.length, 4)
@@ -19,6 +23,9 @@ test('resetDemoState restores the seeded hero product walkthrough state', () => 
   assert.equal(mutatedProduct.listingStatus !== 'NEEDS_ENRICHMENT', true)
 
   resetDemoState()
+  assert.equal(listStoredProducts().length, 0)
+
+  importDemoProducts()
   const resetProduct = getStoredProduct('freeclip-2')
   assert.equal(resetProduct.listingStatus, 'NEEDS_ENRICHMENT')
   assert.equal(resetProduct.candidates.length, 4)

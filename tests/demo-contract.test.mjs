@@ -59,6 +59,9 @@ test('seeded catalog uses Orange electronics imports instead of unrelated retail
   assert.equal(products.some((product) => rejectedCatalogTerms.test(`${product.title} ${product.brand} ${product.categoryPath.join(' ')}`)), false)
   assert.equal(orangeImports.every((product) => product.evidence.some((record) => record.sourceName === 'Orange source catalog')), true)
   assert.equal(orangeImports.every((product) => product.categoryPath.some((entry) => /gaming|computing|phones|tablets/i.test(entry))), true)
+  assert.equal(orangeImports.some((product) => product.qualityScore === 100), false)
+  assert.equal(orangeImports.find((product) => product.id === 'orange-orange-mkp000919395167').schemaId, 'schema-video-games')
+  assert.equal(Object.hasOwn(orangeImports.find((product) => product.id === 'orange-orange-mkp000919395167').baselineAttributes, 'weight'), false)
 })
 
 test('export preview includes only exportable accepted candidate values and preserves one accepted candidate per field', () => {

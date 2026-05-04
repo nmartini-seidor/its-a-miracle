@@ -134,7 +134,7 @@ export interface ExportPreview {
 export interface SettingsSnapshot {
   miraklBaseUrl: string
   environment: "demo"
-  fakeResearchMode: true
+  fakeResearchMode: boolean
   defaultResearchDelaySeconds: number
   maxEvidencePerProduct: number
   defaultCandidateConfidence: ConfidenceLevel

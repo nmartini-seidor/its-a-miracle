@@ -7,11 +7,13 @@ const {
   getResearchRun,
   getStoredProduct,
   addReviewDecision,
+  importDemoProducts,
   resetDemoState,
 } = await import('../server/store.ts')
 
 test('research job transitions from queued to running to succeeded and applies new evidence/candidates', () => {
   resetDemoState()
+  importDemoProducts()
   const initialProduct = getStoredProduct('freeclip-2')
   const initialEvidenceCount = initialProduct.evidence.length
   const initialCandidateCount = initialProduct.candidates.length
@@ -33,6 +35,7 @@ test('research job transitions from queued to running to succeeded and applies n
 
 test('accepting a candidate refreshes export eligibility and listing status', () => {
   resetDemoState()
+  importDemoProducts()
   addReviewDecision('cand-brand', 'APPROVE', 'Verified against evidence')
   const preview = exportPreview('freeclip-2')
   const product = getStoredProduct('freeclip-2')

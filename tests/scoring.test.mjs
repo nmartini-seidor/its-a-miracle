@@ -24,8 +24,33 @@ test('qualityScore rewards populated baseline fields and penalizes warnings', ()
       bluetoothVersion: '6.0',
     },
     warnings: ['EAN missing'],
+    evidence: [{ id: 'ev-1' }],
+  }, {
+    requiredAttributes: ['brand', 'productName', 'ean', 'description'],
+    recommendedAttributes: ['batteryLife', 'usbC', 'bluetoothVersion'],
   })
 
-  assert.equal(scored.score, 95)
-  assert.equal(scored.band, 'green')
+  assert.equal(scored.score, 62)
+  assert.equal(scored.band, 'yellow')
+})
+
+test('qualityScore uses schema completeness instead of only populated baseline keys', () => {
+  const scored = qualityScore({
+    brand: 'Nintendo',
+    baselineDescription: 'Game listing with only basic identity fields.',
+    baselineAttributes: {
+      brand: 'Nintendo',
+      productName: "Nintendo Videojuego Luigi's Mansion 3 Switch",
+      ean: '1239193951670',
+      description: 'Game listing with only basic identity fields.',
+    },
+    warnings: [],
+    evidence: [{ id: 'ev-1' }],
+  }, {
+    requiredAttributes: ['brand', 'productName', 'ean', 'description', 'compatibility'],
+    recommendedAttributes: [],
+  })
+
+  assert.equal(scored.score, 69)
+  assert.equal(scored.band, 'yellow')
 })

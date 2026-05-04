@@ -1,12 +1,13 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs"
 import path from "node:path"
-import { products as seededProducts } from "../lib/fixtures.ts"
+import { aggregators, demoSettings, products as seededProducts } from "../lib/fixtures.ts"
 import { isExportableAttributeField } from "../lib/demo-contract.ts"
 import type {
   CandidateRecord,
   ContractFieldId,
   EvidenceRecord,
   ExportPreview,
+  SettingsSnapshot,
   ProductRecord,
   ResearchJob,
   ResearchJobStatus,
@@ -29,6 +30,7 @@ type DemoCatalogState = {
   products: ProductRecord[]
   researchRuns: StoredResearchJob[]
   reviewDecisions: ReviewDecisionRecord[]
+  settings: SettingsSnapshot
 }
 
 const stateFilePath = path.join(process.cwd(), "data", "demo-state.json")
@@ -41,11 +43,49 @@ function toMillis(value: string) {
   return new Date(value).getTime()
 }
 
-function buildInitialState(): DemoCatalogState {
+function cloneDefaultSettings() {
+  return structuredClone(demoSettings)
+}
+
+function sanitizeSettings(settings: Partial<SettingsSnapshot> = {}): SettingsSnapshot {
+  const allowedAggregatorIds = new Set(aggregators.map((aggregator) => aggregator.id))
+  const enabledAggregatorIds = settings.enabledAggregatorIds?.filter((id) => allowedAggregatorIds.has(id))
+
+  return {
+    ...cloneDefaultSettings(),
+    ...settings,
+    environment: "demo",
+    miraklBaseUrl: settings.miraklBaseUrl?.trim() || demoSettings.miraklBaseUrl,
+    fakeResearchMode: typeof settings.fakeResearchMode === "boolean" ? settings.fakeResearchMode : demoSettings.fakeResearchMode,
+    defaultResearchDelaySeconds: clampNumber(settings.defaultResearchDelaySeconds, 5, 300, demoSettings.defaultResearchDelaySeconds),
+    maxEvidencePerProduct: clampNumber(settings.maxEvidencePerProduct, 1, 10, demoSettings.maxEvidencePerProduct),
+    defaultCandidateConfidence: settings.defaultCandidateConfidence ?? demoSettings.defaultCandidateConfidence,
+    autoAssignSchemaByCategory:
+      typeof settings.autoAssignSchemaByCategory === "boolean" ? settings.autoAssignSchemaByCategory : demoSettings.autoAssignSchemaByCategory,
+    enabledAggregatorIds: enabledAggregatorIds ?? cloneDefaultSettings().enabledAggregatorIds,
+  }
+}
+
+function clampNumber(value: number | undefined, min: number, max: number, fallback: number) {
+  if (typeof value !== "number" || Number.isNaN(value)) return fallback
+  return Math.min(max, Math.max(min, Math.round(value)))
+}
+
+function buildInitialState(settings: SettingsSnapshot = cloneDefaultSettings()): DemoCatalogState {
   return {
     products: structuredClone(seededProducts),
     researchRuns: [],
     reviewDecisions: [],
+    settings,
+  }
+}
+
+function buildEmptyState(settings: SettingsSnapshot = cloneDefaultSettings()): DemoCatalogState {
+  return {
+    products: [],
+    researchRuns: [],
+    reviewDecisions: [],
+    settings,
   }
 }
 
@@ -60,7 +100,13 @@ function ensureStateFile() {
 
 function readState(): DemoCatalogState {
   ensureStateFile()
-  return JSON.parse(readFileSync(stateFilePath, "utf8")) as DemoCatalogState
+  const state = JSON.parse(readFileSync(stateFilePath, "utf8")) as Partial<DemoCatalogState>
+  return {
+    products: state.products ?? [],
+    researchRuns: state.researchRuns ?? [],
+    reviewDecisions: state.reviewDecisions ?? [],
+    settings: sanitizeSettings(state.settings),
+  }
 }
 
 function writeState(state: DemoCatalogState) {
@@ -70,7 +116,26 @@ function writeState(state: DemoCatalogState) {
 }
 
 export function resetDemoState() {
-  writeState(buildInitialState())
+  const currentSettings = readState().settings
+  writeState(buildEmptyState(currentSettings))
+}
+
+export function importDemoProducts() {
+  const currentSettings = readState().settings
+  const state = buildInitialState(currentSettings)
+  writeState(state)
+  return state.products.length
+}
+
+export function getStoredSettings() {
+  return readState().settings
+}
+
+export function updateStoredSettings(nextSettings: Partial<SettingsSnapshot>) {
+  const state = readState()
+  state.settings = sanitizeSettings({ ...state.settings, ...nextSettings })
+  writeState(state)
+  return state.settings
 }
 
 export function listStoredProducts() {

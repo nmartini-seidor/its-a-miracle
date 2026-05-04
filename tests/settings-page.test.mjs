@@ -3,8 +3,12 @@ import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 
 const { getDemoSettings, listAggregators, listSchemas } = await import('../server/data.ts')
+const { resetDemoState, updateStoredSettings } = await import('../server/store.ts')
+const { demoSettings } = await import('../lib/fixtures.ts')
 
-test('settings snapshot stays demo-only and maps to enabled aggregator records', async () => {
+test('settings snapshot stays local-only and maps to enabled aggregator records', async () => {
+  updateStoredSettings(demoSettings)
+  resetDemoState()
   const settings = await getDemoSettings()
   const aggregators = await listAggregators()
 
@@ -18,15 +22,43 @@ test('settings snapshot stays demo-only and maps to enabled aggregator records',
   assert.deepEqual(settings.enabledAggregatorIds, enabledAggregatorIds)
 })
 
-test('settings page source advertises configuration sections', async () => {
-  const source = readFileSync('app/settings/page.tsx', 'utf8')
+test('settings can be changed and reset keeps configuration while clearing catalog state', async () => {
+  updateStoredSettings(demoSettings)
+  resetDemoState()
+  const saved = updateStoredSettings({
+    defaultResearchDelaySeconds: 45,
+    maxEvidencePerProduct: 6,
+    defaultCandidateConfidence: 'high',
+    enabledAggregatorIds: ['official-manufacturer', 'orange-source-catalog'],
+  })
+
+  assert.equal(saved.defaultResearchDelaySeconds, 45)
+  assert.equal(saved.maxEvidencePerProduct, 6)
+  assert.equal(saved.defaultCandidateConfidence, 'high')
+  assert.deepEqual(saved.enabledAggregatorIds, ['official-manufacturer', 'orange-source-catalog'])
+
+  resetDemoState()
+  const afterReset = await getDemoSettings()
+  assert.equal(afterReset.defaultResearchDelaySeconds, 45)
+  assert.equal(afterReset.maxEvidencePerProduct, 6)
+  assert.equal(afterReset.defaultCandidateConfidence, 'high')
+  assert.deepEqual(afterReset.enabledAggregatorIds, ['official-manufacturer', 'orange-source-catalog'])
+
+  updateStoredSettings(demoSettings)
+})
+
+test('settings page source advertises tabbed configurable sections', async () => {
+  const pageSource = readFileSync('app/settings/page.tsx', 'utf8')
+  const tabsSource = readFileSync('components/settings/settings-tabs.tsx', 'utf8')
   const schemas = await listSchemas()
 
-  assert.equal(source.includes('Workspace settings'), true)
-  assert.equal(source.includes('Mirakl workspace mode'), true)
-  assert.equal(source.includes('Research orchestration defaults'), true)
-  assert.equal(source.includes('Schema governance defaults'), true)
-  assert.equal(source.includes('Aggregator trust policy'), true)
-  assert.equal(source.includes('Governance notes'), true)
+  assert.equal(pageSource.includes('Workspace configuration'), true)
+  assert.equal(tabsSource.includes('TabsTrigger'), true)
+  assert.equal(tabsSource.includes('Save changes'), true)
+  assert.equal(tabsSource.includes('Workspace'), true)
+  assert.equal(tabsSource.includes('Research defaults'), true)
+  assert.equal(tabsSource.includes('Schema matching'), true)
+  assert.equal(tabsSource.includes('Evidence sources'), true)
+  assert.equal(tabsSource.includes('Export governance'), true)
   assert.equal(schemas.length >= 5, true)
 })

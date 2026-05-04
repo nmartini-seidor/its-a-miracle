@@ -85,7 +85,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               <TableHeader>
                 <TableRow>
                   <TableHead className="min-w-48">Attribute name</TableHead>
-                  <TableHead>Mirakl</TableHead>
+                  <TableHead className="bg-sky-100/90 text-sky-950 shadow-[inset_4px_0_0_#2563eb]">MIRAKL</TableHead>
                   <TableHead>Candidate</TableHead>
                   {evidenceSources.map((source) => (
                     <TableHead key={source.aggregatorId}>{source.sourceName}</TableHead>
@@ -98,7 +98,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     <TableCell className="min-w-48 font-semibold text-foreground">
                       {row.label}
                     </TableCell>
-                    <TableCell className="min-w-56">
+                    <TableCell className="min-w-56 bg-sky-50/80 text-sky-950 shadow-[inset_4px_0_0_rgba(37,99,235,0.38)]">
                       {row.baselineValue ? <span>{row.baselineValue}</span> : <Badge variant="outline">Missing</Badge>}
                     </TableCell>
                     <TableCell className="min-w-56">

@@ -157,11 +157,22 @@ export const schemas: SchemaDefinition[] = [
     id: "schema-gaming-devices",
     slug: "gaming-devices",
     name: "Gaming devices",
-    linkedCategories: ["Gaming", "Consoles", "Video games"],
-    requiredAttributes: ["brand", "productName", "ean", "description"],
-    recommendedAttributes: ["connectivity", "storage", "ram", "usbC", "weight", "dimensions"],
-    warningRules: ["Product pending operator review", "Missing catalog identifiers"],
+    linkedCategories: ["Gaming", "Consoles", "Console bundles"],
+    requiredAttributes: ["brand", "productName", "ean", "description", "storage", "connectivity"],
+    recommendedAttributes: ["usbC", "weight", "dimensions", "compatibility"],
+    warningRules: ["Product pending operator review", "Missing hardware identifiers", "Storefront copy requires cleanup"],
     scoringRules: ["Missing identifier = -20", "Missing required field = -10 each"],
+    exampleProductIds: [],
+  },
+  {
+    id: "schema-video-games",
+    slug: "video-games",
+    name: "Video games",
+    linkedCategories: ["Gaming", "Video games"],
+    requiredAttributes: ["brand", "productName", "ean", "description", "compatibility"],
+    recommendedAttributes: [],
+    warningRules: ["Storefront copy requires cleanup", "Packaging dimensions should not be treated as device specs"],
+    scoringRules: ["Missing platform compatibility blocks review", "Noisy storefront copy caps score below green"],
     exampleProductIds: [],
   },
   {
@@ -305,6 +316,7 @@ type OrangeImportedRow = {
   sourceUrl: string
   description: string
   attributes: ProductRecord["baselineAttributes"]
+  warnings: readonly string[]
 }
 
 const orangeImportedRows = [
@@ -317,17 +329,20 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/luigis-mansion-3-nintendo-switch/MKP000919395167.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor LUIGI’S MANSION – NINTENDO SWITCH | VERSIÓN ESPAÑOLA Idiomas: Textos y voces: Español, Inglés, Francés, Alemán, Italiano. ¡Luigi se enfrenta a una pesadilla espeluznante! Luigi se prepar…",
+    "description": "LUIGI’S MANSION – NINTENDO SWITCH | VERSIÓN ESPAÑOLA Idiomas: Textos y voces: Español, Inglés, Francés, Alemán, Italiano. ¡Luigi se enfrenta a una pesadilla espeluznante! Luigi se prepara para unas vacaciones de ensueño con Mario y sus amigos, pero lo que parecía un descanso se convierte en una aterradora aventura. Recorre los pisos de un misterioso hotel, cada uno distinto, enfrentándote a fantasmas y desafíos inesp…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Videojuego Luigi's Mansion 3 Switch",
       "ean": "1239193951670",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor LUIGI’S MANSION – NINTENDO SWITCH | VERSIÓN ESPAÑOLA Idiomas: Textos y voces: Español, Inglés, Francés, Alemán, Italiano. ¡Luigi se enfrenta a una pesadilla espeluznante! Luigi se prepar…",
-      "weight": "0.10 gr",
+      "description": "LUIGI’S MANSION – NINTENDO SWITCH | VERSIÓN ESPAÑOLA Idiomas: Textos y voces: Español, Inglés, Francés, Alemán, Italiano. ¡Luigi se enfrenta a una pesadilla espeluznante! Luigi se prepara para unas vacaciones de ensueño con Mario y sus amigos, pero lo que parecía un descanso se convierte en una aterradora aventura. Recorre los pisos de un misterioso hotel, cada uno distinto, enfrentándote a fantasmas y desafíos inesp…",
       "compatibility": "JUEGOS SWITCH"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy",
+      "Packaging dimensions should not be treated as console hardware specs"
+    ]
   },
   {
     "id": "orange-orange-mkp000919369436",
@@ -338,16 +353,19 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/mario-vs-donkey-kong-nintendo-switch/MKP000919369436.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor MARIO VS DONKEY KONG NINTENDO SWITCH VERSIÓN ESPAÑOLA ¡Estos juguetes tienen cuerda para rato! La chispa de rivalidad que prendió en Game Boy Advance se reaviva en Mario vs. Donkey Kong…",
+    "description": "MARIO VS DONKEY KONG NINTENDO SWITCH VERSIÓN ESPAÑOLA ¡Estos juguetes tienen cuerda para rato! La chispa de rivalidad que prendió en Game Boy Advance se reaviva en Mario vs. Donkey Kong para Nintendo Switch, que cuenta con gráficos totalmente nuevos. Resuelve todo tipo de puzles y pon a prueba tus dotes para las plataformas en tu afán por recuperar los Minimarios robados. ¡Arrebátale los Minimarios a Donkey Kong! Don…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Videojuego Mario vs Donkey Kong Switch",
       "ean": "1239193694362",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor MARIO VS DONKEY KONG NINTENDO SWITCH VERSIÓN ESPAÑOLA ¡Estos juguetes tienen cuerda para rato! La chispa de rivalidad que prendió en Game Boy Advance se reaviva en Mario vs. Donkey Kong…",
+      "description": "MARIO VS DONKEY KONG NINTENDO SWITCH VERSIÓN ESPAÑOLA ¡Estos juguetes tienen cuerda para rato! La chispa de rivalidad que prendió en Game Boy Advance se reaviva en Mario vs. Donkey Kong para Nintendo Switch, que cuenta con gráficos totalmente nuevos. Resuelve todo tipo de puzles y pon a prueba tus dotes para las plataformas en tu afán por recuperar los Minimarios robados. ¡Arrebátale los Minimarios a Donkey Kong! Don…",
       "compatibility": "CONSOLAS SWITCH"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000919026648",
@@ -358,17 +376,19 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/monster-hunter-rise-para-nintendo-switch/MKP000919026648.html",
-    "description": "Nintendo Videojuego Monster Hunter Rise Switch Dimensiones Peso del dispositivo (gr) 0.10 gr Altura (cm) 17 cm Anchura (cm) 10.5 cm Profundidad (cm) 8 cm Otros detalles Componentes Incluidos MONSTER HUNTER RISE PARA NINTENDO SWITCH VERSIÓN ESPAÑOLA Contenido M…",
+    "description": "Nintendo Videojuego Monster Hunter Rise Switch Dimensiones Peso del dispositivo (gr) 0.10 gr Altura (cm) 17 cm Anchura (cm) 10.5 cm Profundidad (cm) 8 cm Otros detalles Componentes Incluidos MONSTER HUNTER RISE PARA NINTENDO SWITCH VERSIÓN ESPAÑOLA Contenido MONSTER HUNTER RISE PARA NINTENDO SWITCH VERSIÓN ESPAÑOLA Más características Compatible Nintendo Switch Y Nintendo Switch 2 Gaming MPN (Manufacturer Part Number…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Videojuego Monster Hunter Rise Switch",
       "ean": "1239190266487",
-      "description": "Nintendo Videojuego Monster Hunter Rise Switch Dimensiones Peso del dispositivo (gr) 0.10 gr Altura (cm) 17 cm Anchura (cm) 10.5 cm Profundidad (cm) 8 cm Otros detalles Componentes Incluidos MONSTER HUNTER RISE PARA NINTENDO SWITCH VERSIÓN ESPAÑOLA Contenido M…",
-      "weight": "0.10 gr",
+      "description": "Nintendo Videojuego Monster Hunter Rise Switch Dimensiones Peso del dispositivo (gr) 0.10 gr Altura (cm) 17 cm Anchura (cm) 10.5 cm Profundidad (cm) 8 cm Otros detalles Componentes Incluidos MONSTER HUNTER RISE PARA NINTENDO SWITCH VERSIÓN ESPAÑOLA Contenido MONSTER HUNTER RISE PARA NINTENDO SWITCH VERSIÓN ESPAÑOLA Más características Compatible Nintendo Switch Y Nintendo Switch 2 Gaming MPN (Manufacturer Part Number…",
       "compatibility": "Nintendo Switch Y Nintendo Switch 2"
-    }
+    },
+    "warnings": [
+      "Packaging dimensions should not be treated as console hardware specs"
+    ]
   },
   {
     "id": "orange-orange-mkp000911904588",
@@ -379,16 +399,19 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/nba-2k26-nintendo-switch-caja-codigo-descarga-dig/MKP000911904588.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Nintendo NBA 2K26 Nintendo Switch Caja Código Descarga Dig. Otros detalles Componentes Incluidos NBA 2K26 SWITCH CAJA CO…",
+    "description": "NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Nintendo NBA 2K26 Nintendo Switch Caja Código Descarga Dig. Otros detalles Componentes Incluidos NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Contenido NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Más características Compatible Nintendo Switch Gaming MPN (Manufacturer Part Number) 5072854 Usos Nintendo Switch",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo NBA 2K26 Nintendo Switch Caja Código Descarga Dig.",
       "ean": "1239119045889",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Nintendo NBA 2K26 Nintendo Switch Caja Código Descarga Dig. Otros detalles Componentes Incluidos NBA 2K26 SWITCH CAJA CO…",
+      "description": "NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Nintendo NBA 2K26 Nintendo Switch Caja Código Descarga Dig. Otros detalles Componentes Incluidos NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Contenido NBA 2K26 SWITCH CAJA CON CÓDIGO DESCARGA DIGITAL VERSIÓN ESPAÑOLA Más características Compatible Nintendo Switch Gaming MPN (Manufacturer Part Number) 5072854 Usos Nintendo Switch",
       "compatibility": "Nintendo Switch"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000917601064",
@@ -399,16 +422,19 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/shin-megami-tensei-v-vengeance-standard-ed-switch/MKP000917601064.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Shin Megami Tensei V: Vengeance – Nintendo Switch Embárcate en esta versión definitiva de Shin Megami Tensei V , ampliada con una historia nueva que incluye nuevos escenarios, demonios y…",
+    "description": "Shin Megami Tensei V: Vengeance – Nintendo Switch Embárcate en esta versión definitiva de Shin Megami Tensei V , ampliada con una historia nueva que incluye nuevos escenarios, demonios y decisiones que dictarán el destino de toda la existencia. Shin Megami Tensei V: Vengeance consta de dos rutas argumentales completas: • Canon de la Venganza: una dramática historia centrada en los caídos, nuevos personajes y la enigm…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Videojuego Shin Megami Tensei V Vengeance Switch",
       "ean": "1239176010646",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Shin Megami Tensei V: Vengeance – Nintendo Switch Embárcate en esta versión definitiva de Shin Megami Tensei V , ampliada con una historia nueva que incluye nuevos escenarios, demonios y…",
-      "weight": "100 gr"
-    }
+      "description": "Shin Megami Tensei V: Vengeance – Nintendo Switch Embárcate en esta versión definitiva de Shin Megami Tensei V , ampliada con una historia nueva que incluye nuevos escenarios, demonios y decisiones que dictarán el destino de toda la existencia. Shin Megami Tensei V: Vengeance consta de dos rutas argumentales completas: • Canon de la Venganza: una dramática historia centrada en los caídos, nuevos personajes y la enigm…"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy",
+      "Packaging dimensions should not be treated as console hardware specs"
+    ]
   },
   {
     "id": "orange-orange-mkp000914595450",
@@ -419,16 +445,19 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/smbroswonder-switch-2-edmasencuentro-parque-belabel/MKP000914595450.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Nintendo SMBros.Wonder Switch 2 Ed+Encuentro Parque Belabel Otros detalles Componente…",
+    "description": "SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Nintendo SMBros.Wonder Switch 2 Ed+Encuentro Parque Belabel Otros detalles Componentes Incluidos SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Contenido SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Más caract…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo SMBros.Wonder Switch 2 Ed+Encuentro Parque Belabel",
       "ean": "1239145954506",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Nintendo SMBros.Wonder Switch 2 Ed+Encuentro Parque Belabel Otros detalles Componente…",
+      "description": "SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Nintendo SMBros.Wonder Switch 2 Ed+Encuentro Parque Belabel Otros detalles Componentes Incluidos SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Contenido SUPER MARIO BROS. WONDER NINTENDO SWITCH 2 EDITION + ENCUENTRO EN EL PARQUE BELABEL VERSIÓN ESPAÑOLA Más caract…",
       "compatibility": "Nintendo Switch"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000916055291",
@@ -439,17 +468,17 @@ const orangeImportedRows = [
       "Gaming",
       "Video games"
     ],
-    "schemaId": "schema-gaming-devices",
+    "schemaId": "schema-video-games",
     "sourceUrl": "https://www.orange.es/dispositivos/videojuegos/nintendo/totally-spies-cyber-mission-nintendo-switch/MKP000916055291.html",
-    "description": "TOTALLY SPIES CYBER MISSION – Nintendo Switch PREPÁRATE, ¡ES HORA DE LA MISIÓN! El deslumbrante trío de Beverly Hills -Sam, Clover y Alex- ha vuelto y está listo para iluminar las vibrantes calles de Singapur con sus habilidades de espía. Desde las bulliciosas…",
+    "description": "TOTALLY SPIES CYBER MISSION – Nintendo Switch PREPÁRATE, ¡ES HORA DE LA MISIÓN! El deslumbrante trío de Beverly Hills -Sam, Clover y Alex- ha vuelto y está listo para iluminar las vibrantes calles de Singapur con sus habilidades de espía. Desde las bulliciosas calles de Singapur hasta la Universidad de Ayia, embárcate en una aventura llena de acción mientras exploras todos los rincones futuristas de la ciudad. Pero,…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Videojuego Totally Spies Cyber Mission Switch",
       "ean": "1239160552916",
-      "description": "TOTALLY SPIES CYBER MISSION – Nintendo Switch PREPÁRATE, ¡ES HORA DE LA MISIÓN! El deslumbrante trío de Beverly Hills -Sam, Clover y Alex- ha vuelto y está listo para iluminar las vibrantes calles de Singapur con sus habilidades de espía. Desde las bulliciosas…",
-      "weight": "0.10 gr",
+      "description": "TOTALLY SPIES CYBER MISSION – Nintendo Switch PREPÁRATE, ¡ES HORA DE LA MISIÓN! El deslumbrante trío de Beverly Hills -Sam, Clover y Alex- ha vuelto y está listo para iluminar las vibrantes calles de Singapur con sus habilidades de espía. Desde las bulliciosas calles de Singapur hasta la Universidad de Ayia, embárcate en una aventura llena de acción mientras exploras todos los rincones futuristas de la ciudad. Pero,…",
       "compatibility": "JUEGOS SWITCH"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-mkp000905189074",
@@ -458,18 +487,21 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/consola-nintendo-switch-2-mas-super-mario-galaxy-1y2/MKP000905189074.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor NUEVA CONSOLA NINTENDO SWITCH 2 + SUPER MARIO GALAXY 1 Y SUPER MARIO GALAXY 2 SWITCH VERSIÓN ESPAÑOLA GARANTÍA EUROPEA EU WARRANTY Nintendo Switch 2 incluye: • Una consola Nintendo Switc…",
+    "description": "NUEVA CONSOLA NINTENDO SWITCH 2 + SUPER MARIO GALAXY 1 Y SUPER MARIO GALAXY 2 SWITCH VERSIÓN ESPAÑOLA GARANTÍA EUROPEA EU WARRANTY Nintendo Switch 2 incluye: • Una consola Nintendo Switch 2 • Mandos Joy-Con 2 (izquierdo y derecho) • Un soporte para mandos Joy-Con 2 • Correas de los mandos Joy-Con 2 • Una base de Nintendo Switch 2 • Un cable HDMI de ultra alta velocidad • Un adaptador de corriente de Nintendo Switch 2…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Consola Nintendo Switch 2 + Super Mario Galaxy 1y2",
       "ean": "1239051890745",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor NUEVA CONSOLA NINTENDO SWITCH 2 + SUPER MARIO GALAXY 1 Y SUPER MARIO GALAXY 2 SWITCH VERSIÓN ESPAÑOLA GARANTÍA EUROPEA EU WARRANTY Nintendo Switch 2 incluye: • Una consola Nintendo Switc…",
+      "description": "NUEVA CONSOLA NINTENDO SWITCH 2 + SUPER MARIO GALAXY 1 Y SUPER MARIO GALAXY 2 SWITCH VERSIÓN ESPAÑOLA GARANTÍA EUROPEA EU WARRANTY Nintendo Switch 2 incluye: • Una consola Nintendo Switch 2 • Mandos Joy-Con 2 (izquierdo y derecho) • Un soporte para mandos Joy-Con 2 • Correas de los mandos Joy-Con 2 • Una base de Nintendo Switch 2 • Un cable HDMI de ultra alta velocidad • Un adaptador de corriente de Nintendo Switch 2…",
       "compatibility": "Nintendo Switch y Nintendo Switch 2"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000904208354",
@@ -478,19 +510,20 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/nintendo-switch-version-oled-mandos-color-blanca/MKP000904208354.html",
-    "description": "MANDOS COLOR BLANCO VERSIÓN ESPAÑOLA SWITCH MODELO OLED Una nueva consola se incorpora a la familia Nintendo Switch: con Nintendo Switch (modelo OLED), a la venta el 8 de octubre, y con ella crece el abanico de opciones para disfrutar del amplio catálogo de ju…",
+    "description": "MANDOS COLOR BLANCO VERSIÓN ESPAÑOLA SWITCH MODELO OLED Una nueva consola se incorpora a la familia Nintendo Switch: con Nintendo Switch (modelo OLED), a la venta el 8 de octubre, y con ella crece el abanico de opciones para disfrutar del amplio catálogo de juegos para Nintendo Switch. Aquí se puede ver el vídeo de presentación de la nueva consola, Nintendo Switch (modelo OLED). Nintendo Switch (modelo OLED) tiene el…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch (Versión OLED) Mandos -Blanca",
       "ean": "1239042083545",
-      "description": "MANDOS COLOR BLANCO VERSIÓN ESPAÑOLA SWITCH MODELO OLED Una nueva consola se incorpora a la familia Nintendo Switch: con Nintendo Switch (modelo OLED), a la venta el 8 de octubre, y con ella crece el abanico de opciones para disfrutar del amplio catálogo de ju…",
+      "description": "MANDOS COLOR BLANCO VERSIÓN ESPAÑOLA SWITCH MODELO OLED Una nueva consola se incorpora a la familia Nintendo Switch: con Nintendo Switch (modelo OLED), a la venta el 8 de octubre, y con ella crece el abanico de opciones para disfrutar del amplio catálogo de juegos para Nintendo Switch. Aquí se puede ver el vídeo de presentación de la nueva consola, Nintendo Switch (modelo OLED). Nintendo Switch (modelo OLED) tiene el…",
       "weight": "1.5 gr",
       "compatibility": "CONSOLAS SWITCH"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-mkp000904580307",
@@ -499,18 +532,21 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/nintendo-switch2-mas-super-mario-galaxy-1y2-mas-joycon/MKP000904580307.html",
-    "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon Abrir ventana modal: Información sobre el cargador 2.5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatio…",
+    "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Orange Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon",
       "ean": "1239045803072",
-      "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon Abrir ventana modal: Información sobre el cargador 2.5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatio…",
+      "description": "Nintendo Nintendo Switch2 + Super Mario Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Orange Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
       "compatibility": "Nintendo Switch 2"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000907953660",
@@ -519,18 +555,19 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/switch-2-mas-animal-crossing-mas-supermario-galaxy-1y2/MKP000907953660.html",
-    "description": "CONSOLA NINTENDO SWITCH 2 + ANIMAL CROSSING SWITCH 2 + SUPER MARIO GALAXY 1 Y 2 – VERSIÓN ESPAÑOLA Pack de Nintendo Switch 2 que incluye los juegos físicos completos Animal Crossing Switch 2 y Super Mario Galaxy 1 y 2. Disfruta de la nueva generación de Ninten…",
+    "description": "CONSOLA NINTENDO SWITCH 2 + ANIMAL CROSSING SWITCH 2 + SUPER MARIO GALAXY 1 Y 2 – VERSIÓN ESPAÑOLA Pack de Nintendo Switch 2 que incluye los juegos físicos completos Animal Crossing Switch 2 y Super Mario Galaxy 1 y 2. Disfruta de la nueva generación de Nintendo con mayor potencia, nuevas funciones online, gráficos mejorados y una experiencia de juego más fluida y envolvente, en versión española y con garantía europe…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch 2 + Animal Crossing + SuperMario Galaxy 1y2",
       "ean": "1239079536601",
-      "description": "CONSOLA NINTENDO SWITCH 2 + ANIMAL CROSSING SWITCH 2 + SUPER MARIO GALAXY 1 Y 2 – VERSIÓN ESPAÑOLA Pack de Nintendo Switch 2 que incluye los juegos físicos completos Animal Crossing Switch 2 y Super Mario Galaxy 1 y 2. Disfruta de la nueva generación de Ninten…",
+      "description": "CONSOLA NINTENDO SWITCH 2 + ANIMAL CROSSING SWITCH 2 + SUPER MARIO GALAXY 1 Y 2 – VERSIÓN ESPAÑOLA Pack de Nintendo Switch 2 que incluye los juegos físicos completos Animal Crossing Switch 2 y Super Mario Galaxy 1 y 2. Disfruta de la nueva generación de Nintendo con mayor potencia, nuevas funciones online, gráficos mejorados y una experiencia de juego más fluida y envolvente, en versión española y con garantía europe…",
       "compatibility": "Nintendo Switch 2"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-mkp000906664010",
@@ -539,18 +576,21 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/switch-2-mas-animalcrossing-mas-sm-galaxy-1y2-mas-joycon/MKP000906664010.html",
-    "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon Abrir ventana modal: Información sobre el cargador 2.5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatio…",
+    "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Orange Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon",
       "ean": "1239066640106",
-      "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon Abrir ventana modal: Información sobre el cargador 2.5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatio…",
+      "description": "Nintendo Switch 2 + AnimalCrossing + SM Galaxy 1y2 + Joycon 5 - 9 W USB PD Este producto se vende con cargador incluido. La potencia del cargador debe ser entre un mínimo de 2.5 vatios y un máximo de 9 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. Ver Opiniones Desde /mes Vendido por Orange Enviado por RALIGHT SHOPPING SL Entrega desde mié, 22 al mar, 28 Sobre garantías y devoluciones Item No.…",
       "compatibility": "Nintendo Switch 2"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711228",
@@ -559,24 +599,25 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/switch-2-negro/3711228.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Nintendo Switch 2 es una consola híbrida que permite jugar tanto en modo portátil como conectada al televisor, diseñada para ofrecer una experiencia fluida y versátil. Mantiene el concep…",
+    "description": "Nintendo Switch 2 es una consola híbrida que permite jugar tanto en modo portátil como conectada al televisor, diseñada para ofrecer una experiencia fluida y versátil. Mantiene el concepto original, pero incorpora mejoras importantes en ergonomía, conectividad y funciones de uso diario. Está equipada con una pantalla táctil de 7,9 pulgadas con resolución de 1920 x 1080, amplia gama de color y compatibilidad con HDR10…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch 2",
       "ean": "1233711228817",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Nintendo Switch 2 es una consola híbrida que permite jugar tanto en modo portátil como conectada al televisor, diseñada para ofrecer una experiencia fluida y versátil. Mantiene el concep…",
-      "bluetooth": "Yes",
+      "description": "Nintendo Switch 2 es una consola híbrida que permite jugar tanto en modo portátil como conectada al televisor, diseñada para ofrecer una experiencia fluida y versátil. Mantiene el concepto original, pero incorpora mejoras importantes en ergonomía, conectividad y funciones de uso diario. Está equipada con una pantalla táctil de 7,9 pulgadas con resolución de 1920 x 1080, amplia gama de color y compatibilidad con HDR10…",
+      "connectivity": "Wifi / Bluetooth",
       "usbC": "Yes",
       "weight": "401gr",
       "dimensions": "272 x 116 x 13.9mm",
-      "storage": "256GB",
-      "displaySize": "7.9p",
-      "resolution": "1920 x 1080"
-    }
+      "storage": "256GB"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3240446",
@@ -585,24 +626,25 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/switch-gris-super-mario-odyssey/3240446.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey com.demandware.beehive.xcs.internal.library.ContentPO@c51ba6d(com.demandware.beehive.orm.internal.state2.RelationalObjectInstance…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 360€ Ahorra 50€ vs PVPr Vendido y enviado por Orange Entrega desde lun, 20 al jue, 23 Item No.; 3240446 Hay 1 persona viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponi…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch + Super Mario Odyssey",
       "ean": "1233240446713",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey com.demandware.beehive.xcs.internal.library.ContentPO@c51ba6d(com.demandware.beehive.orm.internal.state2.RelationalObjectInstance…",
-      "bluetooth": "Yes",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Nintendo Switch + Super Mario Odyssey [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 360€ Ahorra 50€ vs PVPr Vendido y enviado por Orange Entrega desde lun, 20 al jue, 23 Item No.; 3240446 Hay 1 persona viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponi…",
+      "connectivity": "Wifi / Bluetooth",
       "usbC": "Yes",
       "weight": "399gr",
       "dimensions": "101.6 x 238.8 x 14mm",
-      "storage": "32GB",
-      "displaySize": "6.2p",
-      "resolution": "1280 x 720"
-    }
+      "storage": "32GB"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3240684",
@@ -611,24 +653,23 @@ const orangeImportedRows = [
     "brand": "Nintendo",
     "categoryPath": [
       "Gaming",
-      "Video games"
+      "Consoles & bundles"
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/consolas-y-videojuegos/nintendo/switch-oled-super-mario-bros-wonder/3240684.html",
-    "description": "IMPORTANTE : El color de Nintendo Switch OLED así como el de los Joy-Con incluidos, puede variar en función de la disponibilidad de stock. Nintendo Switch (modelo OLED) Nintendo Switch (modelo OLED) tiene el mismo tamaño que la consola Nintendo Switch original…",
+    "description": "IMPORTANTE : El color de Nintendo Switch OLED así como el de los Joy-Con incluidos, puede variar en función de la disponibilidad de stock. Nintendo Switch (modelo OLED) Nintendo Switch (modelo OLED) tiene el mismo tamaño que la consola Nintendo Switch original, pero incluye una pantalla OLED de 7 pulgadas con un marco más fino. Los colores intensos y el alto contraste de la pantalla OLED, te proporcionarán una experi…",
     "attributes": {
       "brand": "Nintendo",
       "productName": "Nintendo Switch OLED + Super Mario Bros Wonder",
       "ean": "1233240684108",
-      "description": "IMPORTANTE : El color de Nintendo Switch OLED así como el de los Joy-Con incluidos, puede variar en función de la disponibilidad de stock. Nintendo Switch (modelo OLED) Nintendo Switch (modelo OLED) tiene el mismo tamaño que la consola Nintendo Switch original…",
-      "bluetooth": "Yes",
+      "description": "IMPORTANTE : El color de Nintendo Switch OLED así como el de los Joy-Con incluidos, puede variar en función de la disponibilidad de stock. Nintendo Switch (modelo OLED) Nintendo Switch (modelo OLED) tiene el mismo tamaño que la consola Nintendo Switch original, pero incluye una pantalla OLED de 7 pulgadas con un marco más fino. Los colores intensos y el alto contraste de la pantalla OLED, te proporcionarán una experi…",
+      "connectivity": "Wifi / Bluetooth",
       "usbC": "Yes",
       "weight": "320gr",
       "dimensions": "102 x 242 x 13.9mm",
-      "storage": "64GB",
-      "displaySize": "7p",
-      "resolution": "1280 x 720"
-    }
+      "storage": "64GB"
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-3711234",
@@ -641,17 +682,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-gaming-devices",
     "sourceUrl": "https://www.orange.es/dispositivos/gaming/microsoft/xbox-series-x-1tb-negro/3711234.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X com.demandware.beehive.xcs.internal.library.ContentPO@c51ba6d(com.demandware.beehive.orm.internal.state2.RelationalObjectInstanceState@6c770be1…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Orange Entrega desde lun, 20 al jue, 23 Item No.; 3711234 Hay 5 personas viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponible actualmente. Avísame Gracias por tu interés. Te avisa…",
     "attributes": {
       "brand": "Microsoft",
       "productName": "Microsoft Xbox Series X",
       "ean": "1233711234610",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X com.demandware.beehive.xcs.internal.library.ContentPO@c51ba6d(com.demandware.beehive.orm.internal.state2.RelationalObjectInstanceState@6c770be1…",
-      "bluetooth": "Yes",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Microsoft Xbox Series X [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Orange Entrega desde lun, 20 al jue, 23 Item No.; 3711234 Hay 5 personas viendo este dispositivo Wi-Fi Bluetooth Este producto no está disponible actualmente. Avísame Gracias por tu interés. Te avisa…",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "4445gr",
       "dimensions": "301 × 151 × 151mm",
       "storage": "1000GB"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000432796356",
@@ -664,17 +708,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/hp/monitor-omen-25-fhd-360hz-bg1m4e9/MKP000432796356.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor el Monitor HP OMEN 25 24,5\" FullHD 360Hz IPS, diseñado para ofrecer máxima fluidez, precisión y velocidad en gaming profesional. Características Monitor HP OMEN 25 24,5\" FHD 360Hz 1ms IP…",
+    "description": "el Monitor HP OMEN 25 24,5\" FullHD 360Hz IPS, diseñado para ofrecer máxima fluidez, precisión y velocidad en gaming profesional. Características Monitor HP OMEN 25 24,5\" FHD 360Hz 1ms IPS DisplayHDR400 G?Sync RGB Altura Ajustable Gamer Pro Lleva tu experiencia de juego a un nuevo nivel gracias a su panel IPS de 24,5 pulgadas FullHD, que entrega colores vibrantes, ángulos de visión de 178° y una claridad inigualable,…",
     "attributes": {
       "brand": "HP",
       "productName": "HP Monitor OMEN 25 FHD 360HZ BG1M4E9",
       "ean": "1234327963567",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor el Monitor HP OMEN 25 24,5\" FullHD 360Hz IPS, diseñado para ofrecer máxima fluidez, precisión y velocidad en gaming profesional. Características Monitor HP OMEN 25 24,5\" FHD 360Hz 1ms IP…",
+      "description": "el Monitor HP OMEN 25 24,5\" FullHD 360Hz IPS, diseñado para ofrecer máxima fluidez, precisión y velocidad en gaming profesional. Características Monitor HP OMEN 25 24,5\" FHD 360Hz 1ms IPS DisplayHDR400 G?Sync RGB Altura Ajustable Gamer Pro Lleva tu experiencia de juego a un nuevo nivel gracias a su panel IPS de 24,5 pulgadas FullHD, que entrega colores vibrantes, ángulos de visión de 178° y una claridad inigualable,…",
       "connectivity": "HDMI",
       "weight": "6700 gr",
       "displaySize": "25 pulgadas",
       "resolution": "Full HD (1920 x 1080)"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000430187951",
@@ -687,17 +734,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/hp/monitor-omen-27-g2-fhd-180hz-av4k1e9/MKP000430187951.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Llega más lejos con el monitor gaming FHD OMEN a 180 Hz y de 27 pulgadas. Su excelente rendimiento y la definición de sus colores permiten que puedas perderte en los juegos que más te gu…",
+    "description": "Llega más lejos con el monitor gaming FHD OMEN a 180 Hz y de 27 pulgadas. Su excelente rendimiento y la definición de sus colores permiten que puedas perderte en los juegos que más te gustan. Además, su diseño elegante y sus funciones hacen que se vea estupendamente sobre el escritorio. SIN RETARDO. SOLO VELOCIDAD. CONTEMPLE LOS MUNDOS QUE LE ESPERAN SIN RETARDO. SOLO VELOCIDAD. Disfruta de toda la acción fotograma a…",
     "attributes": {
       "brand": "HP",
       "productName": "HP Monitor OMEN 27 G2 FHD 180HZ AV4K1E9",
       "ean": "1234301879518",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Llega más lejos con el monitor gaming FHD OMEN a 180 Hz y de 27 pulgadas. Su excelente rendimiento y la definición de sus colores permiten que puedas perderte en los juegos que más te gu…",
+      "description": "Llega más lejos con el monitor gaming FHD OMEN a 180 Hz y de 27 pulgadas. Su excelente rendimiento y la definición de sus colores permiten que puedas perderte en los juegos que más te gustan. Además, su diseño elegante y sus funciones hacen que se vea estupendamente sobre el escritorio. SIN RETARDO. SOLO VELOCIDAD. CONTEMPLE LOS MUNDOS QUE LE ESPERAN SIN RETARDO. SOLO VELOCIDAD. Disfruta de toda la acción fotograma a…",
       "connectivity": "Otro",
       "weight": "8050 gr",
       "displaySize": "27 pulgadas",
       "resolution": "Full HD (1920 x 1080)"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000432953376",
@@ -710,17 +760,18 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/hp/monitor-omen-27q-g2-qhd-180hz-av4h6e9/MKP000432953376.html",
-    "description": "HP Monitor OMEN 27Q G2 QHD 180HZ AV4H6E9 Dimensiones Peso del dispositivo (gr) 7330 gr Altura (cm) 52.37 cm Anchura (cm) 61.36 cm Profundidad (cm) 22.33 cm Otros detalles Componentes Incluidos Dispositivo, cable y enchufe, manual de instrucciones Contenido Dis…",
+    "description": "HP Monitor OMEN 27Q G2 QHD 180HZ AV4H6E9 Dimensiones Peso del dispositivo (gr) 7330 gr Altura (cm) 52.37 cm Anchura (cm) 61.36 cm Profundidad (cm) 22.33 cm Otros detalles Componentes Incluidos Dispositivo, cable y enchufe, manual de instrucciones Contenido Dispositivo, cable y enchufe, manual de instrucciones Más características Conexión Otro Gaming MPN (Manufacturer Part Number) AV4H6E9 Resolución Monitor QHD (2560…",
     "attributes": {
       "brand": "HP",
       "productName": "HP Monitor OMEN 27Q G2 QHD 180HZ AV4H6E9",
       "ean": "1234329533768",
-      "description": "HP Monitor OMEN 27Q G2 QHD 180HZ AV4H6E9 Dimensiones Peso del dispositivo (gr) 7330 gr Altura (cm) 52.37 cm Anchura (cm) 61.36 cm Profundidad (cm) 22.33 cm Otros detalles Componentes Incluidos Dispositivo, cable y enchufe, manual de instrucciones Contenido Dis…",
+      "description": "HP Monitor OMEN 27Q G2 QHD 180HZ AV4H6E9 Dimensiones Peso del dispositivo (gr) 7330 gr Altura (cm) 52.37 cm Anchura (cm) 61.36 cm Profundidad (cm) 22.33 cm Otros detalles Componentes Incluidos Dispositivo, cable y enchufe, manual de instrucciones Contenido Dispositivo, cable y enchufe, manual de instrucciones Más características Conexión Otro Gaming MPN (Manufacturer Part Number) AV4H6E9 Resolución Monitor QHD (2560…",
       "connectivity": "Otro",
       "weight": "7330 gr",
       "displaySize": "27 pulgadas",
       "resolution": "QHD (2560 x 1440)"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-mkp000439042469",
@@ -733,17 +784,18 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/lg/monitor-27-panel-ips-resolucion-fhd/MKP000439042469.html",
-    "description": "MONITOR DE TRABAJO VERSÁTIL PARA VARIOS ESPACIOS: Este monitor es versátil y permite cubrir varias funciones en diversos espacios, tales como oficinas, instituciones públicas y servicio al cliente. Cuenta con una pantalla IPS y un diseño prácticamente sin bord…",
+    "description": "MONITOR DE TRABAJO VERSÁTIL PARA VARIOS ESPACIOS: Este monitor es versátil y permite cubrir varias funciones en diversos espacios, tales como oficinas, instituciones públicas y servicio al cliente. Cuenta con una pantalla IPS y un diseño prácticamente sin bordes en tres lados. APROVECHA TODO EL POTENCIAL DE TU ESCRITORIO: Con el módulo de alimentación integrada, es posible diseñar espacios de trabajo con una distribu…",
     "attributes": {
       "brand": "LG",
       "productName": "LG Monitor 27\" Panel IPS FHD",
       "ean": "1234390424699",
-      "description": "MONITOR DE TRABAJO VERSÁTIL PARA VARIOS ESPACIOS: Este monitor es versátil y permite cubrir varias funciones en diversos espacios, tales como oficinas, instituciones públicas y servicio al cliente. Cuenta con una pantalla IPS y un diseño prácticamente sin bord…",
+      "description": "MONITOR DE TRABAJO VERSÁTIL PARA VARIOS ESPACIOS: Este monitor es versátil y permite cubrir varias funciones en diversos espacios, tales como oficinas, instituciones públicas y servicio al cliente. Cuenta con una pantalla IPS y un diseño prácticamente sin bordes en tres lados. APROVECHA TODO EL POTENCIAL DE TU ESCRITORIO: Con el módulo de alimentación integrada, es posible diseñar espacios de trabajo con una distribu…",
       "connectivity": "HDMI",
       "weight": "5.05 K gr",
       "displaySize": "27 pulgadas",
       "resolution": "Full HD (1920 x 1080)"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-mkp000435784934",
@@ -756,17 +808,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/lg/monitor-ultragear-g4-27-fhd-ips-con-144hz-oc/MKP000435784934.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Pantalla IPS Full HD de 27” con colores intensos y amplio ángulo de visión Tasa de refresco de 120Hz (O/C 144Hz) para fluidez total al jugar Compatible con NVIDIA G-SYNC y AMD FreeSync™…",
+    "description": "Pantalla IPS Full HD de 27” con colores intensos y amplio ángulo de visión Tasa de refresco de 120Hz (O/C 144Hz) para fluidez total al jugar Compatible con NVIDIA G-SYNC y AMD FreeSync™ Premium Pro LG Monitor UltraGear G4 27\" FHD IPS con 144Hz (O/C) Dimensiones Peso del dispositivo (gr) 2900 gr Altura (cm) 35.8 cm Anchura (cm) 61.15 cm Profundidad (cm) 3.85 cm Otros detalles Componentes Incluidos Pantalla Cable de al…",
     "attributes": {
       "brand": "LG",
       "productName": "LG Monitor UltraGear G4 27\" FHD IPS con 144Hz (O/C)",
       "ean": "1234357849343",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Pantalla IPS Full HD de 27” con colores intensos y amplio ángulo de visión Tasa de refresco de 120Hz (O/C 144Hz) para fluidez total al jugar Compatible con NVIDIA G-SYNC y AMD FreeSync™…",
+      "description": "Pantalla IPS Full HD de 27” con colores intensos y amplio ángulo de visión Tasa de refresco de 120Hz (O/C 144Hz) para fluidez total al jugar Compatible con NVIDIA G-SYNC y AMD FreeSync™ Premium Pro LG Monitor UltraGear G4 27\" FHD IPS con 144Hz (O/C) Dimensiones Peso del dispositivo (gr) 2900 gr Altura (cm) 35.8 cm Anchura (cm) 61.15 cm Profundidad (cm) 3.85 cm Otros detalles Componentes Incluidos Pantalla Cable de al…",
       "connectivity": "HDMI",
       "weight": "2900 gr",
       "displaySize": "27 pulgadas",
       "resolution": "Full HD (1920 x 1080)"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000439101545",
@@ -779,18 +834,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/msi/monitor-pro-mp275q/MKP000439101545.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Tamaño de pantalla perfecto de 27 Pulgadas con resolución WQHD (1440p) para el espacio de trabajo de programación, codificación y diseño de sitios web. La pantalla con certificación TUV…",
+    "description": "Tamaño de pantalla perfecto de 27 Pulgadas con resolución WQHD (1440p) para el espacio de trabajo de programación, codificación y diseño de sitios web. La pantalla con certificación TUV garantiza la protección y la salud de la vista. La tecnología MSI EyesErgo con tecnología Anti-Flicker ayuda a prevenir la fatiga visual. La frecuencia de actualización de 100 Hz proporciona una mejor experiencia de visualización con…",
     "attributes": {
       "brand": "MSI",
       "productName": "MSI Monitor PRO MP275Q 27\"",
       "ean": "1234391015452",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Tamaño de pantalla perfecto de 27 Pulgadas con resolución WQHD (1440p) para el espacio de trabajo de programación, codificación y diseño de sitios web. La pantalla con certificación TUV…",
+      "description": "Tamaño de pantalla perfecto de 27 Pulgadas con resolución WQHD (1440p) para el espacio de trabajo de programación, codificación y diseño de sitios web. La pantalla con certificación TUV garantiza la protección y la salud de la vista. La tecnología MSI EyesErgo con tecnología Anti-Flicker ayuda a prevenir la fatiga visual. La frecuencia de actualización de 100 Hz proporciona una mejor experiencia de visualización con…",
       "connectivity": "HDMI",
       "weight": "5.500 gr",
       "displaySize": "27 pulgadas",
-      "resolution": "QHD (2560 x 1440)",
-      "compatibility": "PC, Mac, PS5, PS4, Xbox, Móvil, Portátil"
-    }
+      "resolution": "QHD (2560 x 1440)"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000433358152",
@@ -803,17 +860,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/samsung/monitor-curvo-34-viefinity-s65uc/MKP000433358152.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Resolución Ultra WQHD Pantalla curva 1000R Mayor precisión y detalle de color HDR10 Conectividad USB-C Samsung Monitor Curvo 34\" Viefinity S65UC Dimensiones Peso del dispositivo (gr) 800…",
+    "description": "Resolución Ultra WQHD Pantalla curva 1000R Mayor precisión y detalle de color HDR10 Conectividad USB-C Samsung Monitor Curvo 34\" Viefinity S65UC Dimensiones Peso del dispositivo (gr) 8000 gr Altura (cm) 56.15 cm Anchura (cm) 80.66 cm Profundidad (cm) 24.1 cm Otros detalles Componentes Incluidos Cables incluidos: HDMI, USB Type-A , Micro USB Type-B, USB Tipo CV Contenido 1 Monitor 34\" CURVO VIEFINITY S65UC Más caracte…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Monitor Curvo 34\" Viefinity S65UC",
       "ean": "1234333581526",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Resolución Ultra WQHD Pantalla curva 1000R Mayor precisión y detalle de color HDR10 Conectividad USB-C Samsung Monitor Curvo 34\" Viefinity S65UC Dimensiones Peso del dispositivo (gr) 800…",
+      "description": "Resolución Ultra WQHD Pantalla curva 1000R Mayor precisión y detalle de color HDR10 Conectividad USB-C Samsung Monitor Curvo 34\" Viefinity S65UC Dimensiones Peso del dispositivo (gr) 8000 gr Altura (cm) 56.15 cm Anchura (cm) 80.66 cm Profundidad (cm) 24.1 cm Otros detalles Componentes Incluidos Cables incluidos: HDMI, USB Type-A , Micro USB Type-B, USB Tipo CV Contenido 1 Monitor 34\" CURVO VIEFINITY S65UC Más caracte…",
       "connectivity": "HDMI",
       "weight": "8000 gr",
       "displaySize": "34 pulgadas",
       "resolution": "QHD (2560 x 1440)"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-mkp000435586633",
@@ -826,17 +886,20 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-monitors",
     "sourceUrl": "https://www.orange.es/dispositivos/monitores/samsung/monitor-viewfinity-s6-s60ud-qhd/MKP000435586633.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Explora el futuro con el Samsung ViewFinity S6 S60UD, una pantalla diseñada para redefinir tu experiencia visual. Este monitor no es solo un dispositivo, es una puerta de acceso a mundos…",
+    "description": "Explora el futuro con el Samsung ViewFinity S6 S60UD, una pantalla diseñada para redefinir tu experiencia visual. Este monitor no es solo un dispositivo, es una puerta de acceso a mundos llenos de color, detalle y precisión. Perfecto para profesionales creativos que buscan la excelencia en resolución y calidad de imagen, este modelo equilibra las funciones técnicas avanzadas con un diseño elegante y moderno. Caracter…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Monitor ViewFinity S6 S60UD QHD",
       "ean": "1234355866335",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Explora el futuro con el Samsung ViewFinity S6 S60UD, una pantalla diseñada para redefinir tu experiencia visual. Este monitor no es solo un dispositivo, es una puerta de acceso a mundos…",
+      "description": "Explora el futuro con el Samsung ViewFinity S6 S60UD, una pantalla diseñada para redefinir tu experiencia visual. Este monitor no es solo un dispositivo, es una puerta de acceso a mundos llenos de color, detalle y precisión. Perfecto para profesionales creativos que buscan la excelencia en resolución y calidad de imagen, este modelo equilibra las funciones técnicas avanzadas con un diseño elegante y moderno. Caracter…",
       "connectivity": "HDMI",
       "weight": "6.100 gr",
       "displaySize": "27 pulgadas",
       "resolution": "QHD (2560 x 1440)"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004070",
@@ -849,12 +912,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17-256gb-morado/3004070.html",
-    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 con 5G",
       "ean": "1233004070710",
-      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "model": "iPhone 17 con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "177gr",
@@ -865,7 +930,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004067",
@@ -878,12 +946,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17-256gb-negro/3004067.html",
-    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 con 5G",
       "ean": "1233004067109",
-      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "model": "iPhone 17 con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "177gr",
@@ -894,7 +964,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004083",
@@ -907,12 +980,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17-pro-256gb-azul/3004083.html",
-    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 Pro con 5G",
       "ean": "1233004083109",
-      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "model": "iPhone 17 Pro con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "204gr",
@@ -923,7 +998,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004084",
@@ -936,12 +1014,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17-pro-256gb-naranja/3004084.html",
-    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 Pro con 5G",
       "ean": "1233004084359",
-      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "model": "iPhone 17 Pro con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "204gr",
@@ -952,7 +1032,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004090",
@@ -965,12 +1048,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17-pro-max-256gb-azul/3004090.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Su…",
+    "description": "Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Super Retina XDR Pro de 6,9 pulgadas, con tecnología ProMotion hasta 120 Hz y un brillo máximo de 3.000 nits, garantiza una calidad de imagen espectacular en cualquier entorno. En su interior, el chip A19 Pro marca un salto de potencia…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 Pro Max con 5G",
       "ean": "1233004090213",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Su…",
+      "description": "Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Super Retina XDR Pro de 6,9 pulgadas, con tecnología ProMotion hasta 120 Hz y un brillo máximo de 3.000 nits, garantiza una calidad de imagen espectacular en cualquier entorno. En su interior, el chip A19 Pro marca un salto de potencia…",
+      "model": "iPhone 17 Pro Max con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "231gr",
@@ -981,7 +1066,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004091",
@@ -994,12 +1082,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17-pro-max-256gb-naranja/3004091.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Su…",
+    "description": "Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Super Retina XDR Pro de 6,9 pulgadas, con tecnología ProMotion hasta 120 Hz y un brillo máximo de 3.000 nits, garantiza una calidad de imagen espectacular en cualquier entorno. En su interior, el chip A19 Pro marca un salto de potencia…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17 Pro Max con 5G",
       "ean": "1233004091159",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Su…",
+      "description": "Compramos tu móvil El iPhone 17 Pro Max redefine la experiencia Pro con un diseño renovado de la isla de cámaras y una pantalla aún más grande que ofrece la máxima inmersión. Su panel Super Retina XDR Pro de 6,9 pulgadas, con tecnología ProMotion hasta 120 Hz y un brillo máximo de 3.000 nits, garantiza una calidad de imagen espectacular en cualquier entorno. En su interior, el chip A19 Pro marca un salto de potencia…",
+      "model": "iPhone 17 Pro Max con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "231gr",
@@ -1010,7 +1100,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004277",
@@ -1023,12 +1116,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17e-256gb-negro/3004277.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica Abrir ventana modal: Información sobre el cargador 4.5 - 26 W USB PD Este producto se vende sin cargador incluido. La pote…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica 5 - 26 W USB PD Este producto se vende sin cargador incluido. La potencia del cargador debe ser entre un mínimo de 4.5 vatios y un máximo de 26 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 €…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17e con 5G",
       "ean": "1233004277317",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica Abrir ventana modal: Información sobre el cargador 4.5 - 26 W USB PD Este producto se vende sin cargador incluido. La pote…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica 5 - 26 W USB PD Este producto se vende sin cargador incluido. La potencia del cargador debe ser entre un mínimo de 4.5 vatios y un máximo de 26 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 €…",
+      "model": "iPhone 17e con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "169gr",
@@ -1039,7 +1134,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004279",
@@ -1052,12 +1150,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/apple/iphone-17e-256gb-rosa/3004279.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica Abrir ventana modal: Información sobre el cargador 4.5 - 26 W USB PD Este producto se vende sin cargador incluido. La pote…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica 5 - 26 W USB PD Este producto se vende sin cargador incluido. La potencia del cargador debe ser entre un mínimo de 4.5 vatios y un máximo de 26 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 €…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPhone 17e con 5G",
       "ean": "1233004279236",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica Abrir ventana modal: Información sobre el cargador 4.5 - 26 W USB PD Este producto se vende sin cargador incluido. La pote…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPhone 17e 256 GB con 5G Ficha técnica 5 - 26 W USB PD Este producto se vende sin cargador incluido. La potencia del cargador debe ser entre un mínimo de 4.5 vatios y un máximo de 26 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 €…",
+      "model": "iPhone 17e con 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "169gr",
@@ -1068,7 +1168,10 @@ const orangeImportedRows = [
       "panelTechnology": "Super Retina XDR OLED",
       "cameraResolution": "48Mpx",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711297",
@@ -1081,12 +1184,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/apple/ipad-air-m4-wifi-11-128gb-azul/3711297.html",
-    "description": "El iPad Air de 11 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina propor…",
+    "description": "El iPad Air de 11 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina proporciona una calidad visual excepcional, con colores vivos, gran nivel de detalle y una experiencia envolvente tanto para trabajar como para disfrutar de contenido…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPad Air M4 Wifi 11",
       "ean": "1233711297783",
-      "description": "El iPad Air de 11 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina propor…",
+      "description": "El iPad Air de 11 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina proporciona una calidad visual excepcional, con colores vivos, gran nivel de detalle y una experiencia envolvente tanto para trabajar como para disfrutar de contenido…",
+      "model": "iPad Air M4 Wifi 11",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "weight": "464gr",
       "dimensions": "247.6 x 178.5 x 6.1mm",
@@ -1096,7 +1201,8 @@ const orangeImportedRows = [
       "resolution": "1640 x 2360",
       "panelTechnology": "Liquid Retina IPS LCD",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-3711299",
@@ -1109,12 +1215,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/apple/ipad-air-m4-wifi-13-128gb-gris/3711299.html",
-    "description": "El iPad Air de 13 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina propor…",
+    "description": "El iPad Air de 13 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina proporciona una calidad visual excepcional, con colores vivos, gran nivel de detalle y una experiencia envolvente tanto para trabajar como para disfrutar de contenido…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPad Air M4 Wifi 13",
       "ean": "1233711299329",
-      "description": "El iPad Air de 13 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina propor…",
+      "description": "El iPad Air de 13 pulgadas ha sido diseñado para sacar el máximo partido a Apple Intelligence y ahora incorpora la potencia del chip M4 de Apple, ofreciendo un rendimiento aún más avanzado para todo tipo de tareas. Su espectacular pantalla Liquid Retina proporciona una calidad visual excepcional, con colores vivos, gran nivel de detalle y una experiencia envolvente tanto para trabajar como para disfrutar de contenido…",
+      "model": "iPad Air M4 Wifi 13",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "weight": "616gr",
       "dimensions": "280.6 x 214.9 x 6.1mm",
@@ -1124,7 +1232,8 @@ const orangeImportedRows = [
       "resolution": "2048 x 2732",
       "panelTechnology": "Liquid Retina IPS LCD",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": []
   },
   {
     "id": "orange-orange-3711223",
@@ -1137,12 +1246,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/apple/ipad-pro-m5-11-256gb-wifi-negro/3711223.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Pro M5 11 256 GB Wifi Abrir ventana modal: Información sobre el cargador 15 -45 W USB PD Este producto se vende sin cargador incluido. La potencia del carga…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Pro M5 11 256 GB Wifi La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 984€ Ahorra 115€ vs PVPr Vendido y enviad…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPad Pro M5",
       "ean": "1233711223010",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Pro M5 11 256 GB Wifi Abrir ventana modal: Información sobre el cargador 15 -45 W USB PD Este producto se vende sin cargador incluido. La potencia del carga…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Pro M5 11 256 GB Wifi La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 984€ Ahorra 115€ vs PVPr Vendido y enviad…",
+      "model": "iPad Pro M5",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "weight": "444gr",
       "dimensions": "249.7 x 177.5 x 5.3mm",
@@ -1152,7 +1263,10 @@ const orangeImportedRows = [
       "resolution": "1668 x 2420",
       "panelTechnology": "Ultra Retina Tandem OLED",
       "batteryTechnology": "Li-Po"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711018",
@@ -1165,12 +1279,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/apple/ipad-wifi-11-2025-128gb-plata/3711018.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica Abrir ventana modal: Información sobre el cargador 15 -45 W USB PD Este producto se vende sin cargador incluido. La potenc…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Orange Entrega desde lun, 2…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPad Wifi 11 2025",
       "ean": "1233711018135",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica Abrir ventana modal: Información sobre el cargador 15 -45 W USB PD Este producto se vende sin cargador incluido. La potenc…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi 11 2025 128 GB Ficha técnica La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Vendido y enviado por Orange Entrega desde lun, 2…",
+      "model": "iPad Wifi 11 2025",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "weight": "477gr",
       "dimensions": "248.6 x 179.5 x 7 mmmm",
@@ -1179,7 +1295,10 @@ const orangeImportedRows = [
       "resolution": "1640 x 2360",
       "panelTechnology": "Liquid Retina IPS LCD",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3003898",
@@ -1192,12 +1311,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/apple/ipad-wifi-cellular-11-2025-128gb-plata/3003898.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi+Cellular 11 2025 128 GB Abrir ventana modal: Información sobre el cargador 15 -45 W USB PD Este producto se vende sin cargador incluido. La potencia de…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi+Cellular 11 2025 128 GB La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 504€ Ahorra 65€ vs PVPr Vendido y…",
     "attributes": {
       "brand": "Apple",
       "productName": "Apple iPad Wifi + Cellular 11 2025",
       "ean": "1233003898131",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi+Cellular 11 2025 128 GB Abrir ventana modal: Información sobre el cargador 15 -45 W USB PD Este producto se vende sin cargador incluido. La potencia de…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Apple iPad Wifi+Cellular 11 2025 128 GB La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 45 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 504€ Ahorra 65€ vs PVPr Vendido y…",
+      "model": "iPad Wifi + Cellular 11 2025",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "weight": "481gr",
       "dimensions": "248.6 x 179.5 x 7 mmmm",
@@ -1206,7 +1327,10 @@ const orangeImportedRows = [
       "resolution": "1640 x 2360",
       "panelTechnology": "Liquid Retina IPS LCD",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711229",
@@ -1219,12 +1343,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/lenovo/idea-tab-11-wifi-256gb-gris/3711229.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Lenovo Idea Tab 11 Wifi es una tablet versátil y ligera diseñada para ofrecer un rendimiento equilibrado tanto en entretenimiento como en productividad. Incorpora un procesador MediaTek…",
+    "description": "Lenovo Idea Tab 11 Wifi es una tablet versátil y ligera diseñada para ofrecer un rendimiento equilibrado tanto en entretenimiento como en productividad. Incorpora un procesador MediaTek Dimensity 6300 de ocho núcleos y una GPU Arm Mali-G57 MC2, que garantizan un funcionamiento fluido en aplicaciones, navegación y contenidos multimedia. Esta versión incluye 8 GB de memoria RAM LPDDR4x y 256 GB de almacenamiento UFS 2.…",
     "attributes": {
       "brand": "Lenovo",
       "productName": "Lenovo Idea Tab 11 256 GB",
       "ean": "1233711229340",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Lenovo Idea Tab 11 Wifi es una tablet versátil y ligera diseñada para ofrecer un rendimiento equilibrado tanto en entretenimiento como en productividad. Incorpora un procesador MediaTek…",
+      "description": "Lenovo Idea Tab 11 Wifi es una tablet versátil y ligera diseñada para ofrecer un rendimiento equilibrado tanto en entretenimiento como en productividad. Incorpora un procesador MediaTek Dimensity 6300 de ocho núcleos y una GPU Arm Mali-G57 MC2, que garantizan un funcionamiento fluido en aplicaciones, navegación y contenidos multimedia. Esta versión incluye 8 GB de memoria RAM LPDDR4x y 256 GB de almacenamiento UFS 2.…",
+      "model": "Idea Tab 11 256 GB",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "480gr",
@@ -1234,7 +1360,10 @@ const orangeImportedRows = [
       "displaySize": "11p",
       "panelTechnology": "IPS LCD",
       "batteryTechnology": "Li-Ion"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711198",
@@ -1247,12 +1376,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/samsung/galaxy-tab-a11-plus-wifi-128gb-gris/3711198.html",
-    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Samsung Samsung Galaxy Tab A11 Plus Wifi Abrir ventana modal: Información sobre el cargador 15 - 25 W USB PD Este producto se vende sin cargador incluido. La potencia…",
+    "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Samsung Samsung Galaxy Tab A11 Plus Wifi La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 25 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 192€ Ahorra 87€ vs PVPr Vendido y…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy Tab A11+ Wifi",
       "ean": "1233711198141",
-      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Samsung Samsung Galaxy Tab A11 Plus Wifi Abrir ventana modal: Información sobre el cargador 15 - 25 W USB PD Este producto se vende sin cargador incluido. La potencia…",
+      "description": "Disponibles otras opciones de compra que te permiten personalizar tus cuotas: pago flexible. Samsung Samsung Galaxy Tab A11 Plus Wifi La potencia del cargador debe ser entre un mínimo de 15 vatios y un máximo de 25 vatios para alcanzar la máxima velocidad de carga. Compatible USB-PD. [98546fe31bef9e932db752e05f]]) Ver Opiniones En 48 plazos Desde +0 € pago inicial Total en 48 plazos: 192€ Ahorra 87€ vs PVPr Vendido y…",
+      "model": "Galaxy Tab A11+ Wifi",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "480gr",
@@ -1263,7 +1394,10 @@ const orangeImportedRows = [
       "resolution": "1920 x 1200",
       "panelTechnology": "TFT LCD",
       "batteryTechnology": "Li-Po"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711109",
@@ -1276,12 +1410,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-tablets",
     "sourceUrl": "https://www.orange.es/dispositivos/tablets/samsung/galaxy-tab-s11-ultra-wifi-256gb/3711109.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Samsung Galaxy Tab S11 Ultra se presenta como una de las tablets más potentes y sofisticadas del mercado. Con un diseño extremadamente fino de tan solo 5,1 mm y un peso de 695 gramos, co…",
+    "description": "Samsung Galaxy Tab S11 Ultra se presenta como una de las tablets más potentes y sofisticadas del mercado. Con un diseño extremadamente fino de tan solo 5,1 mm y un peso de 695 gramos, combina ligereza y resistencia en un cuerpo elegante. Su pantalla Dynamic AMOLED 2X de 14,6 pulgadas ofrece una resolución de 2960 x 1848 y una tasa de refresco de 120 Hz, garantizando una experiencia visual vibrante y fluida, ideal tan…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy Tab S11 Ultra",
       "ean": "1233711109147",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Samsung Galaxy Tab S11 Ultra se presenta como una de las tablets más potentes y sofisticadas del mercado. Con un diseño extremadamente fino de tan solo 5,1 mm y un peso de 695 gramos, co…",
+      "description": "Samsung Galaxy Tab S11 Ultra se presenta como una de las tablets más potentes y sofisticadas del mercado. Con un diseño extremadamente fino de tan solo 5,1 mm y un peso de 695 gramos, combina ligereza y resistencia en un cuerpo elegante. Su pantalla Dynamic AMOLED 2X de 14,6 pulgadas ofrece una resolución de 2960 x 1848 y una tasa de refresco de 120 Hz, garantizando una experiencia visual vibrante y fluida, ideal tan…",
+      "model": "Galaxy Tab S11 Ultra",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "695gr",
@@ -1292,7 +1428,10 @@ const orangeImportedRows = [
       "resolution": "2960 x 1848",
       "panelTechnology": "Dynamic AMOLED 2X",
       "batteryTechnology": "Li-Po"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711230",
@@ -1305,23 +1444,23 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/hp/laptop-15-amd-ryzen5-16gb-1tb-gris/3711230.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El HP Laptop AMD Ryzen 5 16 GB + 1 TB es un ordenador portátil de 15,6 pulgadas diseñado para trabajar y estudiar con comodidad, combinando un rendimiento fiable con un diseño ligero y e…",
+    "description": "El HP Laptop AMD Ryzen 5 16 GB + 1 TB es un ordenador portátil de 15,6 pulgadas diseñado para trabajar y estudiar con comodidad, combinando un rendimiento fiable con un diseño ligero y elegante. Equipado con un procesador AMD Ryzen 5 de cuatro núcleos, ofrece la potencia necesaria para tareas diarias, ofimática, navegación y uso multitarea. Dispone de 16 GB de memoria y 1 TB de espacio, que garantiza tiempos de carga…",
     "attributes": {
       "brand": "HP",
       "productName": "HP Laptop AMD Ryzen 5",
       "ean": "1233711230100",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El HP Laptop AMD Ryzen 5 16 GB + 1 TB es un ordenador portátil de 15,6 pulgadas diseñado para trabajar y estudiar con comodidad, combinando un rendimiento fiable con un diseño ligero y e…",
-      "bluetooth": "Yes",
-      "usbC": "Yes",
+      "description": "El HP Laptop AMD Ryzen 5 16 GB + 1 TB es un ordenador portátil de 15,6 pulgadas diseñado para trabajar y estudiar con comodidad, combinando un rendimiento fiable con un diseño ligero y elegante. Equipado con un procesador AMD Ryzen 5 de cuatro núcleos, ofrece la potencia necesaria para tareas diarias, ofimática, navegación y uso multitarea. Dispone de 16 GB de memoria y 1 TB de espacio, que garantiza tiempos de carga…",
+      "model": "Laptop AMD Ryzen 5",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "1670gr",
       "dimensions": "358.5 x 242 x 17.9mm",
       "storage": "1000GB",
       "ram": "16GB",
-      "displaySize": "15.6p",
-      "resolution": "1920 x 1080",
-      "panelTechnology": "FHD",
-      "batteryTechnology": "Li-ion"
-    }
+      "displaySize": "15.6p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711104",
@@ -1334,23 +1473,23 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/lenovo/ideapad-3-13420h-gris/3711104.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Lenovo IdeaPad 3 13ª Gen i5 13420H es un portátil equilibrado y eficiente, ideal para productividad, estudios y entretenimiento. Equipado con un procesador Intel Core i5-13420H de 8 núcl…",
+    "description": "Lenovo IdeaPad 3 13ª Gen i5 13420H es un portátil equilibrado y eficiente, ideal para productividad, estudios y entretenimiento. Equipado con un procesador Intel Core i5-13420H de 8 núcleos, alcanza frecuencias de hasta 4,6 GHz, garantizando un rendimiento fluido en tareas multitarea y aplicaciones exigentes. Dispone de 16 GB de memoria RAM y 512 GB de almacenamiento SSD, lo que asegura arranques rápidos y espacio am…",
     "attributes": {
       "brand": "Lenovo",
       "productName": "Lenovo Ideapad 3 13420H",
       "ean": "1233711104951",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Lenovo IdeaPad 3 13ª Gen i5 13420H es un portátil equilibrado y eficiente, ideal para productividad, estudios y entretenimiento. Equipado con un procesador Intel Core i5-13420H de 8 núcl…",
-      "bluetooth": "Yes",
-      "usbC": "Yes",
+      "description": "Lenovo IdeaPad 3 13ª Gen i5 13420H es un portátil equilibrado y eficiente, ideal para productividad, estudios y entretenimiento. Equipado con un procesador Intel Core i5-13420H de 8 núcleos, alcanza frecuencias de hasta 4,6 GHz, garantizando un rendimiento fluido en tareas multitarea y aplicaciones exigentes. Dispone de 16 GB de memoria RAM y 512 GB de almacenamiento SSD, lo que asegura arranques rápidos y espacio am…",
+      "model": "Ideapad 3 13420H",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "1620gr",
       "dimensions": "359.3 x 235 x 17.9mm",
       "storage": "512GB",
       "ram": "16GB",
-      "displaySize": "15.6p",
-      "resolution": "1920 x 1080",
-      "panelTechnology": "IPS",
-      "batteryTechnology": "Li-Po"
-    }
+      "displaySize": "15.6p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711237",
@@ -1363,22 +1502,23 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/lenovo/ideapad-3-i3-gris/3711237.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Lenovo IdeaPad 3 i3 es un portátil diseñado para ofrecer un rendimiento equilibrado y fiable en el día a día, combinando agilidad en las tareas habituales con un diseño ligero y práctico…",
+    "description": "Lenovo IdeaPad 3 i3 es un portátil diseñado para ofrecer un rendimiento equilibrado y fiable en el día a día, combinando agilidad en las tareas habituales con un diseño ligero y práctico. Incorpora un procesador Intel Core i3-N305 de ocho núcleos y gráficos Intel UHD, capaces de responder con fluidez en actividades como navegación web, documentos, videollamadas o reproducción multimedia. Esta configuración incluye 8…",
     "attributes": {
       "brand": "Lenovo",
       "productName": "Lenovo Ideapad 3 i3",
       "ean": "1233711237215",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor Lenovo IdeaPad 3 i3 es un portátil diseñado para ofrecer un rendimiento equilibrado y fiable en el día a día, combinando agilidad en las tareas habituales con un diseño ligero y práctico…",
-      "bluetooth": "Yes",
+      "description": "Lenovo IdeaPad 3 i3 es un portátil diseñado para ofrecer un rendimiento equilibrado y fiable en el día a día, combinando agilidad en las tareas habituales con un diseño ligero y práctico. Incorpora un procesador Intel Core i3-N305 de ocho núcleos y gráficos Intel UHD, capaces de responder con fluidez en actividades como navegación web, documentos, videollamadas o reproducción multimedia. Esta configuración incluye 8…",
+      "model": "Ideapad 3 i3",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "1550gr",
       "dimensions": "362.2 x 253.4 x 19.9mm",
       "storage": "256GB",
       "ram": "8GB",
-      "displaySize": "15.6p",
-      "resolution": "1920 x 1080",
-      "panelTechnology": "LED",
-      "batteryTechnology": "Li-Po"
-    }
+      "displaySize": "15.6p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711105",
@@ -1391,23 +1531,23 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/lenovo/ideapad-5-i7-13620h-16gb-1tb-gris/3711105.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El portátil Lenovo IdeaPad 5 13620H 13Gen incorpora el potente procesador Intel Core i7-13620H de 10 núcleos (6 de alto rendimiento y 4 de eficiencia), capaz de alcanzar hasta 4,9 GHz, a…",
+    "description": "El portátil Lenovo IdeaPad 5 13620H 13Gen incorpora el potente procesador Intel Core i7-13620H de 10 núcleos (6 de alto rendimiento y 4 de eficiencia), capaz de alcanzar hasta 4,9 GHz, acompañado de gráficos integrados Intel UHD, ofreciendo un alto rendimiento tanto en multitarea como en tareas exigentes. Cuenta con 16 GB de memoria DDR5 a 5600 MHz en configuración de doble canal y un veloz almacenamiento SSD de 1 TB…",
     "attributes": {
       "brand": "Lenovo",
       "productName": "Lenovo IdeaPad 5 13620H",
       "ean": "1233711105453",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El portátil Lenovo IdeaPad 5 13620H 13Gen incorpora el potente procesador Intel Core i7-13620H de 10 núcleos (6 de alto rendimiento y 4 de eficiencia), capaz de alcanzar hasta 4,9 GHz, a…",
-      "bluetooth": "Yes",
-      "usbC": "Yes",
+      "description": "El portátil Lenovo IdeaPad 5 13620H 13Gen incorpora el potente procesador Intel Core i7-13620H de 10 núcleos (6 de alto rendimiento y 4 de eficiencia), capaz de alcanzar hasta 4,9 GHz, acompañado de gráficos integrados Intel UHD, ofreciendo un alto rendimiento tanto en multitarea como en tareas exigentes. Cuenta con 16 GB de memoria DDR5 a 5600 MHz en configuración de doble canal y un veloz almacenamiento SSD de 1 TB…",
+      "model": "IdeaPad 5 13620H",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "1810gr",
       "dimensions": "356.5 x 250.6 x 16.9mm",
       "storage": "1000GB",
       "ram": "16GB",
-      "displaySize": "16p",
-      "resolution": "1920 x 1200",
-      "panelTechnology": "IPS",
-      "batteryTechnology": "Li-Po"
-    }
+      "displaySize": "16p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711261",
@@ -1420,20 +1560,22 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/lenovo/portatil-thinkbook-iultra5-512gb-gris/3711261.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El Lenovo ThinkBook 14 iULTRA5 es un portátil profesional diseñado para ofrecer un equilibrio perfecto entre rendimiento, portabilidad y seguridad, ideal para entornos de trabajo exigent…",
+    "description": "El Lenovo ThinkBook 14 iULTRA5 es un portátil profesional diseñado para ofrecer un equilibrio perfecto entre rendimiento, portabilidad y seguridad, ideal para entornos de trabajo exigentes. Incorpora un procesador Intel Core Ultra 5 con arquitectura híbrida de 12 núcleos y hasta 4,8 GHz, junto con aceleración de inteligencia artificial mediante Intel AI Boost, lo que permite un funcionamiento fluido en tareas multita…",
     "attributes": {
       "brand": "Lenovo",
       "productName": "Lenovo Portátil ThinkBook 14 iULTRA5",
       "ean": "1233711261876",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El Lenovo ThinkBook 14 iULTRA5 es un portátil profesional diseñado para ofrecer un equilibrio perfecto entre rendimiento, portabilidad y seguridad, ideal para entornos de trabajo exigent…",
-      "usbC": "Yes",
+      "description": "El Lenovo ThinkBook 14 iULTRA5 es un portátil profesional diseñado para ofrecer un equilibrio perfecto entre rendimiento, portabilidad y seguridad, ideal para entornos de trabajo exigentes. Incorpora un procesador Intel Core Ultra 5 con arquitectura híbrida de 12 núcleos y hasta 4,8 GHz, junto con aceleración de inteligencia artificial mediante Intel AI Boost, lo que permite un funcionamiento fluido en tareas multita…",
+      "model": "Portátil ThinkBook 14 iULTRA5",
+      "connectivity": "Wifi",
       "weight": "1360gr",
       "dimensions": "313.5 x 224 x 17.5mm",
       "storage": "512GB",
-      "displaySize": "14p",
-      "resolution": "1920 x 1200",
-      "panelTechnology": "IPS"
-    }
+      "displaySize": "14p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3711262",
@@ -1446,20 +1588,22 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/lenovo/portatil-thinkpad-x1-iultra7-1tb-gris/3711262.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El Lenovo ThinkPad X1 2-in-1 iUltra 7 es un portátil convertible de alto rendimiento diseñado para profesionales que buscan máxima movilidad, potencia y versatilidad en un solo dispositi…",
+    "description": "El Lenovo ThinkPad X1 2-in-1 iUltra 7 es un portátil convertible de alto rendimiento diseñado para profesionales que buscan máxima movilidad, potencia y versatilidad en un solo dispositivo. Su formato 2-en-1 permite utilizarlo tanto como portátil tradicional como en modo tablet, facilitando el trabajo colaborativo. Integra un procesador Intel Core Ultra 7 255U de última generación, acompañado por 32 GB de memoria y u…",
     "attributes": {
       "brand": "Lenovo",
       "productName": "Lenovo Portátil ThinkPad X1 iULTRA7",
       "ean": "1233711262125",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El Lenovo ThinkPad X1 2-in-1 iUltra 7 es un portátil convertible de alto rendimiento diseñado para profesionales que buscan máxima movilidad, potencia y versatilidad en un solo dispositi…",
-      "usbC": "Yes",
+      "description": "El Lenovo ThinkPad X1 2-in-1 iUltra 7 es un portátil convertible de alto rendimiento diseñado para profesionales que buscan máxima movilidad, potencia y versatilidad en un solo dispositivo. Su formato 2-en-1 permite utilizarlo tanto como portátil tradicional como en modo tablet, facilitando el trabajo colaborativo. Integra un procesador Intel Core Ultra 7 255U de última generación, acompañado por 32 GB de memoria y u…",
+      "model": "Portátil ThinkPad X1 iULTRA7",
+      "connectivity": "Wifi",
       "weight": "1220gr",
       "dimensions": "312.80 x 217.65 x 16.19mm",
       "storage": "1000GB",
-      "displaySize": "14p",
-      "resolution": "1920 x 1200",
-      "panelTechnology": "IPS"
-    }
+      "displaySize": "14p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3710960",
@@ -1472,23 +1616,23 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/lg/gram-book-15u50t-i5-16gb-512gb-gris/3710960.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El LG gram Book 15U50T es un portátil diseñado para ofrecer portabilidad, rendimiento y versatilidad. Su estructura ligera y resistente está fabricada con un chasis de composite de alta…",
+    "description": "El LG gram Book 15U50T es un portátil diseñado para ofrecer portabilidad, rendimiento y versatilidad. Su estructura ligera y resistente está fabricada con un chasis de composite de alta resistencia, presentando un diseño elegante en color gris con bordes redondeados. Este equipo incluye un procesador Intel Core i5 de 10 núcleos (2 de alto rendimiento y 8 de eficiencia), con frecuencias de hasta 4.6 GHz, acompañado po…",
     "attributes": {
       "brand": "LG",
       "productName": "LG gram Book 15U50T",
       "ean": "1233710960657",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El LG gram Book 15U50T es un portátil diseñado para ofrecer portabilidad, rendimiento y versatilidad. Su estructura ligera y resistente está fabricada con un chasis de composite de alta…",
-      "bluetooth": "Yes",
-      "usbC": "Yes",
+      "description": "El LG gram Book 15U50T es un portátil diseñado para ofrecer portabilidad, rendimiento y versatilidad. Su estructura ligera y resistente está fabricada con un chasis de composite de alta resistencia, presentando un diseño elegante en color gris con bordes redondeados. Este equipo incluye un procesador Intel Core i5 de 10 núcleos (2 de alto rendimiento y 8 de eficiencia), con frecuencias de hasta 4.6 GHz, acompañado po…",
+      "model": "gram Book 15U50T",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "1690gr",
       "dimensions": "359.8 x 237.8 x 18.9mm",
       "storage": "512GB",
       "ram": "16GB",
-      "displaySize": "15.6p",
-      "resolution": "1920 x 1080",
-      "panelTechnology": "IPS LCD",
-      "batteryTechnology": "Li-Po"
-    }
+      "displaySize": "15.6p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3240734",
@@ -1501,21 +1645,22 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-laptops",
     "sourceUrl": "https://www.orange.es/dispositivos/portatiles/samsung/galaxy-book4-edge-15-qc-512gb-office365-gris/3240734.html",
-    "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El Samsung Galaxy Book4 Edge 15 QC 8CORE 512 GB con Office 365 es un portátil de última generación que combina potencia, ligereza y herramientas de productividad avanzadas. Integra el pr…",
+    "description": "El Samsung Galaxy Book4 Edge 15 QC 8CORE 512 GB con Office 365 es un portátil de última generación que combina potencia, ligereza y herramientas de productividad avanzadas. Integra el procesador Snapdragon X Plus de 8 núcleos, con frecuencias de hasta 3,8 GHz en modo Boost, acompañado por la GPU Qualcomm Adreno y una NPU Hexagon para funciones de inteligencia artificial. Incorpora 16 GB de memoria RAM LPDDR5X y 512 G…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy Book4 Edge 15 Office 365",
       "ean": "1233240734612",
-      "description": "Información detallada Descripción Sobre el dispositivo Opiniones Vendedor El Samsung Galaxy Book4 Edge 15 QC 8CORE 512 GB con Office 365 es un portátil de última generación que combina potencia, ligereza y herramientas de productividad avanzadas. Integra el pr…",
-      "bluetooth": "Yes",
-      "usbC": "Yes",
+      "description": "El Samsung Galaxy Book4 Edge 15 QC 8CORE 512 GB con Office 365 es un portátil de última generación que combina potencia, ligereza y herramientas de productividad avanzadas. Integra el procesador Snapdragon X Plus de 8 núcleos, con frecuencias de hasta 3,8 GHz en modo Boost, acompañado por la GPU Qualcomm Adreno y una NPU Hexagon para funciones de inteligencia artificial. Incorpora 16 GB de memoria RAM LPDDR5X y 512 G…",
+      "model": "Galaxy Book4 Edge 15 Office 365",
+      "connectivity": "Wifi / Bluetooth",
       "weight": "1500gr",
       "dimensions": "356,6 × 229,7 × 15,0mm",
       "storage": "512GB",
-      "displaySize": "15.6p",
-      "resolution": "1920 x 1080",
-      "panelTechnology": "FHD LED Display"
-    }
+      "displaySize": "15.6p"
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004222",
@@ -1528,12 +1673,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/samsung/galaxy-s26-5g-256gb-morado/3004222.html",
-    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy S26 5G",
       "ean": "1233004222140",
-      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "model": "Galaxy S26 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "167gr",
@@ -1545,7 +1692,10 @@ const orangeImportedRows = [
       "panelTechnology": "Dynamic AMOLED",
       "cameraResolution": "50Mpx",
       "batteryCapacity": "4300mAh"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   },
   {
     "id": "orange-orange-3004223",
@@ -1558,12 +1708,14 @@ const orangeImportedRows = [
     ],
     "schemaId": "schema-smartphones",
     "sourceUrl": "https://www.orange.es/dispositivos/moviles/samsung/galaxy-s26-5g-256gb-negro/3004223.html",
-    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+    "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
     "attributes": {
       "brand": "Samsung",
       "productName": "Samsung Galaxy S26 5G",
       "ean": "1233004223109",
-      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu…",
+      "description": "Vende tu móvil usado con Orange ¿Tienes un móvil que no utilizas? ¡Te lo compramos! ¿Cuánto vale tu móvil? Entra en https://compramostumovil.orange.es elige la marca, modelo y capacidad, y te daremos una valoración según su estado. ¿Cómo funciona? 1. Compra tu nuevo móvil en Orange Solo necesitas haber comprado tu nuevo dispositivo con nosotros. 2. Solicita tu oferta Una vez lo tengas, entra en la web y completa el f…",
+      "model": "Galaxy S26 5G",
+      "connectivity": "Wifi / Bluetooth",
       "bluetooth": "Yes",
       "usbC": "Yes",
       "weight": "167gr",
@@ -1575,29 +1727,50 @@ const orangeImportedRows = [
       "panelTechnology": "Dynamic AMOLED",
       "cameraResolution": "50Mpx",
       "batteryCapacity": "4300mAh"
-    }
+    },
+    "warnings": [
+      "Description contains storefront or promotional copy"
+    ]
   }
 ] satisfies OrangeImportedRow[]
+
+function hasAttributeValue(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0
+}
+
+function getSchemaForProduct(schemaId: string) {
+  return schemas.find((schema) => schema.id === schemaId) ?? null
+}
+
+function getMissingRequiredWarnings(row: OrangeImportedRow) {
+  const schema = getSchemaForProduct(row.schemaId)
+  if (!schema) return ["Schema assignment missing"]
+
+  return schema.requiredAttributes
+    .filter((field) => !hasAttributeValue(row.attributes[field]))
+    .map((field) => `${field} missing for ${schema.name}`)
+}
+
+function getInitialStatus(score: number, warnings: readonly string[]) {
+  return score >= 90 && warnings.length === 0 ? "READY_FOR_REVIEW" : "NEEDS_ENRICHMENT"
+}
 
 function buildOrangeImportedProducts(rows: readonly OrangeImportedRow[]): ProductRecord[] {
   return rows.map((row): ProductRecord => {
     const extractedFields = Object.fromEntries(
       Object.entries(row.attributes).filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].length > 0),
     ) as EvidenceRecord["extractedFields"]
+    const schema = getSchemaForProduct(row.schemaId)
+    const warnings = [...row.warnings, ...getMissingRequiredWarnings(row)]
 
-    const warnings = [
-      row.attributes.ean ? null : "EAN missing from Orange import",
-      row.description ? null : "Description missing from Orange import",
-    ].filter((warning): warning is string => Boolean(warning))
-
-    return {
+    const product: ProductRecord = {
       id: row.id,
       miraklProductId: row.sku,
       title: row.title,
       brand: row.brand,
       categoryPath: [...row.categoryPath],
       schemaId: row.schemaId,
-      listingStatus: warnings.length > 0 ? "NEEDS_ENRICHMENT" : "READY_FOR_REVIEW",
+      listingStatus: "NEEDS_ENRICHMENT",
       qualityScore: 0,
       scoreBand: "red",
       baselineDescription: row.description,
@@ -1621,6 +1794,12 @@ function buildOrangeImportedProducts(rows: readonly OrangeImportedRow[]): Produc
       ],
       candidates: [],
     }
+
+    const scored = qualityScore(product, schema)
+    product.qualityScore = scored.score
+    product.scoreBand = scored.band
+    product.listingStatus = getInitialStatus(scored.score, warnings)
+    return product
   })
 }
 
@@ -1756,9 +1935,13 @@ const baseProducts: ProductRecord[] = [
 baseProducts.push(...orangeImportedProducts)
 
 for (const product of baseProducts) {
-  const scored = qualityScore(product)
+  const schema = getSchemaForProduct(product.schemaId)
+  const scored = qualityScore(product, schema)
   product.qualityScore = scored.score
   product.scoreBand = scored.band
+  if (product.listingStatus !== "EXPORT_READY" && product.listingStatus !== "RESEARCH_IN_PROGRESS") {
+    product.listingStatus = getInitialStatus(scored.score, product.warnings)
+  }
 }
 
 export const products: ProductRecord[] = structuredClone(baseProducts)

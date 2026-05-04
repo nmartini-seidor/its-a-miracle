@@ -11,6 +11,13 @@ const toneClassNames: Record<Tone, string> = {
   success: "border-accent/35 bg-accent/12 text-accent-foreground",
 }
 
+const metricSurfaceClassNames = [
+  "border-sky-200/70 bg-gradient-to-br from-sky-50 via-white to-cyan-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+  "border-rose-200/70 bg-gradient-to-br from-rose-50 via-white to-orange-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+  "border-amber-200/75 bg-gradient-to-br from-amber-50 via-white to-yellow-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+  "border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+]
+
 export function PageShell({ children, className }: { children: ReactNode; className?: string }) {
   return <main className={cn("mx-auto flex w-full max-w-[92rem] flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8", className)}>{children}</main>
 }
@@ -59,9 +66,15 @@ export function MetricStrip({
   columns?: string
 }) {
   return (
-    <section className={cn("grid overflow-hidden rounded-2xl border bg-card shadow-sm sm:grid-cols-2", columns)}>
-      {metrics.map((metric) => (
-        <div key={metric.label} className="flex min-h-24 flex-col justify-between gap-3 border-b p-4 last:border-b-0 sm:border-r sm:last:border-r-0 xl:border-b-0">
+    <section className={cn("grid gap-3 sm:grid-cols-2", columns)}>
+      {metrics.map((metric, index) => (
+        <div
+          key={metric.label}
+          className={cn(
+            "flex min-h-24 flex-col justify-between gap-3 rounded-xl border p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+            metricSurfaceClassNames[index % metricSurfaceClassNames.length],
+          )}
+        >
           <div className="flex items-center justify-between gap-3">
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-muted-foreground">{metric.label}</p>
             <span className={cn("size-2 rounded-full border", toneClassNames[metric.tone ?? "default"])} aria-hidden="true" />
@@ -78,8 +91,13 @@ export function MetricStrip({
 
 export function Panel({ title, description, children, className }: { title: string; description?: string; children: ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-2xl border bg-card shadow-sm", className)}>
-      <div className="flex flex-col gap-1.5 border-b px-5 py-4 sm:px-6">
+    <section
+      className={cn(
+        "overflow-hidden rounded-2xl border border-slate-200/80 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbff_44%,#eef7ff_100%)] shadow-[0_18px_45px_rgba(15,23,42,0.08),inset_0_1px_0_rgba(255,255,255,0.85)]",
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-1.5 border-b border-slate-200/70 bg-white/55 px-5 py-4 backdrop-blur sm:px-6">
         <h2 className="text-lg font-semibold tracking-[-0.015em] text-foreground">{title}</h2>
         {description && <p className="max-w-4xl text-sm leading-6 text-muted-foreground">{description}</p>}
       </div>

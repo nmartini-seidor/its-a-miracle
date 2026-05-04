@@ -6,6 +6,7 @@ import { useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Panel } from "@/components/app/page-chrome"
+import { ResetWorkspaceButton } from "@/components/settings/reset-workspace-button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScoreBadge } from "@/components/product/score-badge"
 import { filterProducts, sortProducts, type TriageFilterId, type TriageSortId } from "@/lib/triage"
@@ -67,6 +68,19 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
+            {visibleProducts.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} className="py-10 text-center">
+                  <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
+                    <p className="font-semibold">No products imported yet</p>
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      Import the Orange electronics catalog, then this triage queue will show scored products for review.
+                    </p>
+                    <ResetWorkspaceButton compact actions="import" align="center" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
             {visibleProducts.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>
