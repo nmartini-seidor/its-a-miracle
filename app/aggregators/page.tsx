@@ -11,6 +11,17 @@ import { listAggregators, listProducts } from "@/server/data"
 
 export const dynamic = "force-dynamic"
 
+const confidenceBadgeClassNames = {
+  high: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  medium: "border-amber-200 bg-amber-50 text-amber-800",
+  low: "border-rose-200 bg-rose-50 text-rose-800",
+} as const
+
+const statusBadgeClassNames = {
+  enabled: "border-blue-200 bg-blue-50 text-blue-800",
+  disabled: "border-slate-200 bg-slate-100 text-slate-600",
+} as const
+
 export default async function AggregatorsPage() {
   const [aggregators, products] = await Promise.all([listAggregators(), listProducts()])
 
@@ -84,7 +95,7 @@ export default async function AggregatorsPage() {
                   </div>
                 </TableCell>
                 <TableCell className="max-w-80 text-sm text-slate-600">{aggregator.tier.importance}</TableCell>
-                <TableCell><Badge variant="outline">{formatEnumLabel(aggregator.defaultConfidence)}</Badge></TableCell>
+                <TableCell><Badge variant="outline" className={confidenceBadgeClassNames[aggregator.defaultConfidence]}>{formatEnumLabel(aggregator.defaultConfidence)}</Badge></TableCell>
                 <TableCell className="max-w-72 text-sm text-slate-600">{aggregator.coverageTags.join(", ")}</TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-1 text-sm text-slate-600">
@@ -93,7 +104,7 @@ export default async function AggregatorsPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={aggregator.enabled ? "outline" : "destructive"}>{aggregator.enabled ? "Enabled" : "Disabled"}</Badge>
+                  <Badge variant="outline" className={aggregator.enabled ? statusBadgeClassNames.enabled : statusBadgeClassNames.disabled}>{aggregator.enabled ? "Enabled" : "Disabled"}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                   <Button asChild size="sm" variant="outline">

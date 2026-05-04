@@ -102,17 +102,13 @@ export function ResetWorkspaceButton({
       {importing && (
         <div className="w-full py-5 text-left">
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Product data import</p>
-              <h3 className="mt-1 text-2xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-3xl">Importing 55 products into the workspace</h3>
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Product data import</p>
             <div className="font-mono text-3xl font-semibold tracking-[-0.05em] text-blue-700 sm:text-4xl">{importProgress}%</div>
           </div>
           <div className="h-4 overflow-hidden rounded-full bg-slate-100 shadow-inner" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={importProgress}>
             <div className="h-full rounded-full bg-blue-600 transition-[width] duration-700 ease-out" style={{ width: `${importProgress}%` }} />
           </div>
           <p className="mt-4 text-lg font-medium leading-7 text-slate-800">{status}</p>
-          <p className="mt-1 text-sm leading-6 text-slate-500">The catalog remains local while records are counted, imported, and checked for data-quality gaps.</p>
         </div>
       )}
       {status && !importing && <p className="text-xs text-muted-foreground">{status}</p>}
