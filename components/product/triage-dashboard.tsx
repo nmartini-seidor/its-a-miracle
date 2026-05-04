@@ -9,6 +9,7 @@ import { Panel } from "@/components/app/page-chrome"
 import { ResetWorkspaceButton } from "@/components/settings/reset-workspace-button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScoreBadge } from "@/components/product/score-badge"
+import { formatEnumLabel } from "@/lib/labels"
 import { filterProducts, sortProducts, type TriageFilterId, type TriageSortId } from "@/lib/triage"
 import type { ProductRecord } from "@/lib/types"
 
@@ -90,7 +91,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{product.listingStatus}</Badge>
+                  <Badge variant="outline">{formatEnumLabel(product.listingStatus)}</Badge>
                 </TableCell>
                 <TableCell className="max-w-72 text-sm text-muted-foreground">{product.categoryPath.join(" / ")}</TableCell>
                 <TableCell>

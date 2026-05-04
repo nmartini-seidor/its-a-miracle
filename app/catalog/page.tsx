@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { formatEnumLabel } from "@/lib/labels"
 import { listProducts } from "@/server/data"
 
 export default async function CatalogPage() {
@@ -44,7 +45,7 @@ export default async function CatalogPage() {
                 <TableCell className="font-mono text-xs text-muted-foreground">{product.miraklProductId}</TableCell>
                 <TableCell>{product.schemaId}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{product.listingStatus}</Badge>
+                  <Badge variant="outline">{formatEnumLabel(product.listingStatus)}</Badge>
                 </TableCell>
                 <TableCell className={product.warnings.length > 0 ? "font-semibold text-destructive" : undefined}>{product.warnings.length}</TableCell>
               </TableRow>

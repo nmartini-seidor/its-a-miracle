@@ -9,9 +9,9 @@ export function MobileNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex gap-2 overflow-x-auto border-b bg-card/95 px-4 py-3 shadow-sm md:hidden">
+    <nav aria-label="Mobile workspace navigation" className="flex gap-2 overflow-x-auto border-b border-slate-200 bg-white px-4 py-3 md:hidden">
       {workspaceSections.map((item) => (
-        <Button key={item.href} asChild size="sm" variant={isSectionActive(pathname, item.href) ? "secondary" : "outline"} className="shrink-0 rounded-xl">
+        <Button key={item.href} asChild size="sm" variant={isSectionActive(pathname, item.href) ? "default" : "outline"} className="shrink-0 rounded-full">
           <Link href={item.href}>{item.label}</Link>
         </Button>
       ))}

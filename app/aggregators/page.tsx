@@ -75,7 +75,7 @@ export default async function AggregatorsPage() {
             { label: "Corroborating source", range: "60–79", summary: "Retail signals support visible specifications and merchandising details without becoming sole proof." },
             { label: "Supporting only", range: "0–59", summary: "Marketplace-style evidence can hint at variants, but never decides canonical fields alone." },
           ].map((tier) => (
-            <div key={tier.label} className="rounded-xl border bg-muted/35 p-4">
+            <div key={tier.label} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold">{tier.label}</h3>
                 <Badge variant="outline">{tier.range}</Badge>
@@ -155,7 +155,7 @@ export default async function AggregatorsPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
         <Panel title="Current evidence mix" description="Canonical and corroborating sources combine to unlock stronger candidate review.">
-          <div className="divide-y rounded-xl border">
+          <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
             {activeProviders.map((provider) => (
               <div key={provider.id} className="grid gap-4 p-4 lg:grid-cols-[1fr_1.5fr]">
                 <div>

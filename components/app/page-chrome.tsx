@@ -5,21 +5,21 @@ import { cn } from "@/lib/utils"
 type Tone = "default" | "danger" | "warning" | "success"
 
 const toneClassNames: Record<Tone, string> = {
-  default: "border-primary/25 bg-primary/7 text-primary",
-  danger: "border-destructive/30 bg-destructive/8 text-destructive",
-  warning: "border-amber-500/35 bg-amber-500/10 text-amber-800",
-  success: "border-accent/35 bg-accent/12 text-accent-foreground",
+  default: "border-blue-500/25 bg-blue-500/10 text-blue-700",
+  danger: "border-rose-500/25 bg-rose-500/10 text-rose-700",
+  warning: "border-sky-500/25 bg-sky-500/10 text-sky-700",
+  success: "border-emerald-500/25 bg-emerald-500/10 text-emerald-700",
 }
 
 const metricSurfaceClassNames = [
-  "border-sky-200/70 bg-gradient-to-br from-sky-50 via-white to-cyan-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
-  "border-rose-200/70 bg-gradient-to-br from-rose-50 via-white to-orange-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
-  "border-amber-200/75 bg-gradient-to-br from-amber-50 via-white to-yellow-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
-  "border-emerald-200/70 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]",
+  "border-slate-200 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.055)]",
+  "border-slate-200 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.055)]",
+  "border-slate-200 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.055)]",
+  "border-slate-200 bg-white shadow-[0_16px_35px_rgba(15,23,42,0.055)]",
 ]
 
 export function PageShell({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cn("mx-auto flex w-full max-w-[92rem] flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8", className)}>{children}</main>
+  return <main id="workspace-main" className={cn("mx-auto flex w-full max-w-[92rem] flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8 lg:py-8", className)}>{children}</main>
 }
 
 export function PageHeader({
@@ -36,20 +36,20 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <section className="rounded-2xl border bg-card px-5 py-4 shadow-sm sm:px-6">
+    <section className="px-1 py-2">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="font-mono text-[0.65rem] uppercase tracking-[0.18em]">
+            <Badge variant="secondary" className="border-slate-200 bg-white font-medium text-slate-700 shadow-sm">
               {eyebrow}
             </Badge>
             {badges}
           </div>
-          <div className="flex flex-col gap-1">
-            <h1 className="max-w-4xl text-2xl font-semibold leading-tight tracking-[-0.02em] text-foreground sm:text-3xl">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="max-w-4xl text-2xl font-semibold leading-[1.08] tracking-[-0.035em] text-slate-950 sm:text-[2rem]">
               {title}
             </h1>
-            <p className="max-w-4xl text-sm leading-6 text-muted-foreground sm:text-base">{description}</p>
+            <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">{description}</p>
           </div>
         </div>
         {actions && <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">{actions}</div>}
@@ -71,17 +71,17 @@ export function MetricStrip({
         <div
           key={metric.label}
           className={cn(
-            "flex min-h-24 flex-col justify-between gap-3 rounded-xl border p-4 transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md",
+            "group flex min-h-24 flex-col justify-between gap-3 rounded-[1.15rem] border p-4 transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-slate-300",
             metricSurfaceClassNames[index % metricSurfaceClassNames.length],
           )}
         >
           <div className="flex items-center justify-between gap-3">
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-muted-foreground">{metric.label}</p>
+            <p className="text-xs font-medium text-slate-500">{metric.label}</p>
             <span className={cn("size-2 rounded-full border", toneClassNames[metric.tone ?? "default"])} aria-hidden="true" />
           </div>
           <div className="flex items-end justify-between gap-3">
-            <div className="text-2xl font-semibold tracking-[-0.02em] text-foreground sm:text-3xl">{metric.value}</div>
-            {metric.detail && <p className="max-w-48 text-right text-xs leading-5 text-muted-foreground">{metric.detail}</p>}
+            <div className="font-mono text-2xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-3xl">{metric.value}</div>
+            {metric.detail && <p className="max-w-48 text-right text-xs leading-5 text-slate-500">{metric.detail}</p>}
           </div>
         </div>
       ))}
@@ -93,13 +93,13 @@ export function Panel({ title, description, children, className }: { title: stri
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-2xl border border-slate-200/80 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbff_44%,#eef7ff_100%)] shadow-[0_18px_45px_rgba(15,23,42,0.08),inset_0_1px_0_rgba(255,255,255,0.85)]",
+        "overflow-hidden rounded-[1.35rem] border border-slate-200/80 bg-white shadow-[0_22px_55px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.9)]",
         className,
       )}
     >
-      <div className="flex flex-col gap-1.5 border-b border-slate-200/70 bg-white/55 px-5 py-4 backdrop-blur sm:px-6">
-        <h2 className="text-lg font-semibold tracking-[-0.015em] text-foreground">{title}</h2>
-        {description && <p className="max-w-4xl text-sm leading-6 text-muted-foreground">{description}</p>}
+      <div className="flex flex-col gap-1.5 border-b border-slate-200/70 bg-slate-50/70 px-5 py-4 sm:px-6">
+        <h2 className="text-lg font-semibold tracking-[-0.025em] text-slate-950">{title}</h2>
+        {description && <p className="max-w-4xl text-sm leading-6 text-slate-600">{description}</p>}
       </div>
       <div className="p-5 sm:p-6">{children}</div>
     </section>

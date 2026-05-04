@@ -1,16 +1,15 @@
 import type { Metadata } from "next"
-import { Fira_Code, Fira_Sans } from "next/font/google"
+import { Geist, Geist_Mono } from "next/font/google"
 import Link from "next/link"
-import { ShieldCheckIcon } from "lucide-react"
+import { ShieldCheckIcon, SparklesIcon } from "lucide-react"
 import { MobileNav } from "@/components/app/mobile-nav"
-import { SidebarNav } from "@/components/app/sidebar-nav"
+import { TopNav } from "@/components/app/top-nav"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 
-const firaSans = Fira_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-sans" })
-const firaCode = Fira_Code({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-mono" })
+const geistSans = Geist({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-sans" })
+const geistMono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-mono" })
 
 export const metadata: Metadata = {
   title: "Mirakl Product Enrichment",
@@ -19,47 +18,46 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={cn(firaSans.variable, firaCode.variable, "font-sans antialiased")}>
+    <html lang="en" data-scroll-behavior="smooth">
+      <body className={cn(geistSans.variable, geistMono.variable, "font-sans antialiased")}>
+        <a
+          href="#workspace-main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-slate-950 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to content
+        </a>
         <div className="dashboard-surface min-h-screen text-foreground">
-          <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r bg-sidebar p-4 text-sidebar-foreground shadow-xl md:flex">
-            <Link
-              href="/"
-              className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-sidebar-border bg-sidebar-accent/35 p-3 transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
-            >
-              <div className="flex size-12 items-center justify-center rounded-2xl bg-accent text-accent-foreground shadow-sm transition-transform duration-200 group-hover:-rotate-3">
-                <ShieldCheckIcon data-icon="inline-start" />
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="font-semibold tracking-[-0.02em]">Mirakl <span className="text-accent">Control</span></span>
-                <span className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-sidebar-foreground/65">Enrichment desk</span>
-              </div>
-            </Link>
-            <Separator className="my-5 bg-sidebar-border" />
-            <SidebarNav />
-            <div className="mt-auto rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-4 text-sm text-sidebar-accent-foreground shadow-sm">
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-sidebar-foreground/60">Safety state</p>
-              <p className="mt-3 font-semibold">Review-first workflow</p>
-              <p className="mt-1 text-sidebar-foreground/70">Research creates candidates. Mirakl writes remain approval-gated.</p>
-            </div>
-          </aside>
-          <div className="md:pl-72">
-            <header className="sticky top-0 z-10 flex min-h-14 items-center justify-between border-b bg-card/88 px-4 shadow-sm backdrop-blur md:px-6">
-              <div className="flex items-center gap-3 md:hidden">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <ShieldCheckIcon data-icon="inline-start" />
+          <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/86 px-4 backdrop-blur-xl md:px-6">
+            <div className="mx-auto flex min-h-16 w-full max-w-[92rem] items-center justify-between gap-4">
+              <Link
+                href="/"
+                className="group flex cursor-pointer items-center gap-3 rounded-2xl py-2 pr-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+              >
+                <div className="flex size-10 items-center justify-center rounded-xl bg-slate-950 text-white shadow-[0_12px_30px_rgba(15,23,42,0.18)] transition-transform duration-200 group-hover:-rotate-3">
+                  <ShieldCheckIcon className="size-4" />
                 </div>
-                <span className="font-semibold tracking-[-0.02em]">Mirakl <span className="text-accent">Control</span></span>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-sm font-semibold tracking-[-0.02em] text-slate-950">Mirakl Control</span>
+                  <span className="text-xs font-medium text-slate-500">Enrichment desk</span>
+                </div>
+              </Link>
+
+              <TopNav />
+
+              <div className="hidden items-center gap-3 md:flex">
+                <div className="hidden flex-col text-right xl:flex">
+                  <span className="text-xs font-medium text-slate-500">Review-first workflow</span>
+                  <span className="text-sm font-semibold text-slate-950">Baseline · evidence · candidates · export</span>
+                </div>
+                <Button variant="outline" size="sm" className="rounded-full">
+                  <SparklesIcon data-icon="inline-start" />
+                  Operator mode
+                </Button>
               </div>
-              <div className="hidden flex-col md:flex">
-                <span className="font-mono text-xs uppercase tracking-[0.22em] text-primary">Workspace</span>
-                <span className="text-sm text-muted-foreground">Baseline · Evidence · Candidates · Export</span>
-              </div>
-              <Button variant="outline" size="sm">Operator mode</Button>
-            </header>
-            <MobileNav />
-            {children}
-          </div>
+            </div>
+          </header>
+          <MobileNav />
+          {children}
         </div>
       </body>
     </html>

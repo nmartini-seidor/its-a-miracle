@@ -12,8 +12,8 @@ import { ExportPayloadPanel } from "@/components/product/export-payload-panel"
 import { ResearchButton } from "@/components/product/research-button"
 import { ScoreBadge } from "@/components/product/score-badge"
 import { getFieldLabel } from "@/lib/demo-contract"
+import { formatEnumLabel } from "@/lib/labels"
 import type { ContractFieldId } from "@/lib/types"
-import { cn } from "@/lib/utils"
 import { buildReviewFieldRows } from "@/lib/product-review"
 import { getProduct, getSchemaById } from "@/server/data"
 
@@ -49,7 +49,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           <>
             <Badge variant="outline">{product.miraklProductId}</Badge>
             <Badge variant="secondary">{schema?.name ?? product.schemaId}</Badge>
-            <Badge variant="outline">{product.listingStatus}</Badge>
+            <Badge variant="outline">{formatEnumLabel(product.listingStatus)}</Badge>
           </>
         }
         actions={<ResearchButton productId={product.id} />}
@@ -94,7 +94,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               </TableHeader>
               <TableBody>
                 {reviewRows.map((row) => (
-                  <TableRow key={row.field} className={cn(row.candidateValue && "border-l-4 border-l-primary/70")}>
+                  <TableRow key={row.field}>
                     <TableCell className="min-w-48 font-semibold text-foreground">
                       {row.label}
                     </TableCell>
@@ -102,7 +102,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                       {row.baselineValue ? <span>{row.baselineValue}</span> : <Badge variant="outline">Missing</Badge>}
                     </TableCell>
                     <TableCell className="min-w-56">
-                      {row.candidateValue ? <Badge variant="secondary">{row.candidateValue}</Badge> : <span className="text-muted-foreground">—</span>}
+                      {row.candidateValue ? (
+                        <span className="inline-flex rounded-lg bg-emerald-50 px-2.5 py-1 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-200">
+                          {row.candidateValue}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     {evidenceSources.map((source) => {
                       const value = source.extractedFields[row.field]
@@ -121,22 +127,22 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         <TabsContent value="candidates">
           <Panel title="Candidate decisions" description="Each candidate is a field-level decision, not another nested card. Accept, reject, or request more proof directly from the row.">
-            <div className="divide-y rounded-xl border">
+            <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
               {product.candidates.map((candidate) => (
                 <div key={candidate.id} className="grid gap-4 p-4 lg:grid-cols-[12rem_1fr_1fr_18rem] lg:items-center">
                   <div className="flex flex-col gap-2">
                     <p className="font-semibold">{getFieldLabel(candidate.fieldName)}</p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="secondary">{candidate.confidence}</Badge>
-                      <Badge variant="outline">{candidate.status}</Badge>
+                      <Badge variant="outline">{formatEnumLabel(candidate.status)}</Badge>
                     </div>
                   </div>
                   <div>
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">Current</p>
+                    <p className="text-xs font-medium text-slate-500">Current</p>
                     <p className="mt-1 text-sm">{candidate.currentValue ?? "Missing"}</p>
                   </div>
                   <div>
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">Candidate</p>
+                    <p className="text-xs font-medium text-slate-500">Candidate</p>
                     <p className="mt-1 font-semibold">{candidate.candidateValue}</p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {candidate.sourceEvidenceIds.map((evidenceId) => (
@@ -155,17 +161,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         <TabsContent value="evidence">
           <Panel title="Evidence sources" description="Source summaries are compact and scannable; extracted fields sit inline under each source.">
-            <div className="divide-y rounded-xl border">
+            <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
               {product.evidence.map((evidence) => (
                 <div key={evidence.id} className="grid gap-4 p-4 xl:grid-cols-[18rem_1fr_18rem]">
                   <div>
                     <h3 className="font-semibold tracking-[-0.02em]">{evidence.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{evidence.sourceName}</p>
-                    <Badge className="mt-3" variant="secondary">{evidence.confidence}</Badge>
+                    <Badge className="mt-3" variant="secondary">{formatEnumLabel(evidence.confidence)}</Badge>
                   </div>
                   <p className="text-sm leading-6">{evidence.summary}</p>
                   <div className="flex flex-col gap-3">
-                    <div className="rounded-xl border bg-muted/35 p-3 text-xs">
+                    <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100 text-xs">
                       {Object.entries(evidence.extractedFields).map(([field, value]) => (
                         <div key={field} className="flex justify-between gap-3 border-b py-1.5 last:border-b-0">
                           <span className="font-medium">{getFieldLabel(field as ContractFieldId)}</span>

@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { getFieldLabel } from "@/lib/demo-contract"
+import { formatEnumLabel } from "@/lib/labels"
 import type { AttributeFieldId } from "@/lib/types"
 import { listProducts, listSchemas } from "@/server/data"
 
@@ -112,22 +113,22 @@ export default async function SchemasPage() {
                   ["Recommended", schema.recommendedAttributes.length],
                   ["Assigned", assignedProducts.length],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-xl border bg-muted/35 p-4">
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+                  <div key={label} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100">
+                    <p className="text-xs font-medium text-slate-500">{label}</p>
                     <p className="mt-2 text-3xl font-black tracking-[-0.05em]">{value}</p>
                   </div>
                 ))}
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-xl border p-4">
+                <div className="rounded-2xl bg-slate-50/80 p-4 ring-1 ring-slate-100">
                   <h3 className="font-semibold">Required to exit review</h3>
                   <p className="mt-1 text-sm text-muted-foreground">Missing any of these fields keeps the product blocked for this category.</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {schema.requiredAttributes.map((field) => <Badge key={field} variant="outline">{getFieldLabel(field)}</Badge>)}
                   </div>
                 </div>
-                <div className="rounded-xl border p-4">
+                <div className="rounded-2xl bg-slate-50/80 p-4 ring-1 ring-slate-100">
                   <h3 className="font-semibold">Recommended coverage</h3>
                   <p className="mt-1 text-sm text-muted-foreground">These fields strengthen confidence without blocking the initial export.</p>
                   <div className="mt-4 flex flex-wrap gap-2">
@@ -137,13 +138,13 @@ export default async function SchemasPage() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-xl border p-4">
+                <div className="rounded-2xl bg-slate-50/80 p-4 ring-1 ring-slate-100">
                   <h3 className="font-semibold">Warning pressure</h3>
                   <ul className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
                     {schema.warningRules.map((rule) => <li key={rule}>• {rule}</li>)}
                   </ul>
                 </div>
-                <div className="rounded-xl border p-4">
+                <div className="rounded-2xl bg-slate-50/80 p-4 ring-1 ring-slate-100">
                   <h3 className="font-semibold">Scoring guidance</h3>
                   <ul className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
                     {schema.scoringRules.map((rule) => <li key={rule}>• {rule}</li>)}
@@ -151,9 +152,9 @@ export default async function SchemasPage() {
                 </div>
               </div>
 
-              <div className="rounded-xl border p-4">
+              <div className="rounded-2xl bg-slate-50/80 p-4 ring-1 ring-slate-100">
                 <h3 className="font-semibold">Products mapped to this schema</h3>
-                <div className="mt-4 divide-y rounded-lg border">
+                <div className="mt-4 divide-y divide-slate-200 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
                   {assignedProducts.length > 0 ? (
                     assignedProducts.map((product) => (
                       <div key={product.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -161,7 +162,7 @@ export default async function SchemasPage() {
                           <p className="font-medium">{product.title}</p>
                           <p className="text-sm text-muted-foreground">Mirakl ID {product.miraklProductId} · {product.categoryPath.join(" / ")}</p>
                         </div>
-                        <Badge variant="outline">{product.listingStatus}</Badge>
+                        <Badge variant="outline">{formatEnumLabel(product.listingStatus)}</Badge>
                       </div>
                     ))
                   ) : (
