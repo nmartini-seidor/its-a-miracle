@@ -4,10 +4,10 @@
 Docs-only milestone. This document is a product requirements artifact, not an implementation record.
 
 ## Problem
-Orange.es device product pages depend on Mirakl catalog data. Product descriptions, feature lists, media metadata, and category-specific attributes can be incomplete or inconsistent. Operators need a tool that finds gaps, proposes evidence-backed improvements, and lets humans review changes before anything is prepared for Mirakl.
+source catalog device product pages depend on Mirakl catalog data. Product descriptions, feature lists, media metadata, and category-specific attributes can be incomplete or inconsistent. Operators need a tool that finds gaps, proposes evidence-backed improvements, and lets humans review changes before anything is prepared for Mirakl.
 
 ## Goals
-- Improve product-content completeness and quality for the Orange.es Mirakl-backed catalog.
+- Improve product-content completeness and quality for the source catalog Mirakl-backed catalog.
 - Make product quality visible through an explainable 0-100 score.
 - Preserve Mirakl as the source of truth for official category attributes and value lists.
 - Store candidate improvements and field-level evidence in Supabase for review.
@@ -43,8 +43,8 @@ Orange.es device product pages depend on Mirakl catalog data. Product descriptio
 7. **Controlled export/import**: reviewers approve fields, operators request draft export packages, operators separately approve Mirakl submission, and the system tracks import status; draft generation and Mirakl submission are distinct states.
 
 ## MVP scope default
-- The product is **single-tenant for Orange.es** by default.
-- The actual business target is **Orange.es devices**.
+- The product is **single-tenant for source catalog** by default.
+- The actual business target is **source catalog devices**.
 - Local `soft` / `Soft drinks` Mirakl data is a technical fixture only; it is not the business MVP category.
 - First real device category must be chosen through an approval-gated read-only Mirakl category discovery task.
 - First implementation pilot should cap at 50-100 products or one category slice until rate limits, scoring cost, and review flow are measured.
@@ -77,17 +77,17 @@ Reviewer field approval, operator draft-package request, export locking, and Mir
 
 ## Clarification: Mirakl baseline + enrichment target workflow
 
-The application should treat Mirakl as the current baseline catalog, even when the baseline is incomplete or polluted by storefront text. A product detail page should show the Mirakl record as-is, then show candidate improvements discovered from Orange public product pages and approved external sources.
+The application should treat Mirakl as the current baseline catalog, even when the baseline is incomplete or polluted by storefront text. A product detail page should show the Mirakl record as-is, then show candidate improvements discovered from Source catalog public product pages and approved external sources.
 
 Example baseline problem:
-- Mirakl product: `Huawei FreeClip 2` in `Orange Audio y Hi-Fi / Orange Auriculares`.
+- Mirakl product: `Huawei FreeClip 2` in `Source catalog Audio y Hi-Fi / Source catalog Auriculares`.
 - Mirakl has noisy storefront description text, missing required brand, and incomplete attributes.
-- Orange page has structured attributes such as Bluetooth, MP3, weight, dimensions, battery conversation duration, charger power unit, and OS compatibility.
+- Source catalog page has structured attributes such as Bluetooth, MP3, weight, dimensions, battery conversation duration, charger power unit, and OS compatibility.
 - External sources such as manufacturer pages or retailer pages may provide richer feature descriptions and additional specs such as Bluetooth version, charging case dimensions, microphone/noise reduction, battery capacity, release date, and real EAN.
 
 The product detail workflow must therefore support:
 1. Mirakl baseline snapshot display.
-2. Orange-source comparison.
+2. Source catalog-source comparison.
 3. External research/evidence collection launched from the dashboard.
 4. Field-level candidate proposals with confidence and source evidence.
 5. Human accept/discard before Mirakl export/import.

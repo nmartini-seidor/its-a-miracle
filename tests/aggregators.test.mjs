@@ -55,9 +55,11 @@ test('active hero-product evidence respects the provider confidence posture', ()
 test('every aggregator carries enough metadata to explain preview-safe confidence rules', () => {
   for (const aggregator of aggregators) {
     assert.equal(aggregator.coverageTags.length > 0, true, `${aggregator.id} should explain what it covers`)
-    assert.equal(aggregator.sampleDomains.length > 0, true, `${aggregator.id} should expose sample domains`)
+    assert.equal(aggregator.sampleDomains.length >= 10, true, `${aggregator.id} should expose a useful real-domain sample list`)
+    assert.equal(aggregator.sampleDomains.some((domain) => domain.endsWith('.example')), false, `${aggregator.id} should not expose placeholder domains`)
     assert.equal(aggregator.confidencePolicy.length >= 40, true, `${aggregator.id} should describe its confidence policy`)
     assert.match(aggregator.baseUrl, /^https:\/\//)
+    assert.equal(aggregator.baseUrl.includes('.example'), false)
   }
 })
 
@@ -73,6 +75,7 @@ test('aggregators overview is list-first and links to configuration pages', () =
   assert.equal(detailSource.includes('AggregatorConfigurationForm'), true)
   assert.equal(formSource.includes('Save aggregator'), true)
   assert.equal(formSource.includes('Authority and confidence'), true)
+  assert.equal(formSource.includes('sampleDomainList'), true)
   assert.equal(existsSync('app/aggregators/[id]/page.tsx'), true)
 })
 

@@ -30,6 +30,6 @@ test('empty triage state offers direct catalog import', () => {
   const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
 
   assert.equal(source.includes('No products imported yet'), true)
-  assert.equal(source.includes('Import the Orange electronics catalog'), true)
+  assert.equal(source.includes('Import the electronics catalog'), true)
   assert.equal(source.includes('actions="import"'), true)
 })

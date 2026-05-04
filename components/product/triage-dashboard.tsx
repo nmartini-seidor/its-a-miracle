@@ -75,7 +75,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
                   <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
                     <p className="font-semibold">No products imported yet</p>
                     <p className="text-sm leading-6 text-muted-foreground">
-                      Import the Orange electronics catalog, then this triage queue will show scored products for review.
+                      Import the electronics catalog, then this triage queue will show scored products for review.
                     </p>
                     <ResetWorkspaceButton compact actions="import" align="center" />
                   </div>

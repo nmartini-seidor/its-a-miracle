@@ -39,12 +39,12 @@ export function ResetWorkspaceButton({
         )}
         <Button type="button" onClick={() => runWorkspaceAction("import")} disabled={pendingAction !== null}>
           <DatabaseIcon data-icon="inline-start" />
-          {pendingAction === "import" ? "Importing catalog" : "Import Orange catalog"}
+          {pendingAction === "import" ? "Importing catalog" : "Import catalog"}
         </Button>
       </div>
       {!compact && (
         <p className="text-sm text-muted-foreground">
-          Start empty, import the Orange electronics catalog, then review the products that appear.
+          Start empty, import the electronics catalog, then review the products that appear.
         </p>
       )}
       {status && <p className="text-xs text-muted-foreground">{status}</p>}

@@ -101,7 +101,7 @@ Before bulk product import, synchronize and validate every Mirakl value-list-bac
 - Mirakl value-list imports are handled through `POST /api/values_lists/imports` with multipart `file` upload, then status through `GET /api/values_lists/imports/{import}`, and error report through `GET /api/values_lists/imports/{import}/error_report` where available.
 
 ### Required bulk flow
-1. Extract unique source values from Orange data for all list-backed fields, starting with brand.
+1. Extract unique source values from Source catalog data for all list-backed fields, starting with brand.
 2. Fetch Mirakl attribute config and value lists.
 3. Normalize extracted values into stable codes and labels.
 4. Diff extracted values against Mirakl value-list values.
@@ -119,18 +119,18 @@ Before bulk product import, synchronize and validate every Mirakl value-list-bac
 
 ## Attribute-model preflight before product imports
 
-The PS5 import attempt also showed that Orange attributes do not automatically appear in Mirakl. Mirakl only transforms/imports attributes that exist in the target Mirakl product attribute model for the selected hierarchy/category. For the test row we used `toys_merch`, whose accepted attributes were limited to generic merchandising fields such as `category`, `shop_sku`, `name [en]`, `description [en]`, `ean`, `media`, `brand`, `variantGroupCode`, `size`, `MATERIAL`, and `WASHING-DIRECTIONS`. The Orange PS5 fields (`Sistema operativo`, `Memoria RAM`, `Wifi`, `USB tipo C`, etc.) were not discrete Mirakl attributes, so they could only be squeezed into generic fields like `MATERIAL` or omitted from the transformed product sheet.
+The PS5 import attempt also showed that Source catalog attributes do not automatically appear in Mirakl. Mirakl only transforms/imports attributes that exist in the target Mirakl product attribute model for the selected hierarchy/category. For the test row we used `toys_merch`, whose accepted attributes were limited to generic merchandising fields such as `category`, `shop_sku`, `name [en]`, `description [en]`, `ean`, `media`, `brand`, `variantGroupCode`, `size`, `MATERIAL`, and `WASHING-DIRECTIONS`. The Source catalog PS5 fields (`Sistema operativo`, `Memoria RAM`, `Wifi`, `USB tipo C`, etc.) were not discrete Mirakl attributes, so they could only be squeezed into generic fields like `MATERIAL` or omitted from the transformed product sheet.
 
 ### Required attribute-model flow
-1. Extract Orange attributes per category and normalize them into candidate Mirakl attribute definitions.
+1. Extract Source catalog attributes per category and normalize them into candidate Mirakl attribute definitions.
 2. Fetch Mirakl product attributes for the target hierarchy with `GET /api/products/attributes?hierarchy=<code>&max_level=0`.
-3. Diff Orange attribute candidates against Mirakl attribute codes and labels.
+3. Diff Source catalog attribute candidates against Mirakl attribute codes and labels.
 4. Create or update the Mirakl attribute/category model before product import, or create an explicit mapping to existing attributes.
 5. Re-fetch attribute configuration and verify every product-import column is accepted by Mirakl.
 6. Only then generate product import CSVs with discrete attribute columns.
 
 ### PS5 candidate attribute mapping
-| Orange group | Orange attribute | Proposed Mirakl code | Suggested type | Example value |
+| Source catalog group | Source catalog attribute | Proposed Mirakl code | Suggested type | Example value |
 | --- | --- | --- | --- | --- |
 | Sistema operativo | Tipo de sistema operativo | `os_type` | TEXT | `Propio de PS5` |
 | Memoria | Memoria interna (almacenamiento) (GB) | `storage_gb` | DECIMAL/TEXT | `1000` |
@@ -145,7 +145,7 @@ The PS5 import attempt also showed that Orange attributes do not automatically a
 | Conectores | USB tipo C | `usb_c` | BOOLEAN/LIST | `true` |
 | Otros detalles | Contenido de la caja | `box_contents` | LONG_TEXT | `Mando inalámbrico ...` |
 
-If Mirakl does not yet have a gaming/console category model, create/approve that category and its attributes first. Do not expect arbitrary Orange CSV columns to show on the Mirakl product page unless Mirakl attribute configuration recognizes those columns.
+If Mirakl does not yet have a gaming/console category model, create/approve that category and its attributes first. Do not expect arbitrary Source catalog CSV columns to show on the Mirakl product page unless Mirakl attribute configuration recognizes those columns.
 
 ### Catalog-configuration permission requirement
 
@@ -159,7 +159,7 @@ Therefore, bulk push with new brands/attributes requires an operator credential 
 
 ## Product-source deletion limitation observed
 
-Attempting to delete the ORANGE test source products through `POST /api/products/imports` with an `update-delete` column did not remove the source products from MCM. Both lowercase `delete` and uppercase `DELETE` imports transformed successfully, but subsequent `GET /api/mcm/products/sources/status/export` checks still returned all ORANGE provider source identifiers as `NOT_LIVE`.
+Attempting to delete the SRC test source products through `POST /api/products/imports` with an `update-delete` column did not remove the source products from MCM. Both lowercase `delete` and uppercase `DELETE` imports transformed successfully, but subsequent `GET /api/mcm/products/sources/status/export` checks still returned all SRC provider source identifiers as `NOT_LIVE`.
 
 Observed delete attempts:
 - Import `2416`: 22 rows, `update-delete=delete`, transform success 22/22, source products still present.
@@ -171,7 +171,7 @@ Operational rule: do not assume product imports can delete source products. For 
 
 ## Variant-family cleanup limitation observed
 
-A bad test import (`2409`) sent unrelated products with the same `variantGroupCode=orange-gaming-family` and no `size` value. Mirakl MCM then reported duplicate/irrelevant variant errors such as `size-variant-code-is-null` and variants with different categories.
+A bad test import (`2409`) sent unrelated products with the same `variantGroupCode=source-gaming-family` and no `size` value. Mirakl MCM then reported duplicate/irrelevant variant errors such as `size-variant-code-is-null` and variants with different categories.
 
 Later corrected imports (`2414`, `2418`) transformed successfully with category-specific hierarchies, unique `variantGroupCode`, and unique `size`, but the MCM UI continued to show the old variant-family warnings. This indicates Mirakl may keep previously accepted/locked variant-family relationships for pending source products.
 

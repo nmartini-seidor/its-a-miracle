@@ -1,8 +1,8 @@
 .credentials.txt
 .omx/
 
-# Generated Orange extraction run outputs
-/data/orange/runs/
+# Generated Source catalog extraction run outputs
+/data/source/runs/
 __pycache__/
 *.py[cod]
 /data/mirakl/imports/

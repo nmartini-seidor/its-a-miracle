@@ -207,7 +207,7 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
                 <Badge variant="outline">Approval before export</Badge>
               </div>
             </FieldRow>
-            <FieldRow label="Catalog state" description="Clear the workspace or import the Orange electronics catalog without leaving settings.">
+            <FieldRow label="Catalog state" description="Clear the workspace or import the electronics catalog without leaving settings.">
               <ResetWorkspaceButton compact />
             </FieldRow>
           </div>

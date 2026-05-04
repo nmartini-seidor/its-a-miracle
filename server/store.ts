@@ -269,7 +269,7 @@ function buildResearchOutcome(product: ProductRecord, sequence: number, timestam
     aggregatorId: "spec-database",
     sourceName: "Specification database",
     sourceType: "spec_database",
-    sourceUrl: "https://specs.example/freeclip-2",
+    sourceUrl: "https://www.notebookcheck.net/Open-ear-headphones-with-glamour-factor-Huawei-FreeClip-2-review.1232768.0.html",
     title: `${product.title} technical field refresh`,
     summary: "Research validated battery technology and microphone support while keeping the Mirakl baseline unchanged.",
     extractedFields: {

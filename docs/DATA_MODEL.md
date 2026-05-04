@@ -295,7 +295,7 @@ Specialized enrichment job payload/results for web research.
 - `error_summary text`
 
 ### Candidate/evidence additions
-- `evidence_sources.source_type` should include `manufacturer_page`, `manufacturer_pdf`, `retailer_reference`, `orange_page`, `mirakl_baseline`, and `manual_operator_note`.
+- `evidence_sources.source_type` should include `manufacturer_page`, `manufacturer_pdf`, `retailer_reference`, `source_page`, `mirakl_baseline`, and `manual_operator_note`.
 - `enrichment_candidates` should support `candidate_kind` (`description`, `attribute`, `brand_mapping`, `category_mapping`, `ean`, `media`, `feature_bullet`).
 - `candidate_evidence_links.support_type` should include `direct`, `inferred`, `conflicting`, and `context_only`.
 

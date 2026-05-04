@@ -29,7 +29,7 @@ Every task below is defined with:
 - Objective: Produce the approved docs-only repo-root documentation package.
 - Inputs: `.omx/plans/consensus-mirakl-product-enrichment.md`, `.omx/specs/deep-interview-mirakl-product-enrichment.md`, `MIRAKL_EXAMPLE_USAGE.md`, local CSV fixture headers.
 - Outputs: `PRD.md`, `TECH_SPECS.md`, `ARCHITECTURE.md`, `DATA_MODEL.md`, `API_REFERENCE.md`, `UI.md`, `EVIDENCE_POLICY.md`, `SCORING_MODEL.md`, `MIRAKL_INTEGRATION.md`, `ENRICHMENT_STRATEGY.md`, `SECURITY.md`, `OPERATIONS.md`, `REVIEW_QA_WORKFLOW.md`, `TEST_PLAN.md`, `TASKS.md`, `AGENTS.md`.
-- Acceptance criteria: all files exist; docs preserve no-code/no-credential/no-live-action boundaries; local `soft` category is described only as fixture data; Orange.es devices remain business target.
+- Acceptance criteria: all files exist; docs preserve no-code/no-credential/no-live-action boundaries; local `soft` category is described only as fixture data; source catalog devices remain business target.
 - Validation evidence: `test -s <file>` for all outputs; `test ! -f package.json`; `test ! -f components.json`; secret scan of generated docs/plans.
 - Adversarial review gate: Gemini/Claude where available plus code-reviewer/critic.
 - QA gate: verifier confirms all docs match consensus-plan acceptance criteria.
@@ -80,10 +80,10 @@ Every task below is defined with:
 - Rollback/deferral note: discard prototype migration if policy model is unsafe.
 
 ### T1.3 — Read-only Mirakl category/product discovery
-- Objective: Identify the first real Orange.es device category slice safely.
+- Objective: Identify the first real source catalog device category slice safely.
 - Inputs: `MIRAKL_INTEGRATION.md`, approved credentials/read-only access, Mirakl docs.
 - Outputs: category discovery report, proposed MVP category/product slice, fixture dataset metadata.
-- Acceptance criteria: read-only calls only; no import/export/write endpoints used; selected MVP category is Orange.es-device relevant.
+- Acceptance criteria: read-only calls only; no import/export/write endpoints used; selected MVP category is source catalog-device relevant.
 - Validation evidence: redacted request logs, response shape summary without secrets, category decision record.
 - Adversarial review gate: integration reviewer confirms no write endpoints were used.
 - QA gate: verifier confirms `.credentials.txt` values are not printed or committed.
@@ -270,8 +270,8 @@ Every task below is defined with:
 - Rollback/deferral note: rollback deployment or disable project if critical issue.
 
 ### T5.0 — Preload Mirakl value-list values before product imports
-- Objective: Ensure list-backed attributes such as `brand` accept all values needed by extracted Orange products before product import.
-- Inputs: Orange product JSONL/CSV, `MIRAKL_INTEGRATION.md`, Mirakl `GET /api/products/attributes`, Mirakl `GET /api/values_lists`.
+- Objective: Ensure list-backed attributes such as `brand` accept all values needed by extracted Source catalog products before product import.
+- Inputs: Source catalog product JSONL/CSV, `MIRAKL_INTEGRATION.md`, Mirakl `GET /api/products/attributes`, Mirakl `GET /api/values_lists`.
 - Outputs: value-list diff report, value-list import draft, value-list import status report, refreshed mapping table.
 - Acceptance criteria: every product row with a list-backed attribute has an accepted Mirakl value or is blocked with a manual mapping decision; no placeholder brand substitutions.
 - Validation evidence: `brand-values` diff before/after, value-list import id/status, zero missing required brand mappings before product import generation.
@@ -280,10 +280,10 @@ Every task below is defined with:
 - Rollback/deferral note: if value-list import fails, do not push affected product rows; keep them in mapping-needed state.
 
 ### T5.-1 — Create or map Mirakl attributes before product imports
-- Objective: Ensure category-specific Orange attributes (for example PS5 memory/connectivity/dimensions/box contents) exist as Mirakl attributes or have explicit mappings before product import.
-- Inputs: Orange extracted attributes, `MIRAKL_INTEGRATION.md`, Mirakl `GET /api/products/attributes`, Mirakl category/hierarchy model.
+- Objective: Ensure category-specific Source catalog attributes (for example PS5 memory/connectivity/dimensions/box contents) exist as Mirakl attributes or have explicit mappings before product import.
+- Inputs: Source catalog extracted attributes, `MIRAKL_INTEGRATION.md`, Mirakl `GET /api/products/attributes`, Mirakl category/hierarchy model.
 - Outputs: attribute diff report, proposed Mirakl attribute model changes, approved mapping table, refreshed product import template.
-- Acceptance criteria: every CSV column intended for import is accepted by Mirakl for the target hierarchy; unmapped Orange attributes are blocked or intentionally stored as evidence-only enrichment candidates.
+- Acceptance criteria: every CSV column intended for import is accepted by Mirakl for the target hierarchy; unmapped Source catalog attributes are blocked or intentionally stored as evidence-only enrichment candidates.
 - Validation evidence: before/after attribute config export, product import dry-run/transformed file showing discrete columns preserved, zero unexpected ignored columns.
 - Review gate: catalog-model reviewer confirms attribute names/types and category assignment.
 - QA gate: verifier confirms PS5 attributes appear as discrete mapped fields or are explicitly documented as not imported.
@@ -311,7 +311,7 @@ Every task below is defined with:
 
 ### T3.4 — Implement dashboard-triggered external research jobs
 - Objective: Let operators launch a bounded research job from a product detail page to improve missing/noisy Mirakl data.
-- Inputs: Mirakl baseline snapshot, Orange source record, evidence policy, category attribute expectations, `ENRICHMENT_STRATEGY.md`.
+- Inputs: Mirakl baseline snapshot, Source catalog source record, evidence policy, category attribute expectations, `ENRICHMENT_STRATEGY.md`.
 - Outputs: server route/action, job runner integration, `external_research_runs`, evidence records, candidate records, tests.
 - Acceptance criteria: job can draft candidates for description, EAN, brand/category mapping, and missing attributes; it cannot approve fields or call Mirakl write/import endpoints.
 - Validation evidence: mocked opencode/lightweb run creates evidence and candidates; no Mirakl mutation occurs; product detail page shows job status and candidates.
@@ -320,7 +320,7 @@ Every task below is defined with:
 - Rollback/deferral note: disable research launch behind a feature flag if source policy or runner integration is not ready.
 
 ### T4.4 — Build enriched product detail comparison UI
-- Objective: Show Mirakl baseline, Orange source, external evidence candidates, and review decisions in one shadcn-only product page.
+- Objective: Show Mirakl baseline, Source catalog source, external evidence candidates, and review decisions in one shadcn-only product page.
 - Inputs: `UI.md`, `DATA_MODEL.md`, `API_REFERENCE.md`, `EVIDENCE_POLICY.md`.
 - Outputs: product detail route/tabs, comparison table, evidence sheet, research launch button, candidate review controls.
 - Acceptance criteria: operators can see baseline vs candidate values, evidence URLs/snippets, confidence, conflicts, and accept/reject controls; Mirakl baseline is not overwritten by viewing candidates.

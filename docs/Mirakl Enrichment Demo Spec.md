@@ -215,7 +215,7 @@ Example columns
 
 Demo behavior
 
-The list should already be populated with mock products imported from Mirakl. (we already have the orange ones)
+The list should already be populated with mock products imported from Mirakl. (we already have the source ones)
 
 Examples:
 
@@ -370,7 +370,7 @@ Brand
 * Current: Missing
 * Candidate: Huawei
 * Confidence: High
-* Evidence badge: Orange Huawei FreeClip 2
+* Evidence badge: Source catalog Huawei FreeClip 2
 
 Bluetooth version
 
@@ -458,7 +458,7 @@ Content
 Example structure
 
 {
-  "product_id": "ORANGE_3711247",
+  "product_id": "SRC_3711247",
   "updates": {
     "brand": "Huawei",
     "ean": "6942103169434",
@@ -751,7 +751,7 @@ Example mapping:
 
 Products dataset
 
-Seed the catalog with all mirakl products we have, but we need to remove the "Orange" reference in mirakl first, this is a generic tool, not only for orange
+Seed the catalog with all mirakl products we have, but we need to remove the "Source catalog" reference in mirakl first, this is a generic tool, not only for source
 
 Schema dataset
 

@@ -57,6 +57,7 @@ export function AggregatorConfigurationForm({ aggregator, evidence }: { aggregat
   const [saving, setSaving] = useState(false)
 
   const tier = getAuthorityTier(authorityScore)
+  const sampleDomainList = useMemo(() => splitLines(sampleDomains), [sampleDomains])
   const payload = useMemo(() => ({
     name,
     type,
@@ -132,7 +133,12 @@ export function AggregatorConfigurationForm({ aggregator, evidence }: { aggregat
       <FieldBlock title="Coverage" description="Tags and domains explain what this aggregator can prove.">
         <div className="grid gap-4 lg:grid-cols-2">
           <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">Coverage tags, one per line<TextArea value={coverageTags} onChange={(event) => setCoverageTags(event.target.value)} /></label>
-          <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">Sample domains, one per line<TextArea value={sampleDomains} onChange={(event) => setSampleDomains(event.target.value)} /></label>
+          <div className="flex flex-col gap-2">
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">Sample domains, one per line<TextArea value={sampleDomains} onChange={(event) => setSampleDomains(event.target.value)} /></label>
+            <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              {sampleDomainList.map((domain) => <Badge key={domain} variant="outline" className="bg-white font-mono">{domain}</Badge>)}
+            </div>
+          </div>
         </div>
       </FieldBlock>
 

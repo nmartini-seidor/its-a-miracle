@@ -5,6 +5,6 @@ export async function POST() {
   resetDemoState()
   return NextResponse.json({
     status: "reset",
-    message: "Workspace cleared. Import the Orange electronics catalog to start the review flow.",
+    message: "Workspace cleared. Import the electronics catalog to start the review flow.",
   })
 }

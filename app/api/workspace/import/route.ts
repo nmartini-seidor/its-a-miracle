@@ -7,6 +7,6 @@ export async function POST() {
   return NextResponse.json({
     status: "imported",
     importedCount,
-    message: `Imported ${importedCount} Orange electronics products into the workspace.`,
+    message: `Imported ${importedCount} electronics products into the workspace.`,
   })
 }
