@@ -26,12 +26,16 @@ test('sortProducts orders by the selected triage priority', () => {
   ])
 })
 
-test('empty triage state offers direct catalog import', () => {
+test('empty triage state offers direct catalog import only when no products exist', () => {
   const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
 
+  assert.equal(source.includes('hasProducts ? ('), true)
+  assert.equal(source.includes('No products match this filter'), true)
+  assert.equal(source.includes('Change the filter or run research to create candidates'), true)
   assert.equal(source.includes('No products imported yet'), true)
   assert.equal(source.includes('Import the electronics catalog'), true)
   assert.equal(source.includes('actions="import"'), true)
+  assert.equal(source.indexOf('No products match this filter') < source.indexOf('No products imported yet'), true)
 })
 
 test('triage sort controls use lucide icons for the priority options', () => {

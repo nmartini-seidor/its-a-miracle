@@ -60,6 +60,8 @@ test('schemas and hero fixtures use canonical field identifiers', () => {
   assert.equal(products.length >= 5, true)
   assert.equal(heroProduct.categoryPath.some((entry) => /source/i.test(entry)), false)
   assert.equal(/source/i.test(heroProduct.baselineDescription), false)
+  assert.equal(heroProduct.baselineDescription.includes('descripción base'), true)
+  assert.equal(heroProduct.baselineAttributes.description.includes('Texto de financiación flexible'), true)
   assert.equal(heroProduct.evidence.length, 0)
   assert.equal(heroProduct.candidates.length, 0)
 

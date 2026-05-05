@@ -190,16 +190,28 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
             {visibleProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={selectionMode ? 9 : 8} className="py-10 text-center">
-                  <div className="mx-auto flex max-w-none flex-col items-center gap-4">
-                    <span className="flex size-12 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-700" aria-hidden="true">
-                      <PackageXIcon className="size-6" />
-                    </span>
-                    <p className="font-semibold">No products imported yet</p>
-                    <p className="max-w-none whitespace-nowrap text-sm leading-6 text-muted-foreground">
-                      Import the electronics catalog, then this triage queue will show scored products for review.
-                    </p>
-                    <ResetWorkspaceButton compact actions="import" align="center" />
-                  </div>
+                  {hasProducts ? (
+                    <div className="mx-auto flex max-w-none flex-col items-center gap-3">
+                      <span className="flex size-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-500" aria-hidden="true">
+                        <PackageXIcon className="size-6" />
+                      </span>
+                      <p className="font-semibold">No products match this filter</p>
+                      <p className="max-w-none whitespace-nowrap text-sm leading-6 text-muted-foreground">
+                        Change the filter or run research to create candidates for imported products.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mx-auto flex max-w-none flex-col items-center gap-4">
+                      <span className="flex size-12 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-700" aria-hidden="true">
+                        <PackageXIcon className="size-6" />
+                      </span>
+                      <p className="font-semibold">No products imported yet</p>
+                      <p className="max-w-none whitespace-nowrap text-sm leading-6 text-muted-foreground">
+                        Import the electronics catalog, then this triage queue will show scored products for review.
+                      </p>
+                      <ResetWorkspaceButton compact actions="import" align="center" />
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             )}

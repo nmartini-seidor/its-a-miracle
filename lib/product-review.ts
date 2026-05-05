@@ -69,7 +69,7 @@ function warningMatchesField(warning: string, field: AttributeFieldId) {
   const label = getFieldLabel(field).toLowerCase()
 
   if (normalized.includes(field.toLowerCase()) || normalized.includes(label)) return true
-  if (field === "description" && /storefront|promotional|noise/.test(normalized)) return true
+  if (field === "description" && /storefront|promotional|noise|descripci[oó]n|promocional|ruido comercial/.test(normalized)) return true
   if (field === "ean" && normalized.includes("ean")) return true
   if (field === "brand" && normalized.includes("brand")) return true
   return false

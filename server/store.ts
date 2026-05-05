@@ -374,11 +374,24 @@ function getModelName(product: ProductRecord) {
   return product.title
 }
 
+function getSpanishCategoryName(schema: SchemaDefinition | null) {
+  if (!schema) return "electrónica"
+  if (schema.id === "schema-headphones-earbuds") return "audio y auriculares"
+  if (schema.id === "schema-smartphones") return "smartphones"
+  if (schema.id === "schema-televisions") return "televisores"
+  if (schema.id === "schema-tablets") return "tablets"
+  if (schema.id === "schema-laptops") return "portátiles"
+  if (schema.id === "schema-gaming-devices") return "gaming"
+  if (schema.id === "schema-video-games") return "videojuegos"
+  if (schema.id === "schema-monitors") return "monitores"
+  return "electrónica"
+}
+
 function buildSeoDescription(product: ProductRecord) {
   const schema = getProductSchema(product)
   const brand = product.brand ?? product.baselineAttributes.brand ?? product.title.split(" ")[0]
   const model = product.baselineAttributes.model ?? product.baselineAttributes.productName ?? product.title
-  const category = schema?.name.toLowerCase() ?? product.categoryPath.at(-1)?.toLowerCase() ?? "electrónica"
+  const category = getSpanishCategoryName(schema)
   const highlights = [
     product.baselineAttributes.displaySize,
     product.baselineAttributes.storage,
@@ -393,7 +406,6 @@ function buildSeoDescription(product: ProductRecord) {
 
 function getResearchValue(product: ProductRecord, field: AttributeFieldId) {
   const baselineValue = product.baselineAttributes[field]
-  const schema = getProductSchema(product)
   const category = product.categoryPath.join(" / ")
 
   switch (field) {

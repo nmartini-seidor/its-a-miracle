@@ -24,11 +24,14 @@ test('research job transitions from queued to running to succeeded and applies n
   assert.equal(run.status, 'QUEUED')
   assert.equal(getStoredProduct('freeclip-2').listingStatus, 'RESEARCH_IN_PROGRESS')
 
+  const queued = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 500).toISOString())
+  assert.equal(queued.status, 'QUEUED')
+
   const running = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 1500).toISOString())
   assert.equal(running.status, 'RUNNING')
   assert.equal(getStoredProduct('freeclip-2').evidence.length, initialEvidenceCount)
 
-  const completed = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 3000).toISOString())
+  const completed = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
   assert.equal(completed.status, 'SUCCEEDED')
   const researchedProduct = getStoredProduct('freeclip-2')
   assert.equal(researchedProduct.evidence.length >= initialEvidenceCount + 3, true)
@@ -42,7 +45,7 @@ test('accepting a candidate refreshes export eligibility and listing status', ()
   resetDemoState()
   importDemoProducts()
   const run = createMockResearchRun('freeclip-2')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 3000).toISOString())
+  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
   const productWithCandidates = getStoredProduct('freeclip-2')
   addReviewDecision(productWithCandidates.candidates[0].id, 'APPROVE', 'Verified against evidence')
   const preview = exportPreview('freeclip-2')
@@ -63,7 +66,7 @@ test('research can populate evidence-backed candidates for every imported produc
   for (const product of importedProducts) {
     const run = createMockResearchRun(product.id)
     assert.ok(run)
-    getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 3000).toISOString())
+    getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
   }
 
   const researchedProducts = listStoredProducts()
@@ -80,6 +83,7 @@ test('product detail research action is presented as an agent run', () => {
 
   assert.equal(source.includes('BotIcon'), true)
   assert.equal(source.includes('Run Research Agent'), true)
+  assert.equal(readFileSync('lib/mock-timing.ts', 'utf8').includes('DEFAULT_MOCK_RESEARCH_AGENT_SECONDS = 5'), true)
   assert.equal(source.includes('rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400'), true)
   assert.equal(source.includes('beginResearchActivity'), true)
   assert.equal(source.includes('research-flight-orb'), true)

@@ -67,6 +67,8 @@ test('hero product baseline includes product name and product detail uses icon t
   assert.equal(productPageSource.includes('confidenceClass(candidate.confidence)'), true)
   assert.equal(productPageSource.includes('confidenceClass(evidence.confidence)'), true)
   assert.equal(productPageSource.includes('status={candidate.status}'), true)
+  assert.equal(productPageSource.includes('SeoDescriptionButton'), true)
+  assert.equal(productPageSource.includes('row.field === "description"'), true)
   assert.equal(exportButtonSource.includes('download = `${productId}-mirakl-export.json`'), true)
   assert.equal(exportButtonSource.includes('Export file'), false)
   assert.equal(exportButtonSource.includes('Export'), true)
