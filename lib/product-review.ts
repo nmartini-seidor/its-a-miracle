@@ -5,8 +5,11 @@ export type ReviewFieldRow = {
   field: AttributeFieldId
   label: string
   baselineValue: string | null
+  baselineProjected: boolean
   evidenceValue: string | null
   candidateValue: string | null
+  candidateStatus: CandidateRecord["status"] | null
+  candidateReason: string | null
   baselineMissing: boolean
   hasCandidate: boolean
   differsFromEvidence: boolean
@@ -27,7 +30,7 @@ export function getReviewCandidates(product: ProductRecord) {
   )
 }
 
-function getCandidateByField(product: ProductRecord) {
+export function getCandidateByField(product: ProductRecord) {
   const byField = new Map<AttributeFieldId, CandidateRecord>()
 
   getReviewCandidates(product).forEach((candidate) => {
@@ -81,19 +84,26 @@ export function buildReviewFieldRows(product: ProductRecord, schema: SchemaDefin
 
   return orderReviewFields(product, schema).map((field) => {
     const candidate = candidateByField.get(field) ?? null
-    const baselineValue = field in product.baselineAttributes ? product.baselineAttributes[field as keyof typeof product.baselineAttributes] ?? null : null
+    const importedBaselineValue = field in product.baselineAttributes ? product.baselineAttributes[field as keyof typeof product.baselineAttributes] ?? null : null
     const evidenceValue = field in product.bestEvidenceByField ? product.bestEvidenceByField[field as keyof typeof product.bestEvidenceByField] ?? null : null
     const candidateValue = candidate?.candidateValue ?? null
+    const candidateStatus = candidate?.status ?? null
+    const candidateReason = candidate?.reason ?? null
+    const baselineProjected = candidateStatus === "accepted" && candidateValue != null
+    const baselineValue = baselineProjected ? candidateValue : importedBaselineValue
     const baselineMissing = baselineValue == null
-    const baselineWarnings = product.warnings.filter((warning) => warningMatchesField(warning, field))
+    const baselineWarnings = baselineProjected ? [] : product.warnings.filter((warning) => warningMatchesField(warning, field))
     const baselineNeedsAttention = baselineWarnings.length > 0 || (baselineMissing && requiredFields.has(field))
 
     return {
       field,
       label: getFieldLabel(field),
       baselineValue,
+      baselineProjected,
       evidenceValue,
       candidateValue,
+      candidateStatus,
+      candidateReason,
       baselineMissing,
       hasCandidate: candidateValue != null,
       differsFromEvidence: evidenceValue != null && candidateValue != null && evidenceValue !== candidateValue,

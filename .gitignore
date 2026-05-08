@@ -14,3 +14,4 @@ tsconfig.tsbuildinfo
 .DS_Store
 
 /data/demo-state.json
+.agents

@@ -1,0 +1,111 @@
+{
+  "products": [],
+  "researchRuns": [],
+  "reviewDecisions": [],
+  "settings": {
+    "miraklBaseUrl": "https://seidor-dev.mirakl.net",
+    "environment": "demo",
+    "fakeResearchMode": true,
+    "defaultResearchDelaySeconds": 5,
+    "maxEvidencePerProduct": 4,
+    "defaultCandidateConfidence": "medium",
+    "autoAssignSchemaByCategory": true,
+    "enabledAggregatorIds": [
+      "official-manufacturer",
+      "trusted-retailer",
+      "spec-database",
+      "marketplace-listing",
+      "internal-reference",
+      "apple-official",
+      "samsung-official",
+      "lenovo-psref",
+      "bestbuy-retail",
+      "bh-photo-retail",
+      "mediamarkt-retail",
+      "gsmarena-specs",
+      "notebookcheck-reviews",
+      "rtings-lab",
+      "dxomark-lab",
+      "techpowerup-specs",
+      "amazon-marketplace",
+      "ebay-marketplace",
+      "newegg-marketplace",
+      "backmarket-refurbished"
+    ]
+  },
+  "schemaOverrides": {
+    "headphones-earbuds": {
+      "id": "schema-headphones-earbuds",
+      "slug": "headphones-earbuds",
+      "name": "Headphones & Earbuds",
+      "linkedCategories": [
+        "Audio",
+        "Wearable audio"
+      ],
+      "requiredAttributes": [
+        "brand",
+        "productName",
+        "ean",
+        "connectivity",
+        "weight",
+        "batteryLife",
+        "description"
+      ],
+      "recommendedAttributes": [
+        "bluetoothVersion",
+        "usbC",
+        "microphone",
+        "noiseReduction",
+        "compatibility"
+      ],
+      "warningRules": [
+        "Brand missing",
+        "La descripción contiene ruido comercial",
+        "Required schema field missing"
+      ],
+      "scoringRules": [
+        "Missing brand = -15",
+        "Missing EAN = -20",
+        "Weak description = -10"
+      ],
+      "exampleProductIds": [
+        "freeclip-2"
+      ]
+    }
+  },
+  "aggregatorOverrides": {
+    "trusted-retailer": {
+      "id": "trusted-retailer",
+      "name": "Trusted retailer",
+      "type": "retailer",
+      "baseUrl": "https://www.bestbuy.com",
+      "authorityScore": 70,
+      "defaultConfidence": "medium",
+      "enabled": true,
+      "coverageTags": [
+        "commercial-copy",
+        "visible-specs",
+        "availability"
+      ],
+      "sampleDomains": [
+        "bestbuy.com",
+        "bhphotovideo.com",
+        "currys.co.uk",
+        "mediamarkt.es",
+        "mediamarkt.de",
+        "fnac.com",
+        "elcorteingles.es",
+        "pccomponentes.com",
+        "coolblue.nl",
+        "saturn.de",
+        "boulanger.com",
+        "adorama.com",
+        "abt.com",
+        "microcenter.com",
+        "crutchfield.com"
+      ],
+      "description": "Supporting source for visible specs, merchandising language, and package details.",
+      "confidencePolicy": "Use as corroborating evidence for visible specifications and merchandising details."
+    }
+  }
+}

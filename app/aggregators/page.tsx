@@ -22,7 +22,14 @@ const statusBadgeClassNames = {
   disabled: "border-slate-200 bg-slate-100 text-slate-600",
 } as const
 
-export default async function AggregatorsPage() {
+const AGGREGATORS_PER_PAGE = 10
+
+function getPageHref(page: number) {
+  return page === 1 ? "/aggregators" : `/aggregators?page=${page}`
+}
+
+export default async function AggregatorsPage({ searchParams }: { searchParams?: Promise<{ page?: string }> }) {
+  const params = await searchParams
   const [aggregators, products] = await Promise.all([listAggregators(), listProducts()])
 
   const aggregatorRows = aggregators.map((aggregator) => {
@@ -37,6 +44,11 @@ export default async function AggregatorsPage() {
       touchedProducts,
     }
   })
+  const pageCount = Math.max(1, Math.ceil(aggregatorRows.length / AGGREGATORS_PER_PAGE))
+  const requestedPage = Number(params?.page ?? "1")
+  const currentPage = Number.isFinite(requestedPage) ? Math.min(Math.max(Math.trunc(requestedPage), 1), pageCount) : 1
+  const pageStart = (currentPage - 1) * AGGREGATORS_PER_PAGE
+  const visibleAggregatorRows = aggregatorRows.slice(pageStart, pageStart + AGGREGATORS_PER_PAGE)
 
   const tiers = [
     getAuthorityTier(95),
@@ -79,7 +91,7 @@ export default async function AggregatorsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {aggregatorRows.map((aggregator) => (
+            {visibleAggregatorRows.map((aggregator) => (
               <TableRow key={aggregator.id}>
                 <TableCell>
                   <div className="flex flex-col gap-1">
@@ -118,6 +130,24 @@ export default async function AggregatorsPage() {
             ))}
           </TableBody>
         </Table>
+        <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-slate-600">
+            Showing {pageStart + 1}-{Math.min(pageStart + AGGREGATORS_PER_PAGE, aggregatorRows.length)} of {aggregatorRows.length} aggregators
+          </p>
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <Button asChild size="sm" variant="outline" aria-disabled={currentPage === 1} className={currentPage === 1 ? "pointer-events-none opacity-50" : undefined}>
+              <Link href={getPageHref(Math.max(1, currentPage - 1))}>Previous</Link>
+            </Button>
+            {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
+              <Button key={page} asChild size="sm" variant={page === currentPage ? "default" : "outline"}>
+                <Link href={getPageHref(page)} aria-current={page === currentPage ? "page" : undefined}>{page}</Link>
+              </Button>
+            ))}
+            <Button asChild size="sm" variant="outline" aria-disabled={currentPage === pageCount} className={currentPage === pageCount ? "pointer-events-none opacity-50" : undefined}>
+              <Link href={getPageHref(Math.min(pageCount, currentPage + 1))}>Next</Link>
+            </Button>
+          </div>
+        </div>
       </Panel>
     </PageShell>
   )

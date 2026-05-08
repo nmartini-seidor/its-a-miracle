@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import type { CandidateStatus } from "@/lib/types"
@@ -18,6 +18,10 @@ export function CandidateActions({ candidateId, status: initialStatus }: { candi
   const [status, setStatus] = useState<CandidateStatus | "Failed">(initialStatus)
   const [pendingDecision, setPendingDecision] = useState<"APPROVE" | "REJECT" | null>(null)
   const finalLabel = decisionLabel(status)
+
+  useEffect(() => {
+    setStatus(initialStatus)
+  }, [initialStatus])
 
   async function decide(decision: "APPROVE" | "REJECT") {
     setPendingDecision(decision)

@@ -1,8 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Loader2Icon, SaveIcon } from "lucide-react"
+import { ArrowRightIcon, Loader2Icon, SaveIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ATTRIBUTE_FIELD_LABELS } from "@/lib/demo-contract"
@@ -151,14 +152,22 @@ export function SchemaConfigurationForm({ schema, assignedProducts }: { schema: 
       </FieldBlock>
 
       <FieldBlock title="Mapped products" description="Products currently using this schema stay visible while the schema is configured.">
-        <div className="divide-y divide-slate-200 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="divide-y divide-slate-200">
           {assignedProducts.length > 0 ? assignedProducts.map((product) => (
-            <div key={product.id} className="grid gap-2 p-4 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div key={product.id} className="grid gap-3 py-4 first:pt-0 last:pb-0 lg:grid-cols-[1fr_auto_auto] lg:items-center">
               <div>
-                <p className="font-semibold text-slate-950">{product.title}</p>
+                <Link className="font-semibold text-slate-950 transition-colors hover:text-blue-700 hover:underline" href={`/products/${product.id}`}>
+                  {product.title}
+                </Link>
                 <p className="text-sm text-slate-600">{product.miraklProductId} · {product.categoryPath.join(" / ")}</p>
               </div>
               <Badge variant="outline">Score {product.qualityScore}/100</Badge>
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/products/${product.id}`}>
+                  Open product
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+              </Button>
             </div>
           )) : <p className="p-4 text-sm text-slate-600">No products are currently mapped to this schema.</p>}
         </div>

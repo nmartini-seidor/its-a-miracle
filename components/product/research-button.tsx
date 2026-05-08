@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { BotIcon, SparklesIcon } from "lucide-react"
+import { BotIcon, RefreshCwIcon, SparklesIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { beginResearchActivity, endResearchActivity } from "@/components/app/research-activity"
 import { cn } from "@/lib/utils"
@@ -63,8 +63,8 @@ export function ResearchButton({ productId }: { productId: string }) {
           pending && "animate-pulse",
         )}
       >
-        <BotIcon data-icon="inline-start" />
-        {pending ? "Researching" : "Run Research Agent"}
+        {pending ? <RefreshCwIcon data-icon="inline-start" className="animate-spin" /> : <BotIcon data-icon="inline-start" />}
+        {pending ? "Researching..." : "Run Research Agent"}
       </Button>
       {status && <p className="text-xs text-rose-700">{status}</p>}
     </div>

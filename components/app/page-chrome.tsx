@@ -51,7 +51,7 @@ export function MetricStrip({
   metrics,
   columns = "xl:grid-cols-4",
 }: {
-  metrics: { label: string; value: ReactNode; detail?: ReactNode; tone?: Tone }[]
+  metrics: { label: string; value: ReactNode; detail?: ReactNode; tone?: Tone; accessory?: ReactNode }[]
   columns?: string
 }) {
   return (
@@ -64,9 +64,9 @@ export function MetricStrip({
             metricSurfaceClassNames[index % metricSurfaceClassNames.length],
           )}
         >
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex min-h-5 items-center justify-between gap-3">
             <p className="text-xs font-medium text-slate-500">{metric.label}</p>
-            <span className={cn("size-2 rounded-full border", toneClassNames[metric.tone ?? "default"])} aria-hidden="true" />
+            {metric.accessory ?? <span className={cn("size-2 rounded-full border", toneClassNames[metric.tone ?? "default"])} aria-hidden="true" />}
           </div>
           <div className="flex items-end justify-between gap-3">
             <div className="font-mono text-2xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-3xl">{metric.value}</div>

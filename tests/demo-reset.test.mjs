@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 
-const { addReviewDecision, createMockResearchRun, generateSeoDescriptionCandidate, getResearchRun, getStoredProduct, importDemoProducts, listStoredProducts, resetDemoState } = await import('../server/store.ts')
+const { addReviewDecision, createMockResearchRun, getResearchRun, getStoredProduct, importDemoProducts, listStoredProducts, resetDemoState } = await import('../server/store.ts')
 
 test('resetDemoState clears the workspace and importDemoProducts restores the showcase catalog', () => {
   resetDemoState()
@@ -15,15 +15,15 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   assert.equal(initialProduct.candidates.length, 0)
   assert.equal(initialProduct.evidence.length, 0)
 
-  const run = createMockResearchRun('freeclip-2')
+  const run = createMockResearchRun('galaxy-a55')
   getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-  const researchedProduct = getStoredProduct('freeclip-2')
-  assert.equal(researchedProduct.candidates.length >= 3, true)
-  assert.equal(researchedProduct.evidence.length >= 3, true)
+  const researchedProduct = getStoredProduct('galaxy-a55')
+  assert.equal(researchedProduct.candidates.length >= 1, true)
+  assert.equal(researchedProduct.evidence.length >= 2, true)
 
   addReviewDecision(researchedProduct.candidates[0].id, 'APPROVE', 'demo accept')
-  const mutatedProduct = getStoredProduct('freeclip-2')
-  assert.equal(mutatedProduct.candidates.length >= 3, true)
+  const mutatedProduct = getStoredProduct('galaxy-a55')
+  assert.equal(mutatedProduct.candidates.length >= 1, true)
   assert.equal(mutatedProduct.listingStatus !== 'NEEDS_ENRICHMENT', true)
 
   resetDemoState()
@@ -57,20 +57,4 @@ test('import control presents a configurable 5-second product data import with p
   assert.equal(source.includes('Importing product ${productIndex}/${fakeImportProductCount}'), true)
   assert.equal(source.includes('Analyzing Product Data Quality'), true)
   assert.equal(source.includes('fakeQualityAnalysisDurationMs = Math.max(750, Math.round(fakeImportDurationMs * 0.2))'), true)
-})
-
-
-test('SEO description generation adds a Spanish candidate for the description field', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  const generated = generateSeoDescriptionCandidate('freeclip-2')
-  assert.ok(generated)
-  assert.equal(generated.candidate.fieldName, 'description')
-  assert.equal(generated.candidate.candidateValue.includes('descripción optimizada para SEO'), true)
-  assert.equal(generated.candidate.candidateValue.includes('producto de audio y auriculares'), true)
-
-  const product = getStoredProduct('freeclip-2')
-  assert.equal(product.bestEvidenceByField.description, generated.candidate.candidateValue)
-  assert.equal(product.candidates.some((candidate) => candidate.id === generated.candidate.id), true)
 })

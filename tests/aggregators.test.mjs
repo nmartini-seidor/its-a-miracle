@@ -14,6 +14,11 @@ function getAuthorityTierId(authorityScore) {
 test('aggregator definitions preserve a believable authority ladder', () => {
   const byId = new Map(aggregators.map((aggregator) => [aggregator.id, aggregator]))
 
+  assert.equal(byId.has('mirakl-imported-data'), false)
+  assert.equal([...byId.values()].some((aggregator) => aggregator.name === 'Mirakl imported data'), false)
+  assert.equal(aggregators.length >= 40, true)
+  assert.equal(Math.ceil(aggregators.length / 10) >= 4, true)
+
   assert.equal(byId.get('official-manufacturer')?.defaultConfidence, 'high')
   assert.equal(getAuthorityTierId(byId.get('official-manufacturer')?.authorityScore ?? 0), 'canonical-anchor')
 
@@ -70,6 +75,12 @@ test('aggregators overview is list-first and links to configuration pages', () =
 
   assert.equal(source.includes('Aggregator configuration'), true)
   assert.equal(source.includes('Why authority matters'), true)
+  assert.equal(source.includes('AGGREGATORS_PER_PAGE = 10'), true)
+  assert.equal(source.includes('visibleAggregatorRows'), true)
+  assert.equal(source.includes('getPageHref'), true)
+  assert.equal(source.includes('Previous'), true)
+  assert.equal(source.includes('Next'), true)
+  assert.equal(source.includes('Showing {pageStart + 1}-{Math.min(pageStart + AGGREGATORS_PER_PAGE, aggregatorRows.length)}'), true)
   assert.equal(source.includes('href={`/aggregators/${aggregator.id}`}'), true)
   assert.equal(source.includes('Provider authority matrix'), false)
   assert.equal(detailSource.includes('AggregatorConfigurationForm'), true)

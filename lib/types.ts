@@ -94,6 +94,7 @@ export interface ProductRecord {
   brand: string | null
   categoryPath: string[]
   schemaId: string
+  sourceUrl?: string
   listingStatus: ProductListingStatus
   qualityScore: number
   scoreBand: ProductScoreBand

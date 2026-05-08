@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import Image from "next/image"
 import Link from "next/link"
-import { ShieldCheckIcon, UserRoundIcon } from "lucide-react"
+import { UserRoundIcon } from "lucide-react"
 import { MobileNav } from "@/components/app/mobile-nav"
 import { TopNav } from "@/components/app/top-nav"
 import { cn } from "@/lib/utils"
@@ -30,15 +31,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <div className="mx-auto flex min-h-16 w-full max-w-[92rem] items-center justify-between gap-4">
               <Link
                 href="/"
-                className="group flex cursor-pointer items-center gap-3 rounded-2xl py-2 pr-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                aria-label="Home"
+                className="group flex h-16 cursor-pointer items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
               >
-                <div className="flex size-10 items-center justify-center rounded-xl bg-slate-950 text-white shadow-[0_12px_30px_rgba(15,23,42,0.18)] transition-transform duration-200 group-hover:-rotate-3">
-                  <ShieldCheckIcon className="size-4" />
-                </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-sm font-semibold tracking-[-0.02em] text-slate-950">Mirakl Control</span>
-                  <span className="text-xs font-medium text-slate-500">Enrichment desk</span>
-                </div>
+                <Image
+                  src="/data-harbor-logo.svg?v=full-crop-20260508"
+                  alt=""
+                  width={523}
+                  height={350}
+                  priority
+                  className="h-14 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                />
               </Link>
 
               <TopNav />

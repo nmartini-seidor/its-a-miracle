@@ -33,7 +33,7 @@ test('empty triage state offers direct catalog import only when no products exis
   assert.equal(source.includes('No products match this filter'), true)
   assert.equal(source.includes('Change the filter or run research to create candidates'), true)
   assert.equal(source.includes('No products imported yet'), true)
-  assert.equal(source.includes('Import the electronics catalog'), true)
+  assert.equal(source.includes('Import the MIRAKL catalog'), true)
   assert.equal(source.includes('actions="import"'), true)
   assert.equal(source.indexOf('No products match this filter') < source.indexOf('No products imported yet'), true)
 })
@@ -41,6 +41,14 @@ test('empty triage state offers direct catalog import only when no products exis
 test('triage sort controls use lucide icons for the priority options', () => {
   const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
 
+  assert.equal(source.includes('BoxesIcon'), true)
+  assert.equal(source.includes('ListChecksIcon'), true)
+  assert.equal(source.includes('StarIcon'), true)
+  assert.equal(source.includes('All products", Icon'), true)
+  assert.equal(source.includes('Needs enrichment", Icon'), true)
+  assert.equal(source.includes('Has candidates", Icon'), true)
+  assert.equal(source.includes('Hero product", Icon'), true)
+  assert.equal(source.includes('filter.Icon'), true)
   assert.equal(source.includes('ArrowDownWideNarrowIcon'), true)
   assert.equal(source.includes('TriangleAlertIcon'), true)
   assert.equal(source.includes('FolderTreeIcon'), true)

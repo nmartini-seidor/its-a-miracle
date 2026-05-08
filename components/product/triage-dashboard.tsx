@@ -1,7 +1,19 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowDownWideNarrowIcon, ArrowRightIcon, BotIcon, FolderTreeIcon, PackageXIcon, SparklesIcon, TriangleAlertIcon, type LucideIcon } from "lucide-react"
+import {
+  ArrowDownWideNarrowIcon,
+  ArrowRightIcon,
+  BotIcon,
+  BoxesIcon,
+  FolderTreeIcon,
+  ListChecksIcon,
+  PackageXIcon,
+  SparklesIcon,
+  StarIcon,
+  TriangleAlertIcon,
+  type LucideIcon,
+} from "lucide-react"
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { beginResearchActivity, endResearchActivity } from "@/components/app/research-activity"
@@ -16,11 +28,11 @@ import { filterProducts, sortProducts, type TriageFilterId, type TriageSortId } 
 import type { ProductRecord } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
-const filterOptions: { id: TriageFilterId; label: string }[] = [
-  { id: "all", label: "All products" },
-  { id: "needs-enrichment", label: "Needs enrichment" },
-  { id: "with-candidates", label: "Has candidates" },
-  { id: "hero-product", label: "Hero product" },
+const filterOptions: { id: TriageFilterId; label: string; Icon: LucideIcon; iconClassName: string }[] = [
+  { id: "all", label: "All products", Icon: BoxesIcon, iconClassName: "text-slate-500" },
+  { id: "needs-enrichment", label: "Needs enrichment", Icon: TriangleAlertIcon, iconClassName: "text-amber-500" },
+  { id: "with-candidates", label: "Has candidates", Icon: ListChecksIcon, iconClassName: "text-emerald-500" },
+  { id: "hero-product", label: "Hero product", Icon: StarIcon, iconClassName: "text-fuchsia-500" },
 ]
 
 const sortOptions: { id: TriageSortId; label: string; Icon: LucideIcon; iconClassName: string }[] = [
@@ -150,11 +162,17 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
 
       <div className="flex flex-col gap-3 px-1 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          {filterOptions.map((filter) => (
-            <Button key={filter.id} type="button" size="sm" variant={activeFilter === filter.id ? "default" : "outline"} disabled={!hasProducts} onClick={() => setActiveFilter(filter.id)}>
-              {filter.label}
-            </Button>
-          ))}
+          {filterOptions.map((filter) => {
+            const active = activeFilter === filter.id
+            const Icon = filter.Icon
+
+            return (
+              <Button key={filter.id} type="button" size="sm" variant={active ? "default" : "outline"} disabled={!hasProducts} onClick={() => setActiveFilter(filter.id)}>
+                <Icon className={cn("size-4", active ? "text-current" : filter.iconClassName)} aria-hidden="true" />
+                {filter.label}
+              </Button>
+            )
+          })}
         </div>
         <div className="flex flex-wrap items-center gap-2 xl:justify-end">
           {sortOptions.map((sort) => {
@@ -207,7 +225,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
                       </span>
                       <p className="font-semibold">No products imported yet</p>
                       <p className="max-w-none whitespace-nowrap text-sm leading-6 text-muted-foreground">
-                        Import the electronics catalog, then this triage queue will show scored products for review.
+                        Import the MIRAKL catalog, then this triage queue will show scored products for review.
                       </p>
                       <ResetWorkspaceButton compact actions="import" align="center" />
                     </div>
