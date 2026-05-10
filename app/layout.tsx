@@ -35,10 +35,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 className="group flex h-16 cursor-pointer items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
               >
                 <Image
-                  src="/data-harbor-logo.svg?v=full-crop-20260508"
+                  src="/data-harbor-logo.svg?v=wordmark-right-20260510"
                   alt=""
-                  width={523}
-                  height={350}
+                  width={1060}
+                  height={250}
                   priority
                   className="h-14 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
                 />

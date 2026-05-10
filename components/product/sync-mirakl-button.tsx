@@ -32,7 +32,7 @@ export function SyncMiraklButton({ productId, canSync = false }: { productId: st
         className="border border-blue-700 bg-blue-600 text-white shadow-[0_10px_22px_rgba(37,99,235,0.25)] hover:bg-blue-700 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
       >
         <RefreshCwIcon data-icon="inline-start" className={isSyncing ? "animate-spin" : undefined} />
-        {isSyncing ? "Syncing..." : "Sync with Mirakl"}
+        {isSyncing ? "Syncing..." : "Sync"}
       </Button>
       {status && <p className="max-w-72 text-right text-xs font-medium text-rose-700">{status}</p>}
     </div>
