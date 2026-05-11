@@ -1,0 +1,10 @@
+{
+  "name": "seidor-fullscreen-logo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx hyperframes preview",
+    "check": "npx hyperframes lint && npx hyperframes validate && npx hyperframes inspect --at 0.5,2.9,3.25,3.55,3.9,4.4,6.2,9.8",
+    "render": "npx hyperframes render --quality high --fps 24 --output renders/seidor-fullscreen-logo.mp4"
+  }
+}

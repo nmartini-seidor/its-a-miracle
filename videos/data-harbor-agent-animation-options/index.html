@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Harbor - Agent Animation Options</title>
+    <style>
+      :root {
+        --bg: #030407;
+        --dot: rgba(255, 255, 255, 0.12);
+        --dot-soft: rgba(255, 255, 255, 0.05);
+        --text: #f7f4eb;
+        --muted: rgba(247, 244, 235, 0.62);
+        --blue: #2563eb;
+        --cyan: #65d9ff;
+        --green: #8af5c7;
+        --amber: #ffd36b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(101, 217, 255, 0.08), transparent 28%),
+          radial-gradient(circle at 82% 78%, rgba(37, 99, 235, 0.10), transparent 30%),
+          radial-gradient(circle, var(--dot) 0 1.4px, transparent 1.6px),
+          radial-gradient(circle, var(--dot-soft) 0 1px, transparent 1.2px),
+          var(--bg);
+        background-size: auto, auto, 28px 28px, 84px 84px, auto;
+      }
+
+      #stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 90;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(3, 4, 7, 0.94), transparent 23%, transparent 78%, rgba(3, 4, 7, 0.86)),
+          linear-gradient(180deg, rgba(3, 4, 7, 0.76), transparent 24%, transparent 78%, rgba(3, 4, 7, 0.88));
+      }
+
+      .clip {
+        position: absolute;
+      }
+
+      .header {
+        left: 72px;
+        top: 54px;
+        z-index: 100;
+        width: 1776px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 38px;
+        line-height: 1;
+        font-weight: 760;
+        letter-spacing: 0;
+      }
+
+      .header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 18px;
+        font-weight: 560;
+      }
+
+      .option {
+        inset: 0;
+        z-index: 10;
+        padding: 128px 88px 72px;
+      }
+
+      .option-grid {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 540px 1120px;
+        gap: 70px;
+        align-items: center;
+      }
+
+      .copy-block {
+        position: relative;
+        height: 820px;
+        padding-top: 76px;
+      }
+
+      .eyebrow {
+        margin: 0 0 18px;
+        color: var(--cyan);
+        font-size: 16px;
+        line-height: 1;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .copy-block h2 {
+        margin: 0 0 24px;
+        max-width: 500px;
+        font-size: 72px;
+        line-height: 0.94;
+        font-weight: 780;
+        letter-spacing: 0;
+      }
+
+      .copy-block .description {
+        margin: 0;
+        max-width: 430px;
+        color: var(--muted);
+        font-size: 24px;
+        line-height: 1.22;
+        font-weight: 500;
+      }
+
+      .launch-card {
+        position: absolute;
+        left: 0;
+        bottom: 78px;
+        width: 470px;
+        min-height: 134px;
+        padding: 22px 24px;
+        border-radius: 20px;
+        border: 1px solid rgba(101, 217, 255, 0.28);
+        background:
+          linear-gradient(135deg, rgba(101, 217, 255, 0.16), rgba(37, 99, 235, 0.10)),
+          rgba(255, 255, 255, 0.052);
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.36),
+          0 0 44px rgba(101, 217, 255, 0.10),
+          inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        column-gap: 16px;
+        align-items: center;
+      }
+
+      .card-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        color: var(--cyan);
+        background: rgba(101, 217, 255, 0.12);
+        box-shadow: 0 0 36px rgba(101, 217, 255, 0.2);
+      }
+
+      .card-icon svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      .card-kicker {
+        margin: 0 0 8px;
+        color: rgba(101, 217, 255, 0.92);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 820;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card-copy {
+        margin: 0;
+        color: var(--text);
+        font-size: 27px;
+        line-height: 1.05;
+        font-weight: 720;
+      }
+
+      .motion-area {
+        position: relative;
+        width: 1120px;
+        height: 820px;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid rgba(247, 244, 235, 0.16);
+        background:
+          radial-gradient(circle at 48% 42%, rgba(101, 217, 255, 0.10), transparent 44%),
+          rgba(255, 255, 255, 0.036);
+        box-shadow: 0 48px 150px rgba(0, 0, 0, 0.48);
+      }
+
+      .motion-area::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
+          repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 7px);
+        opacity: 0.36;
+        mix-blend-mode: screen;
+      }
+
+      .network-svg {
+        position: absolute;
+        inset: 0;
+        width: 1120px;
+        height: 820px;
+        overflow: visible;
+      }
+
+      .line {
+        fill: none;
+        stroke: rgba(101, 217, 255, 0.60);
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 900;
+        filter: drop-shadow(0 0 12px rgba(101, 217, 255, 0.28));
+      }
+
+      .return-line {
+        stroke: rgba(138, 245, 199, 0.42);
+        stroke-dasharray: 9 12;
+      }
+
+      .agent-node,
+      .moving-agent,
+      .packet {
+        position: absolute;
+        left: calc(var(--x) * 1px - 39px);
+        top: calc(var(--y) * 1px - 39px);
+        width: 78px;
+        height: 78px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #bff0ff;
+        background:
+          radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.20), transparent 34%),
+          linear-gradient(145deg, rgba(37, 99, 235, 0.44), rgba(101, 217, 255, 0.16)),
+          rgba(4, 12, 26, 0.88);
+        border: 1px solid rgba(101, 217, 255, 0.34);
+        box-shadow:
+          0 22px 54px rgba(0, 0, 0, 0.34),
+          0 0 34px rgba(101, 217, 255, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      }
+
+      .moving-agent,
+      .packet {
+        left: -39px;
+        top: -39px;
+      }
+
+      .agent-node svg,
+      .moving-agent svg {
+        width: 36px;
+        height: 36px;
+      }
+
+      .packet {
+        width: 34px;
+        height: 34px;
+        left: -17px;
+        top: -17px;
+        color: var(--green);
+        background:
+          radial-gradient(circle, rgba(138, 245, 199, 0.70), rgba(101, 217, 255, 0.20) 48%, rgba(5, 14, 25, 0.92));
+        box-shadow: 0 0 34px rgba(138, 245, 199, 0.36);
+      }
+
+      .source-card,
+      .field-card {
+        position: absolute;
+        border-radius: 14px;
+        border: 1px solid rgba(247, 244, 235, 0.14);
+        background: rgba(7, 13, 24, 0.72);
+        box-shadow:
+          0 18px 50px rgba(0, 0, 0, 0.32),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+      }
+
+      .source-card {
+        left: calc(var(--x) * 1px - 88px);
+        top: calc(var(--y) * 1px + 54px);
+        width: 176px;
+        padding: 15px 16px;
+      }
+
+      .source-card strong,
+      .field-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text);
+        font-size: 17px;
+        line-height: 1;
+      }
+
+      .source-card span,
+      .field-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
+      .field-card {
+        left: calc(var(--x) * 1px - 90px);
+        top: calc(var(--y) * 1px - 34px);
+        width: 180px;
+        min-height: 68px;
+        padding: 14px 16px;
+      }
+
+      .field-card em {
+        display: inline-block;
+        margin-top: 7px;
+        color: var(--green);
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 820;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .chip-row {
+        position: absolute;
+        left: 352px;
+        bottom: 48px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .evidence-chip {
+        padding: 10px 13px;
+        border-radius: 14px;
+        border: 1px solid rgba(138, 245, 199, 0.22);
+        color: var(--green);
+        background: rgba(138, 245, 199, 0.07);
+        font-size: 13px;
+        font-weight: 780;
+        letter-spacing: 0.02em;
+      }
+
+      .hub-label {
+        position: absolute;
+        left: 70px;
+        top: 286px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 760;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .schema-panel {
+        position: absolute;
+        right: 58px;
+        top: 148px;
+        width: 324px;
+        padding: 22px;
+        border-radius: 18px;
+        border: 1px solid rgba(247, 244, 235, 0.14);
+        background: rgba(7, 13, 24, 0.72);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+      }
+
+      .schema-panel h3 {
+        margin: 0 0 18px;
+        font-size: 24px;
+        line-height: 1;
+      }
+
+      .schema-row {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .schema-value {
+        color: var(--green);
+        font-weight: 760;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="24">
+      <header id="header" class="clip header" data-start="0" data-duration="24" data-track-index="1">
+        <h1>Opciones corregidas de animación de agentes</h1>
+        <p>Geometría clara · líneas rectas · agentes conectados</p>
+      </header>
+
+      <section id="option-a" class="clip option option-a" data-start="1" data-duration="7" data-track-index="2">
+        <div class="option-grid">
+          <div class="copy-block">
+            <p class="eyebrow">Opción A</p>
+            <h2>Árbol ordenado</h2>
+            <p class="description">La acción crea un hub, el hub abre ramas rectas y cada agente queda conectado a una fuente concreta.</p>
+            <article class="launch-card">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none"><path d="M24 7v6m0 22v6M7 24h6m22 0h6" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M16 16h16v16H16z" stroke="currentColor" stroke-width="3.4"/><path d="M21 22h6m-6 5h10" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+              </div>
+              <div><p class="card-kicker">Paso 2</p><p class="card-copy">Revisa atributos y lanza agentes</p></div>
+            </article>
+          </div>
+          <div class="motion-area">
+            <p class="hub-label">Launch Agents</p>
+            <svg class="network-svg" viewBox="0 0 1120 820" aria-hidden="true">
+              <path class="line a-line" d="M150 350 H328" />
+              <path class="line a-line" d="M328 350 V194 H538" />
+              <path class="line a-line" d="M328 350 H594" />
+              <path class="line a-line" d="M328 350 V506 H538" />
+              <path class="line a-line" d="M594 350 V194 H802" />
+              <path class="line a-line" d="M594 350 V506 H802" />
+            </svg>
+            <div class="agent-node" style="--x:150; --y:350"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:328; --y:350"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:538; --y:194"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:594; --y:350"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:538; --y:506"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="source-card" style="--x:802; --y:194"><strong>Fabricante</strong><span>Ficha técnica oficial</span></div>
+            <div class="source-card" style="--x:802; --y:506"><strong>Operador</strong><span>Taxonomía y reglas</span></div>
+            <div class="chip-row"><div class="evidence-chip">EAN</div><div class="evidence-chip">Specs</div><div class="evidence-chip">SEO</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="option-b" class="clip option option-b" data-start="8" data-duration="8" data-track-index="2">
+        <div class="option-grid">
+          <div class="copy-block">
+            <p class="eyebrow">Opción B</p>
+            <h2>Agentes en ruta</h2>
+            <p class="description">Los agentes viajan sobre carriles rectos, llegan a sus fuentes y vuelven con paquetes de evidencia.</p>
+            <article class="launch-card">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none"><path d="M24 7v6m0 22v6M7 24h6m22 0h6" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M16 16h16v16H16z" stroke="currentColor" stroke-width="3.4"/><path d="M21 22h6m-6 5h10" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+              </div>
+              <div><p class="card-kicker">Paso 2</p><p class="card-copy">Revisa atributos y lanza agentes</p></div>
+            </article>
+          </div>
+          <div class="motion-area">
+            <p class="hub-label">3 agentes · 3 fuentes</p>
+            <svg class="network-svg" viewBox="0 0 1120 820" aria-hidden="true">
+              <path class="line b-line" d="M166 248 H820" />
+              <path class="line b-line" d="M166 410 H820" />
+              <path class="line b-line" d="M166 572 H820" />
+              <path class="line return-line b-return" d="M820 248 H292 V688 H930" />
+              <path class="line return-line b-return" d="M820 410 H400 V688 H930" />
+              <path class="line return-line b-return" d="M820 572 H508 V688 H930" />
+            </svg>
+            <div id="b-agent-1" class="moving-agent" data-layout-ignore><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div id="b-agent-2" class="moving-agent" data-layout-ignore><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div id="b-agent-3" class="moving-agent" data-layout-ignore><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="source-card" style="--x:820; --y:248"><strong>Marca</strong><span>Fuente oficial</span></div>
+            <div class="source-card" style="--x:820; --y:410"><strong>Marketplace</strong><span>Datos de categoría</span></div>
+            <div class="source-card" style="--x:820; --y:572"><strong>Retail</strong><span>Señal comparativa</span></div>
+            <div class="field-card" style="--x:930; --y:688"><strong>Producto enriquecido</strong><span>Campos listos para revisión</span><em>Mapeado</em></div>
+            <div id="b-packet-1" class="packet" data-layout-ignore></div>
+            <div id="b-packet-2" class="packet" data-layout-ignore></div>
+            <div id="b-packet-3" class="packet" data-layout-ignore></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="option-c" class="clip option option-c" data-start="16" data-duration="8" data-track-index="2">
+        <div class="option-grid">
+          <div class="copy-block">
+            <p class="eyebrow">Opción C</p>
+            <h2>De agentes a campos</h2>
+            <p class="description">Los agentes abren búsquedas paralelas y el resultado cae en campos estructurados con evidencia.</p>
+            <article class="launch-card">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none"><path d="M24 7v6m0 22v6M7 24h6m22 0h6" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/><path d="M16 16h16v16H16z" stroke="currentColor" stroke-width="3.4"/><path d="M21 22h6m-6 5h10" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+              </div>
+              <div><p class="card-kicker">Paso 2</p><p class="card-copy">Revisa atributos y lanza agentes</p></div>
+            </article>
+          </div>
+          <div class="motion-area">
+            <p class="hub-label">Búsqueda · evidencia · sincronización</p>
+            <svg class="network-svg" viewBox="0 0 1120 820" aria-hidden="true">
+              <path class="line c-line" d="M156 410 H308" />
+              <path class="line c-line" d="M308 410 V220 H510" />
+              <path class="line c-line" d="M308 410 H510" />
+              <path class="line c-line" d="M308 410 V600 H510" />
+              <path class="line return-line c-return" d="M510 220 H702 V268 H848" />
+              <path class="line return-line c-return" d="M510 410 H702 V410 H848" />
+              <path class="line return-line c-return" d="M510 600 H702 V552 H848" />
+            </svg>
+            <div class="agent-node" style="--x:156; --y:410"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:308; --y:410"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:510; --y:220"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:510; --y:410"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="agent-node" style="--x:510; --y:600"><svg viewBox="0 0 48 48" fill="none"><path d="M15 18h18v15H15z" stroke="currentColor" stroke-width="3"/><path d="M20 18v-5m8 5v-5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M21 25h.1M27 25h.1M20 31h8" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></div>
+            <div class="schema-panel">
+              <h3>Campos estructurados</h3>
+              <div class="schema-row"><span>EAN</span><span class="schema-value">Validado</span></div>
+              <div class="schema-row"><span>Título</span><span class="schema-value">Optimizado</span></div>
+              <div class="schema-row"><span>Specs</span><span class="schema-value">Actualizadas</span></div>
+              <div class="schema-row"><span>SEO</span><span class="schema-value">Mejorado</span></div>
+              <div class="schema-row"><span>Evidencia</span><span class="schema-value">Adjunta</span></div>
+            </div>
+            <div id="c-packet-1" class="packet" data-layout-ignore></div>
+            <div id="c-packet-2" class="packet" data-layout-ignore></div>
+            <div id="c-packet-3" class="packet" data-layout-ignore></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@4.0.2/lib/anime.iife.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+      window.__hfAnime = window.__hfAnime || [];
+
+      const { createTimeline, stagger, svg } = anime;
+      const tl = createTimeline({ autoplay: false, defaults: { ease: "out(3)" } });
+      const sec = (value) => value * 1000;
+
+      function intro(scene, start) {
+        tl.add(`${scene} .eyebrow`, { opacity: [0, 1], y: [18, 0], duration: 380 }, sec(start + 0.08));
+        tl.add(`${scene} h2`, { opacity: [0, 1], y: [34, 0], duration: 620 }, sec(start + 0.18));
+        tl.add(`${scene} .description`, { opacity: [0, 1], y: [20, 0], duration: 480 }, sec(start + 0.38));
+        tl.add(`${scene} .launch-card`, { opacity: [0, 1], y: [22, 0], scale: [0.98, 1], duration: 480 }, sec(start + 0.5));
+        tl.add(`${scene} .motion-area`, { opacity: [0, 1], x: [70, 0], scale: [0.99, 1], duration: 700 }, sec(start + 0.16));
+      }
+
+      function move(target, from, to, start, duration, delay = 0) {
+        tl.add(target, {
+          opacity: [0, 1, 1],
+          translateX: [from[0], to[0]],
+          translateY: [from[1], to[1]],
+          duration,
+          delay,
+          ease: "inOut(2)",
+        }, sec(start));
+      }
+
+      intro("#option-a", 1);
+      tl.add(svg.createDrawable("#option-a .line"), { draw: ["0 0", "0 1"], duration: 920, delay: stagger(95), ease: "inOut(2)" }, sec(1.95));
+      tl.add("#option-a .agent-node", { opacity: [0, 1], scale: [0.28, 1], duration: 430, delay: stagger(120), ease: "outBack(2)" }, sec(2.12));
+      tl.add("#option-a .source-card", { opacity: [0, 1], y: [16, 0], duration: 420, delay: stagger(160) }, sec(3.15));
+      tl.add("#option-a .evidence-chip", { opacity: [0, 1], y: [18, 0], scale: [0.9, 1], duration: 360, delay: stagger(90) }, sec(4.45));
+      tl.add("#option-a .agent-node", { scale: [1, 1.08, 1], duration: 620, delay: stagger(70), ease: "inOutSine" }, sec(5.08));
+
+      intro("#option-b", 8);
+      tl.add(svg.createDrawable("#option-b .b-line"), { draw: ["0 0", "0 1"], duration: 760, delay: stagger(90), ease: "inOut(2)" }, sec(8.95));
+      tl.add("#option-b .source-card", { opacity: [0, 1], x: [20, 0], duration: 380, delay: stagger(120) }, sec(9.45));
+      move("#b-agent-1", [166, 248], [820, 248], 9.25, 1450, 0);
+      move("#b-agent-2", [166, 410], [820, 410], 9.25, 1450, 160);
+      move("#b-agent-3", [166, 572], [820, 572], 9.25, 1450, 320);
+      tl.add(svg.createDrawable("#option-b .b-return"), { draw: ["0 0", "0 1"], duration: 720, delay: stagger(110), ease: "inOut(2)" }, sec(11.15));
+      move("#b-packet-1", [820, 248], [930, 688], 11.28, 1200, 0);
+      move("#b-packet-2", [820, 410], [930, 688], 11.28, 1200, 140);
+      move("#b-packet-3", [820, 572], [930, 688], 11.28, 1200, 280);
+      tl.add("#option-b .field-card", { opacity: [0, 1], scale: [0.94, 1], duration: 460 }, sec(12.35));
+
+      intro("#option-c", 16);
+      tl.add(svg.createDrawable("#option-c .c-line"), { draw: ["0 0", "0 1"], duration: 800, delay: stagger(95), ease: "inOut(2)" }, sec(16.95));
+      tl.add("#option-c .agent-node", { opacity: [0, 1], scale: [0.25, 1], duration: 420, delay: stagger(115), ease: "outBack(2)" }, sec(17.16));
+      tl.add(svg.createDrawable("#option-c .c-return"), { draw: ["0 0", "0 1"], duration: 760, delay: stagger(110), ease: "inOut(2)" }, sec(18.65));
+      move("#c-packet-1", [510, 220], [848, 268], 18.86, 900, 0);
+      move("#c-packet-2", [510, 410], [848, 410], 18.86, 900, 170);
+      move("#c-packet-3", [510, 600], [848, 552], 18.86, 900, 340);
+      tl.add(".schema-panel", { opacity: [0, 1], x: [34, 0], duration: 500 }, sec(19.2));
+      tl.add(".schema-row", { opacity: [0, 1], x: [22, 0], duration: 340, delay: stagger(110) }, sec(19.7));
+      tl.add(".schema-value", { color: ["rgba(247,244,235,.62)", "#8af5c7"], duration: 460, delay: stagger(120) }, sec(20.45));
+
+      window.__hfAnime.push(tl);
+    </script>
+  </body>
+</html>

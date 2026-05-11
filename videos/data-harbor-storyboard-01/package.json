@@ -1,0 +1,10 @@
+{
+  "name": "data-harbor-storyboard-01",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx hyperframes preview",
+    "check": "npx hyperframes lint && npx hyperframes validate && npx hyperframes inspect --at 1,4,8.5",
+    "render": "npx hyperframes render --quality high --fps 30 --output renders/storyboard-01.mp4"
+  }
+}

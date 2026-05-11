@@ -1,0 +1,10 @@
+{
+  "name": "data-harbor-agent-animation-options",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx hyperframes preview",
+    "check": "npx hyperframes lint && npx hyperframes validate && npx hyperframes inspect --at 1,2.4,5.2,8.4,11.8,16.4,20.4,23.2",
+    "render": "npx hyperframes render --quality high --fps 30 --output renders/agent-animation-options.mp4"
+  }
+}

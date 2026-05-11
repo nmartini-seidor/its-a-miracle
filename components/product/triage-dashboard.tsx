@@ -225,7 +225,7 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
                       </span>
                       <p className="font-semibold">No products imported yet</p>
                       <p className="max-w-none whitespace-nowrap text-sm leading-6 text-muted-foreground">
-                        Import the MIRAKL catalog, then this triage queue will show scored products for review.
+                        Import the Product catalog, then this triage queue will show scored products for review.
                       </p>
                       <ResetWorkspaceButton compact actions="import" align="center" />
                     </div>

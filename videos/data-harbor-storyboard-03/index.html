@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Harbor - Storyboard 03</title>
+    <style>
+      :root {
+        --bg: #030407;
+        --dot: rgba(255, 255, 255, 0.12);
+        --dot-soft: rgba(255, 255, 255, 0.05);
+        --text: #f7f4eb;
+        --muted: rgba(247, 244, 235, 0.62);
+        --blue: #2563eb;
+        --cyan: #65d9ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.08), transparent 28%),
+          radial-gradient(circle at 82% 78%, rgba(255, 255, 255, 0.06), transparent 30%),
+          radial-gradient(circle, var(--dot) 0 1.4px, transparent 1.6px),
+          radial-gradient(circle, var(--dot-soft) 0 1px, transparent 1.2px),
+          var(--bg);
+        background-size: auto, auto, 28px 28px, 84px 84px, auto;
+      }
+
+      #stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(3, 4, 7, 0.96), transparent 25%, transparent 74%, rgba(3, 4, 7, 0.78)),
+          linear-gradient(180deg, rgba(3, 4, 7, 0.86), transparent 22%, transparent 76%, rgba(3, 4, 7, 0.9));
+      }
+
+      .clip {
+        position: absolute;
+      }
+
+      .brand-lockup {
+        left: 470px;
+        top: 348px;
+        z-index: 30;
+        width: 980px;
+        height: 210px;
+        transform-origin: center center;
+      }
+
+      .intro-word {
+        left: 0;
+        top: 230px;
+        z-index: 31;
+        width: 1920px;
+        margin: 0;
+        color: var(--text);
+        font-size: 88px;
+        line-height: 1;
+        font-weight: 620;
+        letter-spacing: 0;
+        text-align: center;
+      }
+
+      .logo-plate {
+        width: 980px;
+        padding: 0;
+        background: transparent;
+        filter:
+          drop-shadow(0 32px 80px rgba(0, 0, 0, 0.46))
+          drop-shadow(0 0 34px rgba(101, 217, 255, 0.24));
+      }
+
+      .logo-plate img {
+        display: block;
+        width: 100%;
+      }
+
+      .side-caption {
+        left: 88px;
+        top: 354px;
+        z-index: 30;
+        width: 432px;
+        color: var(--muted);
+        font-size: 28px;
+        line-height: 1.18;
+        font-weight: 460;
+      }
+
+      .step-card {
+        left: 88px;
+        top: 510px;
+        z-index: 30;
+        width: 386px;
+        min-height: 130px;
+        padding: 20px 22px;
+        border-radius: 20px;
+        border: 1px solid rgba(101, 217, 255, 0.22);
+        background:
+          linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(255, 255, 255, 0.055)),
+          rgba(255, 255, 255, 0.045);
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.34),
+          inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(12px);
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        column-gap: 16px;
+        align-items: center;
+      }
+
+      .step-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        color: var(--cyan);
+        background: rgba(101, 217, 255, 0.12);
+        box-shadow: 0 0 36px rgba(101, 217, 255, 0.2);
+      }
+
+      .step-icon svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      .step-kicker {
+        margin: 0 0 7px;
+        color: rgba(101, 217, 255, 0.92);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 820;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .step-card p.step-copy {
+        margin: 0;
+        color: var(--text);
+        font-size: 23px;
+        line-height: 1.12;
+        font-weight: 640;
+        letter-spacing: 0;
+      }
+
+      .video-shell {
+        right: 24px;
+        top: 112px;
+        z-index: 25;
+        width: 1356px;
+        height: 763px;
+        border: 1px solid rgba(247, 244, 235, 0.22);
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.045);
+        box-shadow: 0 48px 150px rgba(0, 0, 0, 0.56);
+        overflow: hidden;
+      }
+
+      .product-video,
+      .agents-video,
+      .catalog-video {
+        right: 24px;
+        top: 112px;
+        z-index: 26;
+        width: 1356px;
+        height: 763px;
+        border: 1px solid rgba(247, 244, 235, 0.22);
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.045);
+        box-shadow: 0 48px 150px rgba(0, 0, 0, 0.56);
+        object-fit: cover;
+        overflow: hidden;
+      }
+
+      .agents-video {
+        z-index: 28;
+      }
+
+      .catalog-video {
+        z-index: 28;
+      }
+
+      .scan-light {
+        right: 24px;
+        top: 112px;
+        z-index: 29;
+        width: 1356px;
+        height: 763px;
+        border-radius: 30px;
+        pointer-events: none;
+        opacity: 0;
+        background: linear-gradient(100deg, transparent 0 42%, rgba(255, 255, 255, 0.18) 49%, transparent 58% 100%);
+        mix-blend-mode: screen;
+      }
+
+      .agents-card {
+        left: 88px;
+        top: 660px;
+        z-index: 31;
+        width: 386px;
+        min-height: 130px;
+        padding: 20px 22px;
+        border-radius: 20px;
+        border: 1px solid rgba(101, 217, 255, 0.28);
+        background:
+          linear-gradient(135deg, rgba(101, 217, 255, 0.16), rgba(37, 99, 235, 0.10)),
+          rgba(255, 255, 255, 0.052);
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.36),
+          0 0 44px rgba(101, 217, 255, 0.10),
+          inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        column-gap: 16px;
+        align-items: center;
+      }
+
+      .agents-card p {
+        margin: 0;
+      }
+
+      .agents-kicker {
+        color: rgba(101, 217, 255, 0.92);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 820;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .agents-copy {
+        color: var(--text);
+        font-size: 23px;
+        line-height: 1.12;
+        font-weight: 640;
+        letter-spacing: 0;
+      }
+
+      .sync-card {
+        left: 88px;
+        top: 810px;
+        z-index: 31;
+        width: 386px;
+        min-height: 130px;
+        padding: 20px 22px;
+        border-radius: 20px;
+        border: 1px solid rgba(92, 242, 168, 0.28);
+        background:
+          linear-gradient(135deg, rgba(92, 242, 168, 0.14), rgba(101, 217, 255, 0.09)),
+          rgba(255, 255, 255, 0.052);
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.36),
+          0 0 44px rgba(92, 242, 168, 0.09),
+          inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        column-gap: 16px;
+        align-items: center;
+      }
+
+      .sync-card p {
+        margin: 0;
+      }
+
+      .sync-card .step-icon {
+        color: #5cf2a8;
+        background: rgba(92, 242, 168, 0.12);
+        box-shadow: 0 0 36px rgba(92, 242, 168, 0.18);
+      }
+
+      .sync-kicker {
+        color: rgba(92, 242, 168, 0.94);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 820;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .sync-copy {
+        color: var(--text);
+        font-size: 23px;
+        line-height: 1.12;
+        font-weight: 640;
+        letter-spacing: 0;
+      }
+
+      .feature-card {
+        left: 88px;
+        z-index: 31;
+        width: 386px;
+        min-height: 130px;
+        padding: 20px 22px;
+        border-radius: 20px;
+        border: 1px solid rgba(101, 217, 255, 0.26);
+        background:
+          linear-gradient(135deg, rgba(101, 217, 255, 0.15), rgba(255, 255, 255, 0.055)),
+          rgba(255, 255, 255, 0.052);
+        box-shadow:
+          0 30px 90px rgba(0, 0, 0, 0.36),
+          0 0 44px rgba(101, 217, 255, 0.09),
+          inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(12px);
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        column-gap: 16px;
+        align-items: center;
+      }
+
+      .feature-card p {
+        margin: 0;
+      }
+
+      .feature-card .step-icon {
+        color: var(--cyan);
+        background: rgba(101, 217, 255, 0.12);
+        box-shadow: 0 0 36px rgba(101, 217, 255, 0.18);
+      }
+
+      .feature-copy {
+        color: var(--text);
+        font-size: 22px;
+        line-height: 1.12;
+        font-weight: 660;
+        letter-spacing: 0;
+      }
+
+      .config-card {
+        top: 510px;
+      }
+
+      .schema-card {
+        top: 660px;
+      }
+
+      .source-card {
+        top: 810px;
+        border-color: rgba(92, 242, 168, 0.28);
+        background:
+          linear-gradient(135deg, rgba(92, 242, 168, 0.13), rgba(101, 217, 255, 0.08)),
+          rgba(255, 255, 255, 0.052);
+      }
+
+      .source-card .step-icon {
+        color: #5cf2a8;
+        background: rgba(92, 242, 168, 0.12);
+        box-shadow: 0 0 36px rgba(92, 242, 168, 0.16);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="60.2">
+      <p id="intro-word" class="clip intro-word" data-start="0" data-duration="60.2" data-track-index="1">Presentando...</p>
+
+      <div id="brand-lockup" class="clip brand-lockup" data-start="0" data-duration="60.2" data-track-index="2">
+        <div class="logo-plate">
+          <img src="assets/data-harbor-logo.svg" alt="Data Harbor" />
+        </div>
+      </div>
+
+      <p id="side-caption" class="clip side-caption" data-start="0" data-duration="60.2" data-track-index="3">
+        Enriquecimiento automatizado de productos con evidencia lista para aprobar.
+      </p>
+
+      <article id="step-card" class="clip step-card" data-start="0" data-duration="41.1" data-track-index="4">
+        <div class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M12 14h24v20H12z" stroke="currentColor" stroke-width="3.5" />
+            <path d="M18 14c0-5 2.5-8 6-8s6 3 6 8" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" />
+            <path d="M35 31l6-6m0 0l-6-6m6 6H25" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div>
+          <p class="step-kicker">Paso 1</p>
+          <p class="step-copy">Conecta tu catálogo e importa tus productos</p>
+        </div>
+      </article>
+
+      <article id="agents-card" class="clip agents-card" data-start="17.82" data-duration="23.28" data-track-index="8">
+        <div class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M24 7v6m0 22v6M7 24h6m22 0h6" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
+            <path d="M16 16h16v16H16z" stroke="currentColor" stroke-width="3.4" />
+            <path d="M21 22h6m-6 5h10" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <p class="agents-kicker">Paso 2</p>
+          <p class="agents-copy">Lanza agentes y revisa atributos</p>
+        </div>
+      </article>
+
+      <article id="sync-card" class="clip sync-card" data-start="25.4" data-duration="15.7" data-track-index="9">
+        <div class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M35.5 16.5A14 14 0 0 0 12 19" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
+            <path d="M35.5 16.5h-9m9 0v-9" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12.5 31.5A14 14 0 0 0 36 29" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
+            <path d="M12.5 31.5h9m-9 0v9" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div>
+          <p class="sync-kicker">Paso 3</p>
+          <p class="sync-copy">Sincroniza los cambios</p>
+        </div>
+      </article>
+
+      <article id="config-card" class="clip feature-card config-card" data-start="41.35" data-duration="18.85" data-track-index="11">
+        <div class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M10 16h28M10 32h28" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
+            <path d="M18 10v12M30 26v12" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" />
+            <circle cx="18" cy="16" r="5" stroke="currentColor" stroke-width="3.4" />
+            <circle cx="30" cy="32" r="5" stroke="currentColor" stroke-width="3.4" />
+          </svg>
+        </div>
+        <div>
+          <p class="feature-copy">Configura tu catálogo</p>
+        </div>
+      </article>
+
+      <article id="schema-card" class="clip feature-card schema-card" data-start="45.4" data-duration="14.8" data-track-index="12">
+        <div class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M10 10h12v12H10zM26 10h12v12H26zM10 26h12v12H10zM26 26h12v12H26z" stroke="currentColor" stroke-width="3.2" />
+            <path d="M16 16h1M32 16h1M16 32h1M32 32h1" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <p class="feature-copy">Schemas preconfigurados por tipo de producto</p>
+        </div>
+      </article>
+
+      <article id="source-card" class="clip feature-card source-card" data-start="49.55" data-duration="10.65" data-track-index="13">
+        <div class="step-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <circle cx="14" cy="15" r="5" stroke="currentColor" stroke-width="3.2" />
+            <circle cx="34" cy="15" r="5" stroke="currentColor" stroke-width="3.2" />
+            <circle cx="24" cy="34" r="6" stroke="currentColor" stroke-width="3.2" />
+            <path d="M18.5 18.5l3.8 9.3M29.5 18.5l-3.8 9.3" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <p class="feature-copy">Agregadores para extraer información con datos de origen</p>
+        </div>
+      </article>
+
+      <div id="video-shell" class="clip video-shell" data-start="0" data-duration="60.2" data-track-index="5"></div>
+      <video id="product-video" class="clip product-video" data-start="2.35" data-duration="15.466667" data-track-index="6" data-has-audio="false" muted src="assets/03-2x-keyframed.mp4"></video>
+      <video id="agents-video" class="clip agents-video" data-start="17.82" data-duration="23.266016" data-track-index="7" data-has-audio="false" muted src="assets/04-agents-new-1p5x-keyframed.mp4"></video>
+      <video id="catalog-video" class="clip catalog-video" data-start="41.1" data-duration="19.033333" data-track-index="14" data-has-audio="false" muted src="assets/05-catalog-more-1p5x-keyframed.mp4"></video>
+      <div id="scan-light" class="clip scan-light" data-start="0" data-duration="60.2" data-track-index="10" data-layout-ignore></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+      tl.from("#intro-word", { y: 36, opacity: 0, duration: 0.62 }, 0.4);
+      tl.from("#brand-lockup .logo-plate", { y: 46, opacity: 0, scale: 0.94, duration: 0.74 }, 0.78);
+      tl.to("#intro-word", { y: -24, opacity: 0, duration: 0.38, ease: "power2.in" }, 1.25);
+      tl.to("#brand-lockup", { left: 88, top: 238, width: 370, height: 112, scale: 1, duration: 0.92, ease: "expo.inOut" }, 1.78);
+      tl.to("#brand-lockup .logo-plate", { width: 370, duration: 0.92, ease: "expo.inOut" }, 1.78);
+      tl.from("#side-caption", { y: 24, opacity: 0, duration: 0.52 }, 2.58);
+      tl.from("#step-card", { y: 24, opacity: 0, scale: 0.98, duration: 0.52 }, 2.82);
+      tl.from("#video-shell", { x: 106, opacity: 0, scale: 0.975, duration: 0.76 }, 1.95);
+      tl.from("#product-video", { x: 76, opacity: 0, scale: 1.035, duration: 0.66 }, 2.35);
+      tl.fromTo("#scan-light", { x: -520, opacity: 0 }, { x: 520, opacity: 1, duration: 0.72, ease: "power2.out" }, 3.05);
+      tl.to("#scan-light", { opacity: 0, duration: 0.3 }, 3.82);
+      tl.to("#product-video", { opacity: 0, duration: 0.34, ease: "power2.inOut" }, 17.72);
+      tl.from("#agents-video", { opacity: 0, scale: 1.015, duration: 0.48, ease: "power2.out" }, 17.82);
+      tl.fromTo("#scan-light", { x: -620, opacity: 0 }, { x: 620, opacity: 1, duration: 0.56, ease: "power2.out" }, 17.72);
+      tl.to("#scan-light", { opacity: 0, duration: 0.24 }, 18.3);
+      tl.from("#agents-card", { y: 24, opacity: 0, scale: 0.98, duration: 0.5 }, 18.02);
+      tl.from("#sync-card", { y: 24, opacity: 0, scale: 0.98, duration: 0.5 }, 25.4);
+      tl.to("#step-card, #agents-card, #sync-card", { y: -18, opacity: 0, duration: 0.36, ease: "power2.inOut" }, 40.62);
+      tl.set("#step-card, #agents-card, #sync-card", { opacity: 0, display: "none" }, 41.05);
+      tl.to("#agents-video", { opacity: 0, duration: 0.34, ease: "power2.inOut" }, 41.0);
+      tl.set("#agents-video", { opacity: 0 }, 41.35);
+      tl.from("#catalog-video", { opacity: 0, scale: 1.015, duration: 0.48, ease: "power2.out" }, 41.1);
+      tl.fromTo("#scan-light", { x: -620, opacity: 0 }, { x: 620, opacity: 1, duration: 0.56, ease: "power2.out" }, 40.98);
+      tl.to("#scan-light", { opacity: 0, duration: 0.24 }, 41.56);
+      tl.from("#config-card", { y: 24, opacity: 0, scale: 0.98, duration: 0.5 }, 41.35);
+      tl.from("#schema-card", { y: 24, opacity: 0, scale: 0.98, duration: 0.5 }, 45.4);
+      tl.from("#source-card", { y: 24, opacity: 0, scale: 0.98, duration: 0.5 }, 49.55);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

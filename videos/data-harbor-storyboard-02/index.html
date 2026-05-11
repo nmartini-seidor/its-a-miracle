@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Harbor - Storyboard 02</title>
+    <style>
+      :root {
+        --bg: #030407;
+        --dot: rgba(255, 255, 255, 0.12);
+        --dot-soft: rgba(255, 255, 255, 0.05);
+        --text: #f7f4eb;
+        --muted: rgba(247, 244, 235, 0.64);
+        --soft: rgba(247, 244, 235, 0.1);
+        --accent: #ffffff;
+        --bad: #ff5f5a;
+        --warn: #f6c15f;
+        --good: #63d6b2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 16% 22%, rgba(255, 255, 255, 0.08), transparent 28%),
+          radial-gradient(circle at 84% 64%, rgba(255, 255, 255, 0.07), transparent 32%),
+          radial-gradient(circle, var(--dot) 0 1.4px, transparent 1.6px),
+          radial-gradient(circle, var(--dot-soft) 0 1px, transparent 1.2px),
+          var(--bg);
+        background-size: auto, auto, 28px 28px, 84px 84px, auto;
+      }
+
+      #stage::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(3, 4, 7, 0.96), transparent 24%, transparent 72%, rgba(3, 4, 7, 0.78)),
+          linear-gradient(180deg, rgba(3, 4, 7, 0.86), transparent 22%, transparent 76%, rgba(3, 4, 7, 0.9));
+      }
+
+      .clip {
+        position: absolute;
+      }
+
+      .money-cloud {
+        inset: 0;
+        z-index: 24;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .money-cloud i {
+        position: absolute;
+        width: 72px;
+        height: 96px;
+        display: block;
+        font-style: normal;
+      }
+
+      .money-cloud i::before {
+        content: "$";
+        color: rgba(246, 193, 95, 0.18);
+        font-size: 96px;
+        line-height: 1;
+        font-weight: 800;
+        filter: blur(0.3px);
+      }
+
+      .headline {
+        left: 88px;
+        top: 138px;
+        z-index: 30;
+        width: 820px;
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--text);
+        font-size: 92px;
+        line-height: 0.96;
+        font-weight: 650;
+        letter-spacing: 0;
+      }
+
+      .metrics {
+        left: 88px;
+        top: 500px;
+        z-index: 30;
+        width: 920px;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        column-gap: 26px;
+      }
+
+      .metric {
+        position: relative;
+        min-height: 250px;
+        display: grid;
+        grid-template-rows: 50px 52px 66px 32px;
+        align-items: end;
+      }
+
+      .icon {
+        width: 48px;
+        height: 48px;
+        color: var(--text);
+      }
+
+      .label {
+        min-height: 42px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.05;
+        font-weight: 760;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: end;
+      }
+
+      .number {
+        display: block;
+        color: var(--text);
+        font-size: 66px;
+        line-height: 0.9;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .fields .number-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: flex-end;
+      }
+
+      .growth-arrow {
+        position: absolute;
+        left: 148px;
+        top: 148px;
+        width: 36px;
+        height: 36px;
+        color: var(--good);
+        filter: drop-shadow(0 0 18px rgba(99, 214, 178, 0.55));
+        opacity: 0;
+      }
+
+      .quality .number {
+        color: var(--bad);
+      }
+
+      .hours .number {
+        color: var(--warn);
+      }
+
+      .spark {
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent), transparent);
+        transform-origin: left center;
+      }
+
+      .hidden-cost {
+        left: 88px;
+        top: 782px;
+        z-index: 30;
+        width: 860px;
+        color: rgba(247, 244, 235, 0.76);
+        font-size: 34px;
+        line-height: 1.12;
+        font-weight: 540;
+      }
+
+      .issue-stack {
+        right: 108px;
+        top: 142px;
+        z-index: 30;
+        width: 720px;
+        height: 680px;
+      }
+
+      .issue-card {
+        position: absolute;
+        width: 520px;
+        min-height: 170px;
+        padding: 30px 34px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 36px 120px rgba(0, 0, 0, 0.34);
+        backdrop-filter: blur(12px);
+      }
+
+      .issue-card.one {
+        right: 54px;
+        top: 54px;
+        transform: rotate(3deg);
+      }
+
+      .issue-card.two {
+        left: 18px;
+        top: 254px;
+        transform: rotate(-4deg);
+      }
+
+      .issue-card.three {
+        right: 14px;
+        top: 454px;
+        transform: rotate(2deg);
+      }
+
+      .issue-card .status {
+        display: inline-flex;
+        align-items: center;
+        height: 34px;
+        padding: 0 13px;
+        margin-bottom: 24px;
+        border-radius: 999px;
+        background: rgba(255, 95, 90, 0.18);
+        color: #ff918d;
+        font-size: 14px;
+        font-weight: 820;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .issue-card h2 {
+        margin: 0;
+        color: var(--text);
+        font-size: 36px;
+        line-height: 1;
+        font-weight: 720;
+        letter-spacing: 0;
+      }
+
+      .issue-card .line {
+        height: 6px;
+        margin-top: 28px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.86) var(--w), rgba(255, 255, 255, 0.12) var(--w));
+      }
+
+      .seidor-logo {
+        right: 88px;
+        bottom: 70px;
+        z-index: 30;
+        width: 138px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+      }
+
+      .seidor-logo img {
+        width: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="10">
+      <div id="money-cloud" class="clip money-cloud" data-start="0" data-duration="10" data-track-index="0" data-layout-ignore aria-hidden="true">
+        <i style="left: 132px; top: 642px"></i>
+        <i style="left: 348px; top: 724px"></i>
+        <i style="left: 610px; top: 656px"></i>
+        <i style="left: 838px; top: 724px"></i>
+        <i style="left: 1016px; top: 612px"></i>
+      </div>
+
+      <div id="headline" class="clip headline" data-start="0" data-duration="10" data-track-index="1">
+        <h1>El enriquecimiento manual no escala.</h1>
+      </div>
+
+      <div id="metrics" class="clip metrics" data-start="0" data-duration="10" data-track-index="2">
+        <div class="metric products">
+          <svg class="icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M14 18h36v32H14z" stroke="currentColor" stroke-width="4" />
+            <path d="M22 18c0-7 4-11 10-11s10 4 10 11" stroke="currentColor" stroke-width="4" />
+          </svg>
+          <p class="label">Productos</p>
+          <span class="number" id="products-value">0</span>
+          <div class="spark"></div>
+        </div>
+        <div class="metric fields">
+          <svg class="icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M13 15h38M13 32h38M13 49h38" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+            <path d="M23 8v48M41 8v48" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".55" />
+          </svg>
+          <p class="label">Campos</p>
+          <span class="number-wrap">
+            <span class="number" id="fields-value">0</span>
+          </span>
+          <svg id="field-growth-arrow" class="growth-arrow" viewBox="0 0 40 40" fill="none" aria-hidden="true" data-layout-ignore>
+            <path d="M8 27l8-8 6 6 10-16" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M25 9h7v7" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div class="spark"></div>
+        </div>
+        <div class="metric hours">
+          <svg class="icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <circle cx="32" cy="32" r="21" stroke="currentColor" stroke-width="4" />
+            <path d="M32 18v16l11 7" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M18 8l-7 7M46 8l7 7" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".55" />
+          </svg>
+          <p class="label">Horas manuales</p>
+          <span class="number" id="hours-value">0</span>
+          <div class="spark"></div>
+        </div>
+        <div class="metric quality">
+          <svg class="icon" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M12 44l12-12 10 9 18-22" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12 52h40" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".55" />
+          </svg>
+          <p class="label">Calidad del catálogo</p>
+          <span class="number"><span id="quality-value">96</span>%</span>
+          <div class="spark"></div>
+        </div>
+      </div>
+
+      <div id="hidden-cost" class="clip hidden-cost" data-start="0" data-duration="10" data-track-index="4">
+        El coste oculto del mantenimiento del catálogo crece con cada revisión manual.
+      </div>
+
+      <div id="issue-stack" class="clip issue-stack" data-start="0" data-duration="10" data-track-index="3">
+        <article class="issue-card one">
+          <span class="status">Bloquea ventas</span>
+          <h2>EAN faltante</h2>
+          <div class="line" style="--w: 38%"></div>
+        </article>
+        <article class="issue-card two">
+          <span class="status" style="background: rgba(246, 193, 95, 0.18); color: #ffd687">Reduce conversión</span>
+          <h2>Baja calidad SEO</h2>
+          <div class="line" style="--w: 54%"></div>
+        </article>
+        <article class="issue-card three">
+          <span class="status" style="background: rgba(99, 214, 178, 0.16); color: #9bf1d4">Genera retrabajo</span>
+          <h2>Especificaciones antiguas</h2>
+          <div class="line" style="--w: 72%"></div>
+        </article>
+      </div>
+
+      <div id="seidor-logo" class="clip seidor-logo" data-start="0" data-duration="10" data-track-index="8">
+        <img src="assets/seidor.svg" alt="SEIDOR" />
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+      const values = { products: 0, fields: 0, hours: 0, quality: 96 };
+      const productsEl = document.getElementById("products-value");
+      const fieldsEl = document.getElementById("fields-value");
+      const hoursEl = document.getElementById("hours-value");
+      const qualityEl = document.getElementById("quality-value");
+
+      function drawNumbers() {
+        productsEl.textContent = Math.round(values.products);
+        fieldsEl.textContent = Math.round(values.fields);
+        hoursEl.textContent = Math.round(values.hours);
+        qualityEl.textContent = Math.round(values.quality);
+      }
+
+      tl.from("#headline h1", { y: 56, opacity: 0, duration: 0.72 }, 0.45);
+      tl.from("#metrics .metric", { y: 34, opacity: 0, stagger: 0.13, duration: 0.5 }, 1.65);
+      tl.from("#metrics .icon", { scale: 0.74, opacity: 0, stagger: 0.13, duration: 0.36 }, 1.82);
+      tl.from("#metrics .spark", { scaleX: 0, opacity: 0, stagger: 0.12, duration: 0.42 }, 2.25);
+      tl.from("#hidden-cost", { y: 18, opacity: 0, duration: 0.52 }, 3.15);
+      tl.from("#money-cloud i", { y: 36, scale: 0.62, opacity: 0, stagger: 0.12, duration: 0.24 }, 2.95);
+      tl.to("#money-cloud i", { y: -96, scale: 1.18, opacity: 0.72, stagger: 0.28, duration: 4.4, ease: "power1.out" }, 3.75);
+      tl.to("#money-cloud i", { opacity: 0.12, stagger: 0.18, duration: 1.1, ease: "power1.in" }, 8.5);
+      tl.to(values, { products: 86, duration: 7.65, ease: "power1.out", onUpdate: drawNumbers }, 2.15);
+      tl.to(values, { fields: 24, duration: 0.45, ease: "power1.in", onUpdate: drawNumbers }, 2.15);
+      tl.to(values, { fields: 5320, duration: 7.2, ease: "expo.in", onUpdate: drawNumbers }, 2.6);
+      tl.to(values, { hours: 242, duration: 7.58, ease: "power2.in", onUpdate: drawNumbers }, 2.22);
+      tl.to(values, { quality: 31, duration: 7.55, ease: "power1.inOut", onUpdate: drawNumbers }, 2.25);
+      tl.fromTo("#field-growth-arrow", { y: 20, x: -8, opacity: 0 }, { y: -54, x: 18, opacity: 1, duration: 6.8, ease: "power1.out" }, 2.9);
+      tl.to("#field-growth-arrow", { rotation: 8, repeat: 62, yoyo: true, duration: 0.11, ease: "sine.inOut" }, 3.0);
+      tl.from("#issue-stack .issue-card", { x: 120, y: 24, opacity: 0, stagger: 0.22, duration: 0.58, ease: "back.out(1.2)" }, 5.05);
+      tl.from("#issue-stack .status", { scale: 1.2, opacity: 0, stagger: 0.18, duration: 0.28 }, 5.45);
+      tl.from("#seidor-logo", { y: 18, opacity: 0, duration: 0.45 }, 1.9);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
