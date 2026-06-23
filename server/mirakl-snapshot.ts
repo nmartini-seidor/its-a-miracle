@@ -148,16 +148,52 @@ export function mapSnapshotRowToProduct(row: Record<string, string>): ProductRec
   return product
 }
 
+type SourceStatusEntry = {
+  provider_unique_identifier?: string
+  shop_sku?: string
+  sku?: string
+  unique_identifiers?: { code?: string; value?: string }[]
+  status?: string
+}
+
+// The Mirakl source-status export (/api/mcm/products/sources/status/export) returns JSON, not CSV:
+// an array of { provider_unique_identifier, unique_identifiers:[{code,value}], status }. It is
+// IDENTITY-ONLY (SKU + EAN/GTIN + integration status) — no titles/attributes — so the mapped
+// product is a bare baseline (SKU as title, EAN attribute) for research to enrich. Richer baselines
+// need a product/offer export endpoint (future work).
+export function mapSourceStatusEntry(entry: SourceStatusEntry): ProductRecord | null {
+  const sku = entry.provider_unique_identifier ?? entry.shop_sku ?? entry.sku
+  if (!sku) return null
+  const eanId = (entry.unique_identifiers ?? []).find((id) => /ean|gtin|upc/i.test(id.code ?? ""))
+  const ean = eanId?.value
+  const row: Record<string, string> = { shop_sku: sku, "product-name": sku }
+  if (ean) row.ean = ean
+  return mapSnapshotRowToProduct(row)
+}
+
 export function loadSnapshotProducts(snapshot: MiraklSnapshot): ProductRecord[] {
   const products: ProductRecord[] = []
   const seen = new Set<string>()
+  const add = (product: ProductRecord | null) => {
+    if (product && !seen.has(product.id)) {
+      seen.add(product.id)
+      products.push(product)
+    }
+  }
   for (const exportEntry of snapshot.sourceStatusExports ?? []) {
-    for (const row of parseSemicolonCsv(exportEntry.csv ?? "")) {
-      const product = mapSnapshotRowToProduct(row)
-      if (product && !seen.has(product.id)) {
-        seen.add(product.id)
-        products.push(product)
-      }
+    const raw = (exportEntry.csv ?? "").trim()
+    if (!raw) continue
+    // Real source-status exports are JSON arrays; product/offer exports may be semicolon CSV.
+    let parsedJson: unknown = null
+    try {
+      parsedJson = JSON.parse(raw)
+    } catch {
+      parsedJson = null
+    }
+    if (Array.isArray(parsedJson)) {
+      for (const entry of parsedJson) add(mapSourceStatusEntry(entry as SourceStatusEntry))
+    } else {
+      for (const row of parseSemicolonCsv(raw)) add(mapSnapshotRowToProduct(row))
     }
   }
   return products

@@ -25,3 +25,4 @@ tsconfig.tsbuildinfo
 .playwright-cli
 .superpowers
 output
+/data/mirakl/snapshots/

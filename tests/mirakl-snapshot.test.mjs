@@ -34,6 +34,25 @@ test("a snapshot row maps to a ProductRecord with inferred schema and baseline a
   assert.equal(product.evidence.length, 0)
 })
 
+test("real Mirakl source-status JSON exports are parsed (identity-only baselines)", () => {
+  // The live /api/mcm/products/sources/status/export returns JSON, not CSV.
+  const snapshot = {
+    sourceStatusExports: [
+      {
+        csv: JSON.stringify([
+          { provider_unique_identifier: "mcg_cam_2", unique_identifiers: [{ code: "EAN", value: "1129034501204" }], status: "LIVE" },
+          { provider_unique_identifier: "MCG_01_X16", unique_identifiers: [{ code: "EAN", value: "1230009431246" }], status: "NOT_LIVE" },
+        ]),
+      },
+    ],
+  }
+  const products = loadSnapshotProducts(snapshot)
+  assert.equal(products.length, 2)
+  assert.equal(products[0].miraklProductId, "mcg_cam_2")
+  assert.equal(products[0].baselineAttributes.ean, "1129034501204")
+  assert.equal(products[0].candidates.length, 0)
+})
+
 test("a row without a recognisable SKU is skipped", () => {
   assert.equal(mapSnapshotRowToProduct({ "random-col": "x" }), null)
 })

@@ -48,8 +48,8 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
-    "@types/node": "latest",
     "@types/better-sqlite3": "latest",
+    "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "^9.39.1",
