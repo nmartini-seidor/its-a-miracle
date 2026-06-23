@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeftIcon, CheckCircle2Icon, ExternalLinkIcon, FileSearchIcon, GitCompareArrowsIcon, ListChecksIcon, SparklesIcon } from "lucide-react"
+import { ArrowLeftIcon, BotIcon, CheckCircle2Icon, ExternalLinkIcon, FileSearchIcon, GitCompareArrowsIcon, ListChecksIcon, SparklesIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PageHeader, PageShell, MetricStrip, Panel } from "@/components/app/page-chrome"
@@ -14,9 +14,11 @@ import { SyncMiraklButton } from "@/components/product/sync-mirakl-button"
 import { getFieldLabel } from "@/lib/demo-contract"
 import { formatEnumLabel } from "@/lib/labels"
 import type { ContractFieldId, EvidenceRecord } from "@/lib/types"
-import { buildReviewFieldRows, getCandidateByField } from "@/lib/product-review"
+import { buildReviewFieldRows, getCompetingCandidatesByField, isFieldConflicted } from "@/lib/product-review"
 import { cn } from "@/lib/utils"
 import { getProduct, getSchemaById } from "@/server/data"
+
+const RUNNER_LABELS: Record<string, string> = { cursor: "Cursor", codex: "Codex", claude: "Claude" }
 
 function confidenceClass(confidence: "high" | "medium" | "low") {
   if (confidence === "high") return "bg-emerald-50 text-emerald-800 ring-emerald-200"
@@ -43,11 +45,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const schema = await getSchemaById(product.schemaId)
   const evidenceById = new Map(product.evidence.map((evidence) => [evidence.id, evidence]))
   const reviewRows = buildReviewFieldRows(product, schema)
-  const candidateByField = getCandidateByField(product)
-  const displayCandidates = reviewRows.flatMap((row) => {
-    const candidate = candidateByField.get(row.field)
-    return candidate ? [candidate] : []
-  })
+  // Group every in-play candidate by field so competing values from different runners surface as a
+  // Conflict for review (ADR 0004), ordered by the review-field order.
+  const competingByField = getCompetingCandidatesByField(product)
+  const conflictFieldGroups = reviewRows
+    .map((row) => ({ field: row.field, label: row.label, candidates: competingByField.get(row.field) ?? [] }))
+    .filter((group) => group.candidates.length > 0)
+  const displayCandidates = conflictFieldGroups.flatMap((group) => group.candidates)
   const evidenceSources = latestEvidenceBySource(product.evidence)
   const proposedCandidateIds = displayCandidates.filter((candidate) => candidate.status === "proposed").map((candidate) => candidate.id)
   const acceptedCandidateIds = displayCandidates.filter((candidate) => candidate.status === "accepted").map((candidate) => candidate.id)
@@ -182,57 +186,64 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <TabsContent value="candidates">
           <Panel bodyClassName="p-0 sm:p-0">
             <div className="divide-y divide-slate-200">
-              {displayCandidates.map((candidate) => (
-                <div key={candidate.id} className="grid gap-4 p-4 lg:grid-cols-[12rem_1fr_1fr_18rem] lg:items-center">
-                  <div className="flex flex-col gap-2">
-                    <p className="font-semibold">{getFieldLabel(candidate.fieldName)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-slate-500">MIRAKL</p>
-                    {candidate.status === "accepted" ? (
-                      <p className="mt-1 inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-2.5 py-1 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-200">
-                        <CheckCircle2Icon className="size-4 text-emerald-600" aria-label="Approved Mirakl value" />
-                        {candidate.candidateValue}
-                      </p>
-                    ) : (
-                      <p className="mt-1 text-sm">{candidate.currentValue ?? "Missing"}</p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-slate-500">Candidate</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 font-semibold">
-                      {candidate.candidateValue}
-                      {isAiTranslation(candidate.reason) && (
-                        <Badge variant="outline" className="bg-violet-50 text-violet-700 ring-1 ring-violet-200">
-                          <SparklesIcon data-icon="inline-start" />
-                          AI translation
+              {conflictFieldGroups.map((group) => {
+                const conflicted = isFieldConflicted(group.candidates)
+                return (
+                  <div key={group.field} className="flex flex-col gap-3 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold">{group.label}</p>
+                      {conflicted ? (
+                        <Badge variant="outline" className="bg-amber-50 text-amber-800 ring-1 ring-amber-200">
+                          <GitCompareArrowsIcon data-icon="inline-start" aria-hidden="true" />
+                          Conflict · {group.candidates.length} competing values
                         </Badge>
-                      )}
+                      ) : (group.candidates[0]?.runners?.length ?? 0) >= 2 ? (
+                        <Badge variant="outline" className="bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200">
+                          <CheckCircle2Icon data-icon="inline-start" aria-hidden="true" />
+                          Consensus · {group.candidates[0].runners?.length} runners
+                        </Badge>
+                      ) : null}
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {candidate.sourceEvidenceIds.map((evidenceId) => {
-                        const evidence = evidenceById.get(evidenceId)
-                        if (!evidence?.sourceUrl) {
-                          return <Badge key={evidenceId} variant="outline">{evidence?.sourceName ?? evidenceId}</Badge>
-                        }
-
-                        return (
-                          <a
-                            key={evidenceId}
-                            href={evidence.sourceUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={cn("inline-flex rounded-lg border px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-slate-50", confidenceClass(evidence.confidence))}
-                          >
-                            {evidence.sourceName}
-                          </a>
-                        )
-                      })}
-                    </div>
+                    {group.candidates.map((candidate) => (
+                      <div key={candidate.id} className="grid gap-3 rounded-xl border border-slate-100 p-3 lg:grid-cols-[1fr_16rem] lg:items-center">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center gap-2 font-semibold">
+                            {candidate.candidateValue}
+                            <Badge variant="outline" className={cn("capitalize", confidenceClass(candidate.confidence))}>{candidate.confidence}</Badge>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {(candidate.runners ?? (candidate.runner ? [candidate.runner] : [])).map((runner) => (
+                              <Badge key={runner} variant="outline" className="bg-slate-50 text-[0.65rem] font-semibold uppercase tracking-wide text-slate-600">
+                                <BotIcon data-icon="inline-start" aria-hidden="true" />
+                                {RUNNER_LABELS[runner] ?? runner}
+                              </Badge>
+                            ))}
+                            {candidate.sourceEvidenceIds.map((evidenceId) => {
+                              const evidence = evidenceById.get(evidenceId)
+                              if (!evidence?.sourceUrl) return <Badge key={evidenceId} variant="outline">{evidence?.sourceName ?? evidenceId}</Badge>
+                              return (
+                                <a
+                                  key={evidenceId}
+                                  href={evidence.sourceUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className={cn("inline-flex rounded-lg border px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-slate-50", confidenceClass(evidence.confidence))}
+                                >
+                                  {evidence.sourceName}
+                                </a>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        <CandidateActions candidateId={candidate.id} status={candidate.status} />
+                      </div>
+                    ))}
                   </div>
-                  <CandidateActions candidateId={candidate.id} status={candidate.status} />
-                </div>
-              ))}
+                )
+              })}
+              {conflictFieldGroups.length === 0 && (
+                <p className="p-8 text-center text-sm text-slate-500">No candidate values yet. Run the research agents to gather sourced proposals.</p>
+              )}
             </div>
           </Panel>
         </TabsContent>

@@ -2,14 +2,15 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 
+import { buildOutput, simulateResearchJob } from './helpers.mjs'
+
+const store = await import('../server/store.ts')
 const {
   addReviewDecision,
-  createMockResearchRun,
-  getResearchRun,
   getStoredProduct,
   importDemoProducts,
   resetDemoState,
-} = await import('../server/store.ts')
+} = store
 const {
   buildMiraklAttributeSyncDraft,
   submitMiraklAttributeSync,
@@ -41,8 +42,12 @@ test('attribute sync draft for the Switch 2 product excludes name image descript
   process.env.MIRAKL_SYNC_CATEGORY_CODE = 'test_gaming_category'
 
   try {
-    const run = createMockResearchRun('catalog-item-mkp000905189074')
-    getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
+    const out = buildOutput([
+      { field: 'dimensions', value: '272 x 116 x 13.9 mm' },
+      { field: 'storage', value: '256 GB' },
+      { field: 'connectivity', value: 'Wi-Fi 6 / Bluetooth / HDMI / USB-C' },
+    ])
+    simulateResearchJob(store, 'catalog-item-mkp000905189074', { cursor: out, codex: out, claude: out })
 
     const researchedProduct = getStoredProduct('catalog-item-mkp000905189074')
     for (const candidate of researchedProduct.candidates) {
@@ -69,6 +74,33 @@ test('attribute sync draft for the Switch 2 product excludes name image descript
   } finally {
     if (previousCategory == null) delete process.env.MIRAKL_SYNC_CATEGORY_CODE
     else process.env.MIRAKL_SYNC_CATEGORY_CODE = previousCategory
+  }
+})
+
+test('write-back refuses any non-dev Mirakl tenant (production is unreachable)', async () => {
+  const original = process.env.MIRAKL_BASE_URL
+  process.env.MIRAKL_BASE_URL = 'https://seidor.mirakl.net' // production-looking host (no -dev)
+  process.env.MIRAKL_OPERATOR_API_KEY = 'test-token'
+  const originalFetch = globalThis.fetch
+  let fetched = false
+  globalThis.fetch = async () => { fetched = true; return new Response('{}', { status: 200 }) }
+
+  try {
+    await assert.rejects(
+      () => submitMiraklAttributeSync({
+        id: 'p', miraklProductId: 'SRC_P', title: 't', brand: null, categoryPath: [], schemaId: 'schema-gaming-devices',
+        listingStatus: 'EXPORT_READY', qualityScore: 90, scoreBand: 'green', baselineDescription: '', warnings: [],
+        baselineAttributes: {}, bestEvidenceByField: {}, evidence: [],
+        candidates: [{ id: 'c', productId: 'p', fieldName: 'weight', currentValue: null, candidateValue: '534 g', sourceEvidenceIds: ['e'], confidence: 'high', status: 'accepted' }],
+      }),
+      /dev tenant|production is unreachable/i,
+    )
+    assert.equal(fetched, false, 'must not reach the network for a non-dev tenant')
+  } finally {
+    globalThis.fetch = originalFetch
+    if (original == null) delete process.env.MIRAKL_BASE_URL
+    else process.env.MIRAKL_BASE_URL = original
+    delete process.env.MIRAKL_OPERATOR_API_KEY
   }
 })
 

@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A Next.js App Router **sales demo** of a "Mirakl Product Enrichment" workspace (package name: `mirakl-product-enrichment`). An operator reviews catalog products, runs (simulated) research to find missing attributes, approves/rejects field-level candidates backed by evidence, and prepares Mirakl import drafts.
+A Next.js App Router **sales demo** of a "Mirakl Product Enrichment" workspace (package name: `mirakl-product-enrichment`). An operator reviews catalog products, runs **real** research to find missing attributes, approves/rejects field-level candidates backed by evidence, and writes accepted values back to the Mirakl **dev** tenant.
 
-The demo runs entirely off a **file-based JSON store** (`data/demo-state.json`, gitignored). There is no live database or live Mirakl connection in the running app — research is mocked and time-driven. Treat this as the implemented reality.
+Research is **not simulated**. A Research Job fans out to three subscription-CLI runners (`cursor-agent`, `codex`, `claude`) executed in parallel by a local **Worker** (`pnpm worker`); each browses the live web under the host's ambient login (no API keys), drops an `output.json` that is zod-validated (confidence assigned by cited source tier, never self-reported), and the runs are merged by **consensus/conflict** for human review (ADRs 0001–0005, `EXECUTION_PLAN.md`). State lives in **SQLite** (`data/demo.sqlite`, via `better-sqlite3`, gitignored) for ACID multi-process safety between the Worker and the Next server.
 
-> **Docs vs. reality:** `docs/*` (ARCHITECTURE.md, DATA_MODEL.md, etc.) and `AGENTS.md` describe an *aspirational* design — Supabase + RLS, live Mirakl ingestion, a "docs-only milestone, do not scaffold the app." That milestone is over; the app is built. `supabase/migrations/0001_initial.sql` exists but is **not wired into the running app**. Use the docs for domain intent, not as a description of the current code.
+> **Docs vs. reality:** the move from simulated→real is documented in `EXECUTION_PLAN.md`, `CONTEXT.md` (glossary), and `docs/adr/0001–0005`. Phase evidence is in `data/spike/PHASE*.md`. The older `docs/*` (ARCHITECTURE.md, DATA_MODEL.md, …) describe an aspirational Supabase/Vercel design — `supabase/migrations/0001_initial.sql` is intentionally **not** wired up (ADR 0003). Use those older docs for domain intent only.
+>
+> **The Worker must be running** (`pnpm worker`) for "Run Research" to make progress — it is the sole executor of research and survives Next dev-server reloads. Mirakl write-back is gated to the dev tenant and requires `MIRAKL_OPERATOR_API_KEY` + an explicit in-UI confirm.
 
 ## Commands
 
@@ -17,11 +19,13 @@ pnpm dev          # next dev
 pnpm build        # next build
 pnpm lint         # eslint .
 pnpm typecheck    # tsc --noEmit
-pnpm test         # node --test over tests/*.test.mjs (concurrency 1)
+pnpm test         # node --test over tests/*.test.mjs (per-process DB isolation via DEMO_DB_ISOLATE)
 
-pnpm reset:demo   # wipe data/demo-state.json to an empty workspace (keeps settings/overrides)
-pnpm import:demo  # reseed the store from lib/fixtures.ts
-pnpm sync:mirakl  # scripts/sync-mirakl-snapshot.mjs — LIVE Mirakl read, gated (see below)
+pnpm worker          # long-lived research Worker — spawns the runner CLIs; run alongside `pnpm dev`
+pnpm reset:demo      # wipe the SQLite catalog to an empty workspace (keeps settings/overrides)
+pnpm import:demo     # reseed the store from lib/fixtures.ts
+pnpm import:snapshot # seed the catalog from a real Mirakl snapshot (see Phase 6 / ADR 0005)
+pnpm sync:mirakl     # scripts/sync-mirakl-snapshot.mjs — LIVE Mirakl read, gated (see below)
 ```
 
 Run a single test file (the `test` script imports `.ts` modules directly via Node's type-stripping):

@@ -8,10 +8,17 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --experimental-specifier-resolution=node --test --test-concurrency=1 tests/*.test.mjs",
+    "test": "DEMO_DB_ISOLATE=1 node --experimental-strip-types --experimental-specifier-resolution=node --test tests/*.test.mjs",
     "reset:demo": "node --experimental-strip-types -e \"import('./server/store.ts').then((m) => m.resetDemoState())\"",
     "import:demo": "node --experimental-strip-types -e \"import('./server/store.ts').then((m) => m.importDemoProducts())\"",
-    "sync:mirakl": "node scripts/sync-mirakl-snapshot.mjs"
+    "worker": "node --experimental-strip-types --experimental-specifier-resolution=node server/worker/main.ts",
+    "sync:mirakl": "node scripts/sync-mirakl-snapshot.mjs",
+    "import:snapshot": "node --experimental-strip-types --experimental-specifier-resolution=node scripts/import-snapshot.mjs"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   },
   "dependencies": {
     "@hookform/resolvers": "latest",
@@ -27,6 +34,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
+    "better-sqlite3": "^12.11.1",
     "class-variance-authority": "latest",
     "clsx": "latest",
     "lucide-react": "latest",
@@ -41,6 +49,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
+    "@types/better-sqlite3": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "^9.39.1",

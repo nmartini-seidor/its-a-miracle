@@ -1,6 +1,6 @@
 import type { AggregatorDefinition, AttributeFieldId, ContractFieldId, SchemaDefinition } from "./types.ts"
 
-export const MOCK_DOMAIN_CONTRACT_VERSION = "2026-04-task1"
+export const MOCK_DOMAIN_CONTRACT_VERSION = "2026-06-real-research"
 
 export const ATTRIBUTE_FIELD_LABELS: Record<ContractFieldId, string> = {
   brand: "Brand",
@@ -113,6 +113,12 @@ export function isSupportedMockContractVersion(version: string) {
 export function isAttributeFieldId(field: string): field is AttributeFieldId {
   return field in ATTRIBUTE_FIELD_LABELS && field !== "researchSummary"
 }
+
+// Canonical list of every enrichable attribute field id (excludes the researchSummary
+// contract-only field). Source of truth for the research contract's zod enum.
+export const ATTRIBUTE_FIELD_IDS: AttributeFieldId[] = (Object.keys(ATTRIBUTE_FIELD_LABELS) as ContractFieldId[]).filter(
+  isAttributeFieldId,
+)
 
 export function isExportableAttributeField(field: ContractFieldId): field is AttributeFieldId {
   return EXPORTABLE_ATTRIBUTE_FIELDS.includes(field as AttributeFieldId)

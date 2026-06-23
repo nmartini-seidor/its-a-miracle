@@ -1,340 +1,192 @@
-import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { test } from 'node:test'
+import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
+import { test } from "node:test"
+import { buildOutput, simulateResearchJob } from "./helpers.mjs"
 
+const store = await import("../server/store.ts")
 const {
+  addReviewDecision,
   createMockResearchRun,
   exportPreview,
-  getResearchRun,
   getStoredProduct,
-  addReviewDecision,
   importDemoProducts,
-  listStoredProducts,
+  listRunnerRuns,
   resetDemoState,
   syncProductWithMirakl,
-} = await import('../server/store.ts')
+} = store
 
-const placeholderResearchPattern =
-  /product dimensions verified|dimensiones verificadas|current-generation console|ecosistema de consolas|not applicable|no aplicable|rechargeable battery|batería recargable|integrated microphone|matriz de micrófonos|up to 10 hours|hasta 10 horas|compatible stylus supported|4 HDMI ports|3840 x 2160|2400 x 1080/i
-
-function researchText(product) {
-  return [
-    ...product.candidates.flatMap((candidate) => [candidate.candidateValue, candidate.reason ?? '']),
-    ...product.evidence.flatMap((evidence) => [
-      evidence.summary,
-      ...Object.values(evidence.extractedFields),
-    ]),
-  ].join(' ')
+function seed() {
+  resetDemoState()
+  importDemoProducts()
 }
 
-function canonicalCandidateValue(value) {
-  return value
-    .toLowerCase()
-    .replace(/\bwi[\s-]?fi\b/g, 'wifi')
-    .replace(/\b(\d+)\s*(gb|tb)\b/g, '$1$2')
-    .replace(/\b(\d+(?:[.,]\d+)?)\s*p\b/g, '$1in')
-    .replace(/\s+/g, '')
-    .replace(/[^\p{Letter}\p{Number}.]/gu, '')
-}
+test("creating a job queues one multi-runner Job and three QUEUED runner runs", () => {
+  seed()
+  const job = createMockResearchRun("galaxy-a55")
+  assert.equal(job.status, "QUEUED")
+  assert.equal(job.runner, "multi")
+  assert.equal(getStoredProduct("galaxy-a55").listingStatus, "RESEARCH_IN_PROGRESS")
 
-test('research job transitions from queued to running to succeeded and applies new evidence/candidates', () => {
-  resetDemoState()
-  importDemoProducts()
-  const initialProduct = getStoredProduct('galaxy-a55')
-  const initialEvidenceCount = initialProduct.evidence.length
-  const initialCandidateCount = initialProduct.candidates.length
+  const runs = listRunnerRuns(job.id)
+  assert.deepEqual(runs.map((r) => r.runner).sort(), ["claude", "codex", "cursor"])
+  assert.equal(runs.every((r) => r.status === "QUEUED"), true)
 
-  const run = createMockResearchRun('galaxy-a55')
-  assert.equal(run.status, 'QUEUED')
-  assert.equal(getStoredProduct('galaxy-a55').listingStatus, 'RESEARCH_IN_PROGRESS')
-
-  const queued = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 500).toISOString())
-  assert.equal(queued.status, 'QUEUED')
-
-  const running = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 1500).toISOString())
-  assert.equal(running.status, 'RUNNING')
-  assert.equal(getStoredProduct('galaxy-a55').evidence.length, initialEvidenceCount)
-
-  const completed = getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-  assert.equal(completed.status, 'SUCCEEDED')
-  const researchedProduct = getStoredProduct('galaxy-a55')
-  assert.equal(researchedProduct.evidence.length >= initialEvidenceCount + 2, true)
-  assert.equal(researchedProduct.candidates.length >= initialCandidateCount + 1, true)
-  assert.equal(researchedProduct.candidates.every((candidate) => candidate.sourceEvidenceIds.length > 0), true)
-  assert.equal(researchedProduct.evidence.every((evidence) => evidence.sourceUrl?.startsWith('https://')), true)
-  assert.equal(researchedProduct.evidence.some((evidence) => evidence.sourceName === 'Mirakl imported data'), false)
-  assert.equal(researchedProduct.evidence.every((evidence) => !/evidence for|candidate product-data/i.test(`${evidence.title} ${evidence.summary}`)), true)
-  assert.equal(researchedProduct.evidence.every((evidence) => !/product information highlights/i.test(`${evidence.summary} ${Object.values(evidence.extractedFields).join(' ')}`)), true)
-  assert.equal(researchedProduct.candidates.some((candidate) => candidate.fieldName === 'description'), false)
-  assert.equal(researchedProduct.candidates.some((candidate) => candidate.fieldName === 'batteryCapacity' && candidate.candidateValue === '5000 mAh'), true)
-  assert.equal(placeholderResearchPattern.test(researchText(researchedProduct)), false)
-  assert.equal(Object.keys(researchedProduct.bestEvidenceByField).length >= 1, true)
+  // No fabricated data appears just from queuing.
+  const product = getStoredProduct("galaxy-a55")
+  assert.equal(product.candidates.length, 0)
+  assert.equal(product.evidence.length, 0)
 })
 
-test('freeclip research includes replacements for existing Mirakl values', () => {
-  resetDemoState()
-  importDemoProducts()
+test("three runners agreeing on a value collapse to one high-confidence consensus candidate", () => {
+  seed()
+  const eanOut = buildOutput([{ field: "ean", value: "6942103169441", sourceType: "manufacturer_official" }])
+  const { job } = simulateResearchJob(store, "galaxy-a55", { cursor: eanOut, codex: eanOut, claude: eanOut })
 
-  const run = createMockResearchRun('freeclip-2')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-
-  const product = getStoredProduct('freeclip-2')
-
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'ean' && candidate.currentValue === null && candidate.candidateValue === '6942103169434'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'connectivity' && candidate.currentValue === 'Bluetooth' && candidate.candidateValue === 'Bluetooth 6.0 / dual-device connection'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'batteryLife' && candidate.currentValue === '9 hours standalone / 38 hours with case' && candidate.candidateValue === '9 h earbuds / 38 h with charging case'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'description' && candidate.currentValue === null && candidate.candidateValue.includes('Auriculares true wireless')), true)
-  assert.equal(product.candidates.some((candidate) => candidate.currentValue !== null && candidate.currentValue !== 'Missing'), true)
+  assert.equal(job.status, "SUCCEEDED")
+  const product = getStoredProduct("galaxy-a55")
+  const eanCandidates = product.candidates.filter((c) => c.fieldName === "ean")
+  assert.equal(eanCandidates.length, 1, "agreement collapses to a single candidate")
+  assert.equal(eanCandidates[0].candidateValue, "6942103169441")
+  assert.equal(eanCandidates[0].confidence, "high")
+  assert.deepEqual([...eanCandidates[0].runners].sort(), ["claude", "codex", "cursor"])
+  assert.equal(eanCandidates[0].sourceEvidenceIds.length > 0, true)
 })
 
-test('research evidence does not generate fake vendor descriptions for catalog products', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  const run = createMockResearchRun('catalog-item-3004083')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-
-  const product = getStoredProduct('catalog-item-3004083')
-  const descriptionEvidence = product.evidence
-    .filter((evidence) => evidence.extractedFields.description)
-    .map((evidence) => ({
-      sourceName: evidence.sourceName,
-      description: evidence.extractedFields.description,
-    }))
-
-  assert.equal(descriptionEvidence.length, 0)
-  assert.equal(product.evidence.every((evidence) => !/product information highlights/i.test(`${evidence.summary} ${Object.values(evidence.extractedFields).join(' ')}`)), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'description'), false)
+test("runners disagreeing on a value produce competing candidates flagged for review", () => {
+  seed()
+  const { job } = simulateResearchJob(store, "galaxy-a55", {
+    cursor: buildOutput([{ field: "batteryCapacity", value: "5000 mAh" }]),
+    claude: buildOutput([{ field: "batteryCapacity", value: "5000 mAh" }]),
+    codex: buildOutput([{ field: "batteryCapacity", value: "4900 mAh" }]),
+  })
+  assert.equal(job.status, "SUCCEEDED")
+  const product = getStoredProduct("galaxy-a55")
+  const battery = product.candidates.filter((c) => c.fieldName === "batteryCapacity")
+  assert.equal(battery.length, 2, "disagreement yields competing candidates")
+  const agreeing = battery.find((c) => c.candidateValue === "5000 mAh")
+  const dissenting = battery.find((c) => c.candidateValue === "4900 mAh")
+  assert.deepEqual([...agreeing.runners].sort(), ["claude", "cursor"])
+  assert.deepEqual(dissenting.runners, ["codex"])
 })
 
-test('research supplies curated technical fields for catalog products without placeholder phrases', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  const run = createMockResearchRun('catalog-item-mkp000905189074')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-
-  const product = getStoredProduct('catalog-item-mkp000905189074')
-  const extractedFields = product.evidence.flatMap((evidence) => Object.keys(evidence.extractedFields))
-
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'dimensions' && candidate.candidateValue === '272 x 116 x 13.9 mm'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'storage' && candidate.candidateValue === '256 GB'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'connectivity' && candidate.candidateValue.includes('Wi-Fi 6')), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'usbC' && candidate.candidateValue === 'USB-C'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'weight' && candidate.candidateValue === '534 g'), true)
-  assert.equal(extractedFields.includes('dimensions'), true)
-  assert.equal(placeholderResearchPattern.test(researchText(product)), false)
+test("a runner that only finds forum/evidence-less data contributes nothing (no fabrication)", () => {
+  seed()
+  const { job } = simulateResearchJob(store, "galaxy-a55", {
+    cursor: {
+      evidence: [{ id: "f1", sourceType: "forum_social", sourceUrl: "https://reddit.com/r/x", title: "t", snippet: "rumor" }],
+      candidates: [{ field: "ean", value: "0000000000000", evidenceIds: ["f1"] }],
+    },
+    codex: buildOutput([{ field: "ean", value: "6942103169441" }]),
+    claude: null, // simulated failure
+  })
+  assert.equal(job.status, "SUCCEEDED")
+  const product = getStoredProduct("galaxy-a55")
+  const ean = product.candidates.filter((c) => c.fieldName === "ean")
+  assert.equal(ean.length, 1)
+  assert.equal(ean[0].candidateValue, "6942103169441") // forum value never made it in
+  assert.deepEqual(ean[0].runners, ["codex"])
 })
 
-test('redmi pad research returns good non-Mirakl candidate data', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  const run = createMockResearchRun('redmi-pad-pro')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-
-  const product = getStoredProduct('redmi-pad-pro')
-  const sourceNames = product.evidence.map((evidence) => evidence.sourceName)
-
-  assert.equal(sourceNames.includes('Mirakl imported data'), false)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'batteryCapacity' && candidate.candidateValue === '10000 mAh'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'stylusSupport' && candidate.candidateValue === 'Xiaomi Focus Pen compatible'), true)
-  assert.equal(product.candidates.some((candidate) => candidate.fieldName === 'dimensions' && candidate.candidateValue === '280.0 x 181.85 x 7.52 mm'), true)
-  assert.equal(product.candidates.every((candidate) => candidate.sourceEvidenceIds.length > 0), true)
-  assert.equal(placeholderResearchPattern.test(researchText(product)), false)
+test("a partial-failure job still succeeds on the surviving runners", () => {
+  seed()
+  const { job, runs } = simulateResearchJob(store, "galaxy-a55", {
+    cursor: buildOutput([{ field: "cameraResolution", value: "50 MP" }]),
+    codex: null,
+    claude: null,
+  })
+  assert.equal(job.status, "SUCCEEDED")
+  assert.equal(runs.filter((r) => r.status === "FAILED").length, 2)
+  assert.equal(getStoredProduct("galaxy-a55").candidates.some((c) => c.fieldName === "cameraResolution"), true)
 })
 
-test('re-running research replaces duplicate proposed candidates per attribute', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  const firstRun = createMockResearchRun('freeclip-2')
-  getResearchRun(firstRun.id, new Date(Date.parse(firstRun.createdAt) + 6000).toISOString())
-  const secondRun = createMockResearchRun('freeclip-2')
-  getResearchRun(secondRun.id, new Date(Date.parse(secondRun.createdAt) + 6000).toISOString())
-
-  const product = getStoredProduct('freeclip-2')
-  const fields = product.candidates.map((candidate) => candidate.fieldName)
-  const evidenceSources = product.evidence.map((evidence) => evidence.aggregatorId)
-
-  assert.equal(fields.length, new Set(fields).size)
-  assert.equal(evidenceSources.length, new Set(evidenceSources).size)
-  assert.equal(product.candidates.filter((candidate) => candidate.fieldName === 'connectivity').length, 1)
+test("a job where every runner fails ends FAILED with no candidates", () => {
+  seed()
+  const { job } = simulateResearchJob(store, "galaxy-a55", { cursor: null, codex: null, claude: null })
+  assert.equal(job.status, "FAILED")
+  assert.equal(getStoredProduct("galaxy-a55").candidates.length, 0)
 })
 
-test('research assigns each extracted field to one source instead of copying it across vendors', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  for (const product of listStoredProducts()) {
-    const run = createMockResearchRun(product.id)
-    getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-  }
-
-  for (const product of listStoredProducts()) {
-    const sourceByField = new Map()
-
-    for (const evidence of product.evidence) {
-      for (const [field, value] of Object.entries(evidence.extractedFields)) {
-        assert.equal(
-          sourceByField.has(field),
-          false,
-          `${product.id} copied ${field} from both ${sourceByField.get(field)?.sourceName} and ${evidence.sourceName}`,
-        )
-        sourceByField.set(field, { sourceName: evidence.sourceName, value })
-      }
-    }
-  }
+test("re-running research replaces proposed candidates per field without duplicating", () => {
+  seed()
+  simulateResearchJob(store, "galaxy-a55", {
+    cursor: buildOutput([{ field: "ean", value: "6942103169441" }]),
+    codex: buildOutput([{ field: "ean", value: "6942103169441" }]),
+    claude: buildOutput([{ field: "ean", value: "6942103169441" }]),
+  })
+  simulateResearchJob(store, "galaxy-a55", {
+    cursor: buildOutput([{ field: "ean", value: "6942103169441" }]),
+    codex: buildOutput([{ field: "ean", value: "6942103169441" }]),
+    claude: buildOutput([{ field: "ean", value: "6942103169441" }]),
+  })
+  const product = getStoredProduct("galaxy-a55")
+  assert.equal(product.candidates.filter((c) => c.fieldName === "ean").length, 1)
 })
 
-test('accepting a candidate refreshes export eligibility and listing status', () => {
-  resetDemoState()
-  importDemoProducts()
-  const run = createMockResearchRun('galaxy-a55')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-  const productWithCandidates = getStoredProduct('galaxy-a55')
-  addReviewDecision(productWithCandidates.candidates[0].id, 'APPROVE', 'Verified against evidence')
-  const preview = exportPreview('galaxy-a55')
-  const product = getStoredProduct('galaxy-a55')
-
-  assert.equal(product.listingStatus, 'EXPORT_READY')
-  assert.equal(preview.rows.length >= 1, true)
+test("accepting a candidate makes the product export-ready and appears in the export preview", () => {
+  seed()
+  simulateResearchJob(store, "galaxy-a55", {
+    cursor: buildOutput([{ field: "batteryCapacity", value: "5000 mAh" }]),
+    codex: buildOutput([{ field: "batteryCapacity", value: "5000 mAh" }]),
+    claude: buildOutput([{ field: "batteryCapacity", value: "5000 mAh" }]),
+  })
+  const product = getStoredProduct("galaxy-a55")
+  const candidate = product.candidates.find((c) => c.fieldName === "batteryCapacity")
+  addReviewDecision(candidate.id, "APPROVE", "verified")
+  const after = getStoredProduct("galaxy-a55")
+  assert.equal(after.listingStatus, "EXPORT_READY")
+  const preview = exportPreview("galaxy-a55")
+  assert.equal(preview.rows.some((row) => row.field === "batteryCapacity" && row.value === "5000 mAh"), true)
 })
 
-test('research runs for every imported product without fabricating missing values', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  const importedProducts = listStoredProducts()
-  assert.equal(importedProducts.length, 55)
-  assert.equal(importedProducts.every((product) => product.candidates.length === 0 && product.evidence.length === 0), true)
-
-  for (const product of importedProducts) {
-    const run = createMockResearchRun(product.id)
-    assert.ok(run)
-    getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-  }
-
-  const researchedProducts = listStoredProducts()
-  assert.equal(researchedProducts.length, 55)
-  assert.equal(researchedProducts.every((product) => product.evidence.length > 0), true)
-  assert.equal(researchedProducts.some((product) => product.candidates.length > 0), true)
-  assert.equal(researchedProducts.every((product) => product.evidence.every((evidence) => evidence.sourceName !== 'Mirakl imported data')), true)
-  assert.equal(researchedProducts.every((product) => product.evidence.every((evidence) => evidence.sourceUrl?.startsWith('https://'))), true)
-  assert.equal(researchedProducts.every((product) => product.candidates.every((candidate) => candidate.sourceEvidenceIds.length > 0)), true)
-  assert.equal(researchedProducts.every((product) => !placeholderResearchPattern.test(researchText(product))), true)
+test("approving a candidate then syncing writes it to the baseline and lifts the score", () => {
+  seed()
+  const initialScore = getStoredProduct("galaxy-a55").qualityScore
+  simulateResearchJob(store, "galaxy-a55", {
+    cursor: buildOutput([{ field: "cameraResolution", value: "50 MP" }]),
+    codex: buildOutput([{ field: "cameraResolution", value: "50 MP" }]),
+    claude: buildOutput([{ field: "cameraResolution", value: "50 MP" }]),
+  })
+  const candidate = getStoredProduct("galaxy-a55").candidates.find((c) => c.fieldName === "cameraResolution")
+  addReviewDecision(candidate.id, "APPROVE", "verified")
+  const result = syncProductWithMirakl("galaxy-a55")
+  const synced = getStoredProduct("galaxy-a55")
+  assert.equal(result.syncedFields.includes("cameraResolution"), true)
+  assert.equal(synced.baselineAttributes.cameraResolution, "50 MP")
+  assert.equal(synced.qualityScore > initialScore, true)
 })
 
-test('research candidates are product-by-product meaningful and not Mirakl formatting echoes', () => {
-  resetDemoState()
-  importDemoProducts()
-
-  for (const product of listStoredProducts()) {
-    const run = createMockResearchRun(product.id)
-    getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-  }
-
-  for (const product of listStoredProducts()) {
-    const evidenceById = new Map(product.evidence.map((evidence) => [evidence.id, evidence]))
-    for (const candidate of product.candidates) {
-      if (candidate.currentValue) {
-        assert.notEqual(
-          canonicalCandidateValue(candidate.currentValue),
-          canonicalCandidateValue(candidate.candidateValue),
-          `${product.id} has normalization-only candidate for ${candidate.fieldName}`,
-        )
-      }
-      assert.equal(
-        candidate.sourceEvidenceIds.some((evidenceId) => evidenceById.get(evidenceId)?.sourceName === 'MediaMarkt product page'),
-        false,
-        `${product.id} candidate ${candidate.fieldName} is sourced from baseline retailer data`,
-      )
-    }
-  }
+test("retailer-only consensus is capped below high even when all runners agree", () => {
+  seed()
+  const retailerOut = buildOutput([
+    { field: "ean", value: "6942103169441", sourceType: "retailer", sourceUrl: "https://www.mediamarkt.es/p" },
+  ])
+  simulateResearchJob(store, "galaxy-a55", { cursor: retailerOut, codex: retailerOut, claude: retailerOut })
+  const ean = getStoredProduct("galaxy-a55").candidates.find((c) => c.fieldName === "ean")
+  assert.equal(ean.confidence === "high", false)
 })
 
-test('sync applies approved candidates back to the baseline and refreshes quality score', () => {
-  resetDemoState()
-  importDemoProducts()
-  const initialProduct = getStoredProduct('catalog-item-3240734')
-  const initialScore = initialProduct.qualityScore
+// --- component / page wiring (unchanged by the real-research migration) ---
 
-  const run = createMockResearchRun('catalog-item-3240734')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-
-  const researchedProduct = getStoredProduct('catalog-item-3240734')
-  assert.equal(researchedProduct.candidates.some((candidate) => candidate.fieldName === 'ram' && candidate.candidateValue === '16 GB'), true)
-
-  for (const candidate of researchedProduct.candidates) {
-    addReviewDecision(candidate.id, 'APPROVE', 'bulk approval')
-  }
-
-  const approvedProduct = getStoredProduct('catalog-item-3240734')
-  assert.equal(approvedProduct.qualityScore > initialScore, true)
-  assert.equal(approvedProduct.candidates.some((candidate) => candidate.status === 'accepted'), true)
-
-  const syncResult = syncProductWithMirakl('catalog-item-3240734')
-  const syncedProduct = getStoredProduct('catalog-item-3240734')
-
-  assert.equal(syncResult.syncedFields.includes('ram'), true)
-  assert.equal(syncedProduct.baselineAttributes.ram, '16 GB')
-  assert.equal(syncedProduct.candidates.some((candidate) => candidate.status === 'accepted'), false)
-  assert.equal(syncedProduct.qualityScore > initialScore, true)
+test("product detail research action is presented as an agent run", () => {
+  const source = readFileSync("components/product/research-button.tsx", "utf8")
+  assert.equal(source.includes("BotIcon"), true)
+  assert.equal(source.includes("RefreshCwIcon"), true)
+  assert.equal(source.includes("animate-spin"), true)
+  assert.equal(source.includes("Run Research Agent"), true)
+  assert.equal(source.includes("rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400"), true)
+  assert.equal(source.includes("beginResearchActivity"), true)
+  assert.equal(source.includes("research-flight-orb"), true)
 })
 
-test('freeclip approved candidates sync into baseline and lift quality score', () => {
-  resetDemoState()
-  importDemoProducts()
-  const initialProduct = getStoredProduct('freeclip-2')
-  const initialScore = initialProduct.qualityScore
-
-  const run = createMockResearchRun('freeclip-2')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
-
-  const researchedProduct = getStoredProduct('freeclip-2')
-  for (const candidate of researchedProduct.candidates) {
-    addReviewDecision(candidate.id, 'APPROVE', 'bulk approval')
-  }
-
-  const approvedProduct = getStoredProduct('freeclip-2')
-  assert.equal(approvedProduct.candidates.every((candidate) => candidate.status === 'accepted'), true)
-  assert.equal(approvedProduct.qualityScore > initialScore, true)
-
-  const syncResult = syncProductWithMirakl('freeclip-2')
-  const syncedProduct = getStoredProduct('freeclip-2')
-
-  assert.equal(syncResult.syncedFields.includes('ean'), true)
-  assert.equal(syncedProduct.baselineAttributes.ean, '6942103169434')
-  assert.equal(syncedProduct.candidates.length, 0)
-  assert.equal(syncedProduct.qualityScore > initialScore, true)
-})
-
-
-test('product detail research action is presented as an agent run', () => {
-  const source = readFileSync('components/product/research-button.tsx', 'utf8')
-
-  assert.equal(source.includes('BotIcon'), true)
-  assert.equal(source.includes('RefreshCwIcon'), true)
-  assert.equal(source.includes('animate-spin'), true)
-  assert.equal(source.includes('Run Research Agent'), true)
-  assert.equal(readFileSync('lib/mock-timing.ts', 'utf8').includes('DEFAULT_MOCK_RESEARCH_AGENT_SECONDS = 5'), true)
-  assert.equal(source.includes('rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400'), true)
-  assert.equal(source.includes('beginResearchActivity'), true)
-  assert.equal(source.includes('research-flight-orb'), true)
-  assert.equal(source.includes('Research missing info'), false)
-})
-
-
-test('research workspace page and navigation animation are wired', () => {
-  const pageSource = readFileSync('app/research/page.tsx', 'utf8')
-  const topNavSource = readFileSync('components/app/top-nav.tsx', 'utf8')
-  const activitySource = readFileSync('components/app/research-activity.ts', 'utf8')
-  const globalsSource = readFileSync('app/globals.css', 'utf8')
-
-  assert.equal(pageSource.includes('Research agent queue'), true)
-  assert.equal(pageSource.includes('listResearchJobs'), true)
-  assert.equal(topNavSource.includes('useResearchActivity'), true)
-  assert.equal(topNavSource.includes('research-nav-active'), true)
-  assert.equal(activitySource.includes('mirakl-research-active-count'), true)
-  assert.equal(globalsSource.includes('research-star-flight'), true)
+test("research workspace page and navigation animation are wired", () => {
+  const pageSource = readFileSync("app/research/page.tsx", "utf8")
+  const topNavSource = readFileSync("components/app/top-nav.tsx", "utf8")
+  const activitySource = readFileSync("components/app/research-activity.ts", "utf8")
+  const globalsSource = readFileSync("app/globals.css", "utf8")
+  assert.equal(pageSource.includes("Research agent queue"), true)
+  assert.equal(pageSource.includes("listResearchJobs"), true)
+  assert.equal(topNavSource.includes("useResearchActivity"), true)
+  assert.equal(topNavSource.includes("research-nav-active"), true)
+  assert.equal(activitySource.includes("mirakl-research-active-count"), true)
+  assert.equal(globalsSource.includes("research-star-flight"), true)
 })

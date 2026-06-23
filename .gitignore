@@ -14,6 +14,13 @@ tsconfig.tsbuildinfo
 .DS_Store
 
 /data/demo-state.json
+# SQLite local state (ADR 0003) + per-process test databases + per-run worker jails
+/data/demo.sqlite
+/data/demo.sqlite-shm
+/data/demo.sqlite-wal
+/data/.test-dbs/
+/data/research/runs/
+/data/spike/
 .agents
 .playwright-cli
 .superpowers

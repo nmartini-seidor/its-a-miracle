@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
+import { buildOutput, simulateResearchJob } from './helpers.mjs'
 
-const { addReviewDecision, createMockResearchRun, getResearchRun, getStoredProduct, importDemoProducts, listStoredProducts, resetDemoState } = await import('../server/store.ts')
+const store = await import('../server/store.ts')
+const { addReviewDecision, getStoredProduct, importDemoProducts, listStoredProducts, resetDemoState } = store
 
 test('resetDemoState clears the workspace and importDemoProducts restores the showcase catalog', () => {
   resetDemoState()
@@ -15,8 +17,11 @@ test('resetDemoState clears the workspace and importDemoProducts restores the sh
   assert.equal(initialProduct.candidates.length, 0)
   assert.equal(initialProduct.evidence.length, 0)
 
-  const run = createMockResearchRun('galaxy-a55')
-  getResearchRun(run.id, new Date(Date.parse(run.createdAt) + 6000).toISOString())
+  const out = buildOutput([
+    { field: 'ean', value: '6942103169441' },
+    { field: 'cameraResolution', value: '50 MP' },
+  ])
+  simulateResearchJob(store, 'galaxy-a55', { cursor: out, codex: out, claude: out })
   const researchedProduct = getStoredProduct('galaxy-a55')
   assert.equal(researchedProduct.candidates.length >= 1, true)
   assert.equal(researchedProduct.evidence.length >= 2, true)

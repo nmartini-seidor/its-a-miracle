@@ -43,7 +43,7 @@ function assertCanonicalFieldKeys(record) {
 }
 
 test('mock domain contract exposes a versioned source of truth', () => {
-  assert.equal(MOCK_DOMAIN_CONTRACT_VERSION, '2026-04-task1')
+  assert.equal(MOCK_DOMAIN_CONTRACT_VERSION, '2026-06-real-research')
   assert.equal(isSupportedMockContractVersion(MOCK_DOMAIN_CONTRACT_VERSION), true)
   assert.deepEqual(MOCK_STATE_OWNERSHIP.serverFetchedMockApiData, [
     'products',

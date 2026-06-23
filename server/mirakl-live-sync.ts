@@ -1,7 +1,11 @@
 import { isExportableAttributeField } from "../lib/demo-contract.ts"
 import type { AttributeFieldId, CandidateRecord, ProductRecord } from "../lib/types.ts"
 
-const MIRAKL_BASE_URL = process.env.MIRAKL_BASE_URL || "https://seidor-dev.mirakl.net"
+// Resolved at call time (not module load) so the env and the dev-tenant guard are testable and
+// always reflect the current configuration. Defaults to the Mirakl dev tenant.
+function miraklBaseUrl() {
+  return process.env.MIRAKL_BASE_URL || "https://seidor-dev.mirakl.net"
+}
 const IDENTITY_FIELDS = new Set<AttributeFieldId>(["brand", "productName", "ean", "description"])
 const DEFAULT_ATTRIBUTE_CODE_MAP: Partial<Record<AttributeFieldId, string>> = {
   storage: "storage_gb",
@@ -75,6 +79,23 @@ export function buildMiraklAttributeSyncDraft(product: ProductRecord): MiraklAtt
   }
 }
 
+// Hard guard (ADR 0005 / AGENTS.md): write-back is restricted to the Mirakl DEV tenant. Production
+// must be unreachable from this flow regardless of env configuration — no override is honoured.
+function assertDevTenant(baseUrl: string) {
+  let host: string
+  try {
+    host = new URL(baseUrl).hostname.toLowerCase()
+  } catch {
+    throw new Error(`Invalid MIRAKL_BASE_URL: ${baseUrl}`)
+  }
+  const isDevTenant = /-dev\.mirakl\.net$/.test(host) || host === "localhost" || host === "127.0.0.1"
+  if (!isDevTenant) {
+    throw new Error(
+      `Refusing to submit to Mirakl host "${host}". Write-back is restricted to the dev tenant (ADR 0005); production is unreachable from this flow and requires separate sign-off.`,
+    )
+  }
+}
+
 function requireMiraklOperatorToken() {
   const token = process.env.MIRAKL_OPERATOR_API_KEY
   if (!token) throw new Error("MIRAKL_OPERATOR_API_KEY is not configured in the server environment.")
@@ -104,7 +125,7 @@ async function readJsonResponse(response: Response) {
 async function pollMiraklImportStatus(importId: number | string, token: string) {
   const attempts = Number(process.env.MIRAKL_SYNC_POLL_ATTEMPTS ?? 6)
   const delayMs = Number(process.env.MIRAKL_SYNC_POLL_DELAY_MS ?? 1000)
-  const statusUrl = new URL(`/api/products/imports/${importId}`, MIRAKL_BASE_URL)
+  const statusUrl = new URL(`/api/products/imports/${importId}`, miraklBaseUrl())
   let lastStatus: unknown
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -134,10 +155,11 @@ export async function submitMiraklAttributeSync(product: ProductRecord): Promise
   const draft = buildMiraklAttributeSyncDraft(product)
   if (draft.syncedFields.length === 0) throw new Error("No approved attribute candidates are ready to sync.")
 
+  assertDevTenant(miraklBaseUrl())
   const token = requireMiraklOperatorToken()
   const shopId = requireMiraklShopId()
   requireMiraklCategoryCode()
-  const url = new URL("/api/products/imports", MIRAKL_BASE_URL)
+  const url = new URL("/api/products/imports", miraklBaseUrl())
   const form = new FormData()
   form.append("operator_format", "true")
   form.append("shop", shopId)

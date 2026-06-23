@@ -51,6 +51,35 @@ export function getCandidateByField(product: ProductRecord) {
   return byField
 }
 
+// All non-rejected candidates grouped by field, so the UI can surface a Conflict when more than
+// one runner proposed competing values for the same field (ADR 0004). Within a field, accepted
+// sorts first, then by confidence, so the most relevant competing value leads.
+const CONFIDENCE_ORDER = { high: 3, medium: 2, low: 1 } as const
+
+export function getCompetingCandidatesByField(product: ProductRecord) {
+  const byField = new Map<AttributeFieldId, CandidateRecord[]>()
+  for (const candidate of getReviewCandidates(product)) {
+    if (candidate.status === "rejected") continue
+    const list = byField.get(candidate.fieldName) ?? []
+    list.push(candidate)
+    byField.set(candidate.fieldName, list)
+  }
+  for (const list of byField.values()) {
+    list.sort((a, b) => {
+      if (a.status === "accepted" && b.status !== "accepted") return -1
+      if (b.status === "accepted" && a.status !== "accepted") return 1
+      return CONFIDENCE_ORDER[b.confidence] - CONFIDENCE_ORDER[a.confidence]
+    })
+  }
+  return byField
+}
+
+// A field is conflicted when two or more distinct candidate values are still in play for it.
+export function isFieldConflicted(candidates: CandidateRecord[]): boolean {
+  const distinctValues = new Set(candidates.filter((c) => c.status !== "rejected").map((c) => c.candidateValue))
+  return distinctValues.size > 1
+}
+
 export function orderReviewFields(product: ProductRecord, schema: SchemaDefinition | null) {
   const ordered = new Set<AttributeFieldId>()
 
