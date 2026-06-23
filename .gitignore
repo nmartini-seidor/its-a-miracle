@@ -15,3 +15,6 @@ tsconfig.tsbuildinfo
 
 /data/demo-state.json
 .agents
+.playwright-cli
+.superpowers
+output
