@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowRightIcon, Loader2Icon, SaveIcon } from "lucide-react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ATTRIBUTE_FIELD_LABELS } from "@/lib/demo-contract"
@@ -91,10 +92,18 @@ export function SchemaConfigurationForm({ schema, assignedProducts }: { schema: 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-    const body = await response.json()
+    const body = await response.json().catch(() => ({}))
     setSaving(false)
-    setStatus(response.ok ? body.message : body.error ?? "Schema could not be saved.")
-    if (response.ok) router.refresh()
+    // Success and error used to render in the same gray text. Use distinct toasts so a failed save
+    // is unmistakable, and keep the inline status as persistent context.
+    if (response.ok) {
+      setStatus(body.message ?? "Schema saved.")
+      toast.success(body.message ?? "Schema saved.")
+      router.refresh()
+    } else {
+      setStatus(body.error ?? "Schema could not be saved.")
+      toast.error(body.error ?? "Schema could not be saved.")
+    }
   }
 
   return (

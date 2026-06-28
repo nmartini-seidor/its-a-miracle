@@ -59,12 +59,14 @@ score = clamp(round(score), 0, 100)
 - If evidence policy is pending for a candidate field, the evidence component can contribute at most 4 points.
 
 ## Color bands
+These bands match the shipped implementation in `lib/scoring.ts` (`red < 25`, `yellow < 70`,
+`blue < 90`, `green ≥ 90`); the band name is **yellow**, not "amber".
 | Score | Band | Meaning |
 | --- | --- | --- |
-| 0-39 | Red | Poor / critical data gaps. |
-| 40-69 | Amber | Needs enrichment before strong storefront use. |
-| 70-84 | Neutral/blue | Usable but improvable. |
-| 85-100 | Green | Strong content completeness and evidence. |
+| 0-24 | Red | Poor / critical data gaps. |
+| 25-69 | Yellow | Needs enrichment before strong storefront use. |
+| 70-89 | Blue | Usable but improvable. |
+| 90-100 | Green | Strong content completeness and evidence. |
 
 ## Materialization and refresh
 Store scores in `quality_scores` with:

@@ -42,7 +42,7 @@ After any change to canonical entity shapes (`lib/types.ts` / `lib/demo-contract
 Data flows in one direction through these layers — know which one you're editing:
 
 1. **`lib/fixtures.ts`** (~2400 lines) — seed catalog: products, schemas, aggregators, default settings. The source of truth for `pnpm import:demo`.
-2. **`server/store.ts`** — the JSON-file-backed store. Owns all reads/writes to `data/demo-state.json`: reset/import, the simulated research lifecycle, review decisions, baseline sync, and export previews. This is where the demo's business logic lives.
+2. **`server/store.ts`** — the SQLite-backed store (`data/demo.sqlite` via `better-sqlite3`, ADR 0003). Owns all reads/writes: reset/import, the real Research Job/Run lifecycle + consensus merge, review decisions, the Worker liveness heartbeat (`workerStatus` kv row, ADR 0006), baseline sync, and export previews. This is where the demo's business logic lives.
 3. **`server/data.ts`** — thin async read API (`listProducts`, `getProduct`, `listSchemas`, …) consumed by Server Components. Applies schema/aggregator overrides on top of fixtures.
 4. **`app/`** — App Router pages (Server Components) + `app/api/*` route handlers that call `server/store.ts` for mutations. Nav sections (`lib/navigation.ts`): Products (`/`), Catalog, Schemas, Aggregators, Research, Settings.
 
@@ -50,7 +50,7 @@ Data flows in one direction through these layers — know which one you're editi
 
 - Each **product** has `baselineAttributes` and is assigned a **schema** (`SchemaDefinition`) listing required + recommended `AttributeFieldId`s.
 - **Quality score** (`lib/scoring.ts`) drives `scoreBand`: `red <25`, `yellow <70`, `blue <90`, `green ≥90`. Missing-required and warnings cap the score. Scores are recomputed on schema change, research, and review decisions.
-- **Research is simulated**, not real web fetching: `createMockResearchRun` queues a job; `getResearchRun` derives status `QUEUED → RUNNING → SUCCEEDED` purely from elapsed time vs `getMockResearchAgentDurationMs()`. On success, `applyResearchOutcome` synthesizes evidence + candidates from `explicitResearchProfiles` (hand-authored per product id) and `getDerivedResearchAttributes` (category/title heuristics) in `server/store.ts`.
+- **Research is real**, not simulated: the Next server only *queues* a multi-runner Research Job via `createResearchJob` (status is owned by the Worker, never time-derived). The local **Worker** (`pnpm worker`, `server/worker/main.ts`) claims the job, spawns the three runner CLIs in jailed working dirs, zod-validates each `output.json` (`lib/research-contract.ts` — confidence assigned by cited source tier), and `finalizeResearchJob` merges the runs by consensus/conflict onto the product (`server/research-merge.ts`). The Run-Research button polls `GET /api/research-jobs/[id]` for status **and** the Worker-liveness snapshot so a down Worker / no runners / paused intake surface immediately instead of spinning (ADR 0006).
 - **Candidates** (`CandidateRecord`) are field-level proposals with evidence links. Reviewer decisions (`APPROVE` / `REJECT` / `REQUEST_MORE_EVIDENCE`) flow through `applyReviewDecisionToProduct`; accepted candidates can be merged into the baseline via `syncProductWithMirakl` or shown as an export preview via `buildExportPreview`.
 - **`server/mirakl-live-sync.ts`** builds the real Mirakl CSV import draft format (attribute-code mapping, `shop_sku` rows) from accepted candidates. Attribute codes are configurable via `MIRAKL_*` env vars.
 
@@ -63,7 +63,7 @@ Data flows in one direction through these layers — know which one you're editi
 - **Imports use explicit `.ts`/`.tsx` extensions** (`allowImportingTsExtensions`), so the same modules run under both Next.js and Node's type-stripping test runner. Match this — bare extensionless relative imports of TS files will break tests.
 - Path alias `@/*` → repo root (e.g. `@/server/data`, `@/lib/utils`, `@/components/ui`).
 - Style: no semicolons, double quotes, 2-space indent (no Prettier config — follow surrounding code).
-- Tests are `.mjs` Node test-runner files in `tests/`, run at **concurrency 1** because they mutate the shared `data/demo-state.json`.
+- Tests are `.mjs` Node test-runner files in `tests/`, run with **`DEMO_DB_ISOLATE=1`** so each test process gets its own SQLite database (`data/.test-dbs/demo-<pid>.sqlite`) and files can run concurrently — the old `--test-concurrency=1` / shared-JSON-file constraint is retired (ADR 0003).
 - **UI is shadcn/ui only** (new-york style, neutral base, Tailwind v4 via `@tailwindcss/postcss`). Primitives live in `components/ui/`; compose business components in `components/{app,product,schema,aggregator,settings}/` from those primitives — don't hand-roll equivalents. Add new primitives with the shadcn CLI.
 
 ## Guardrails (from AGENTS.md, still in force)

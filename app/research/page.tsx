@@ -3,14 +3,15 @@ import { BotIcon, SparklesIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { PageHeader, PageShell, Panel } from "@/components/app/page-chrome"
+import { WorkerStatusBanner } from "@/components/research/worker-status-banner"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { formatEnumLabel } from "@/lib/labels"
-import { listProducts, listResearchJobs } from "@/server/data"
+import { getDemoSettings, getWorkerStatus, listProducts, listResearchJobs } from "@/server/data"
 
 export const dynamic = "force-dynamic"
 
 export default async function ResearchPage() {
-  const [jobs, products] = await Promise.all([listResearchJobs(), listProducts()])
+  const [jobs, products, worker, settings] = await Promise.all([listResearchJobs(), listProducts(), getWorkerStatus(), getDemoSettings()])
   const productById = new Map(products.map((product) => [product.id, product]))
   const activeJobs = jobs.filter((job) => job.status !== "SUCCEEDED")
 
@@ -26,6 +27,8 @@ export default async function ResearchPage() {
           </div>
         }
       />
+
+      <WorkerStatusBanner initialWorker={worker} initialResearchPaused={!settings.fakeResearchMode} />
 
       <Panel title="Research agent queue" description="Runs are local workflow records. Completed runs attach evidence and candidate values to the matching product." headerClassName="bg-white" bodyClassName="p-0 sm:p-0">
         <Table surface="flush">

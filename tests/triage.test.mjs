@@ -103,7 +103,7 @@ test('empty product state disables research and table controls with a broken-cat
   const source = readFileSync('components/product/triage-dashboard.tsx', 'utf8')
 
   assert.equal(source.includes('PackageXIcon'), true)
-  assert.equal(source.includes('disabled={!hasProducts || queuePending || (selectionMode && selectedCount === 0)}'), true)
+  assert.equal(source.includes('disabled={!hasProducts || queuePending || researchPaused || (selectionMode && selectedCount === 0)}'), true)
   assert.equal(source.includes('selectionMode && !queuePending'), true)
   assert.equal(source.match(/disabled={!hasProducts}/g)?.length, 2)
   assert.equal(source.includes('max-w-none whitespace-nowrap text-sm'), true)

@@ -2,6 +2,7 @@ import { getDb, transaction, type SqliteDatabase } from "./db.ts"
 import { aggregators, demoSettings, products as seededProducts, schemas } from "../lib/fixtures.ts"
 import { getFieldLabel, isExportableAttributeField } from "../lib/demo-contract.ts"
 import { RESEARCH_RUNNER_IDS } from "../lib/research-contract.ts"
+import { deriveWorkerSnapshot, type WorkerSnapshot, type WorkerStatusRecord } from "../lib/worker-status.ts"
 import { mergeRunnerRuns, type RunnerOutputForMerge } from "./research-merge.ts"
 import { qualityScore } from "../lib/scoring.ts"
 import type {
@@ -76,7 +77,6 @@ function sanitizeSettings(settings: Partial<SettingsSnapshot> = {}): SettingsSna
     environment: "demo",
     miraklBaseUrl: settings.miraklBaseUrl?.trim() || demoSettings.miraklBaseUrl,
     fakeResearchMode: typeof settings.fakeResearchMode === "boolean" ? settings.fakeResearchMode : demoSettings.fakeResearchMode,
-    defaultResearchDelaySeconds: clampNumber(settings.defaultResearchDelaySeconds, 5, 300, demoSettings.defaultResearchDelaySeconds),
     maxEvidencePerProduct: clampNumber(settings.maxEvidencePerProduct, 1, 10, demoSettings.maxEvidencePerProduct),
     defaultCandidateConfidence: settings.defaultCandidateConfidence ?? demoSettings.defaultCandidateConfidence,
     autoAssignSchemaByCategory:
@@ -261,6 +261,26 @@ export function updateStoredAggregator(baseAggregators: AggregatorDefinition[], 
     : state.settings.enabledAggregatorIds.filter((aggregatorId) => aggregatorId !== updatedAggregator.id)
   writeState(state)
   return updatedAggregator
+}
+
+
+// --- Worker liveness (ADR 0006) ----------------------------------------------------------------
+// The Worker upserts a single `workerStatus` kv row via its independent heartbeat timer; the Next
+// server derives liveness from it. kv is a key-scoped upsert, so this never clobbers the catalog
+// state writeState() owns (and vice-versa). The write path deliberately does NOT call
+// ensureInitialized() — the Worker must not seed the demo catalog as a side effect of a heartbeat.
+
+export function writeWorkerStatus(status: WorkerStatusRecord) {
+  writeKv(getDb(), "workerStatus", status)
+}
+
+export function getWorkerStatusRecord(): WorkerStatusRecord | null {
+  ensureInitialized()
+  return readKv<WorkerStatusRecord>(getDb(), "workerStatus")
+}
+
+export function getWorkerSnapshot(): WorkerSnapshot {
+  return deriveWorkerSnapshot(getWorkerStatusRecord(), Date.now())
 }
 
 
@@ -453,17 +473,32 @@ function loadRunsForJob(db: SqliteDatabase, jobId: string): StoredRunnerRun[] {
   return rows.map((row) => JSON.parse(row.data) as StoredRunnerRun)
 }
 
+// Discriminated outcome of an enqueue attempt (ADR 0006): a plain `null` used to be overloaded for
+// "product not found", which left no room to also signal "intake paused". `reused` marks the
+// dedupe path so a caller can tell a fresh queue from re-attaching to an in-flight job.
+export type CreateResearchJobResult =
+  | { ok: true; job: StoredResearchJob; reused: boolean }
+  | { ok: false; reason: "product_not_found" }
+  | { ok: false; reason: "paused" }
+
 // Create a multi-runner Research Job (QUEUED) plus one QUEUED Runner Run per runner, and flag the
 // product as in-progress. The Worker picks the job up; nothing runs synchronously here.
-export function createResearchJob(productId: string): StoredResearchJob | null {
+export function createResearchJob(productId: string): CreateResearchJobResult {
   return transaction((db) => {
     const product = loadProductRow(db, productId)
-    if (!product) return null
+    if (!product) return { ok: false, reason: "product_not_found" }
 
     // Dedupe: reuse an existing not-yet-terminal job for this product.
     const existingRows = db.prepare("SELECT data FROM research_jobs WHERE product_id = ? ORDER BY rowid DESC").all(productId) as { data: string }[]
     const active = existingRows.map(rowToJob).find((job) => !TERMINAL_STATUSES.has(job.status))
-    if (active) return active
+    if (active) return { ok: true, job: active, reused: true }
+
+    // Research intake gate (ADR 0006): placed AFTER dedupe so an already-queued/in-flight job for
+    // this product still drains, and BEFORE creating anything new. Pause stops NEW intake only
+    // (claimNextResearchJob is never gated). fakeResearchMode === false means the operator paused
+    // intake in Settings; surfaced to the route as a 409 RESEARCH_PAUSED, distinct from worker-down.
+    const settings = sanitizeSettings(readKv<SettingsSnapshot>(db, "settings") ?? undefined)
+    if (!settings.fakeResearchMode) return { ok: false, reason: "paused" }
 
     const sequence = (db.prepare("SELECT COUNT(*) AS c FROM research_jobs").get() as { c: number }).c + 1
     const timestamp = now()
@@ -498,12 +533,18 @@ export function createResearchJob(productId: string): StoredResearchJob | null {
 
     product.listingStatus = "RESEARCH_IN_PROGRESS"
     saveProductRow(db, product)
-    return job
+    return { ok: true, job, reused: false }
   })
 }
 
-// Backward-compatible alias for existing route/UI/test call sites.
-export const createMockResearchRun = createResearchJob
+// Back-compat shim for test/helper call sites that only want the job (and run with intake enabled,
+// so the paused branch never trips). Returns the job, or null on not-found/paused — preserving the
+// old `StoredResearchJob | null` contract. The route uses createResearchJob directly for the
+// discriminated result it needs to map onto HTTP status codes.
+export function createMockResearchRun(productId: string): StoredResearchJob | null {
+  const result = createResearchJob(productId)
+  return result.ok ? result.job : null
+}
 
 export function listResearchRuns(): ResearchJob[] {
   ensureInitialized()

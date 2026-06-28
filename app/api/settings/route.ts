@@ -10,7 +10,6 @@ type SettingsPatch = Partial<Pick<
   SettingsSnapshot,
   | "miraklBaseUrl"
   | "fakeResearchMode"
-  | "defaultResearchDelaySeconds"
   | "maxEvidencePerProduct"
   | "defaultCandidateConfidence"
   | "autoAssignSchemaByCategory"
@@ -35,12 +34,10 @@ function parseSettingsPatch(body: Record<string, unknown>): SettingsPatch {
 
   const fakeResearchMode = asBoolean(body.fakeResearchMode)
   const autoAssignSchemaByCategory = asBoolean(body.autoAssignSchemaByCategory)
-  const defaultResearchDelaySeconds = asNumber(body.defaultResearchDelaySeconds)
   const maxEvidencePerProduct = asNumber(body.maxEvidencePerProduct)
 
   if (typeof fakeResearchMode === "boolean") patch.fakeResearchMode = fakeResearchMode
   if (typeof autoAssignSchemaByCategory === "boolean") patch.autoAssignSchemaByCategory = autoAssignSchemaByCategory
-  if (typeof defaultResearchDelaySeconds === "number") patch.defaultResearchDelaySeconds = defaultResearchDelaySeconds
   if (typeof maxEvidencePerProduct === "number") patch.maxEvidencePerProduct = maxEvidencePerProduct
 
   if (Array.isArray(body.enabledAggregatorIds)) {

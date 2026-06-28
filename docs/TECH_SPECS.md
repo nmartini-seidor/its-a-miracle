@@ -1,3 +1,8 @@
+> **⚠️ SUPERSEDED — aspirational design, not the built demo.** This document describes an earlier
+> Supabase/Vercel design that was intentionally **not** wired up. For how the demo actually works,
+> see `docs/adr/` (ADRs 0001–0007), `EXECUTION_PLAN.md`, and `CONTEXT.md`. Use this only for domain
+> intent.
+
 # Technical Specifications
 
 ## Status

@@ -143,9 +143,17 @@ export async function processJob(
 }
 
 // Claim and fully process the next QUEUED job. Returns false when the queue is empty.
-export async function processNextJob(options: { availableRunnerIds: Set<string>; signal?: AbortSignal; log?: WorkerLogger }): Promise<boolean> {
+// `onClaim` fires synchronously once a job is claimed (before its ~minutes-long processing) so the
+// caller — the Worker's heartbeat (ADR 0006) — can flip its phase to "busy" with this job id.
+export async function processNextJob(options: {
+  availableRunnerIds: Set<string>
+  signal?: AbortSignal
+  log?: WorkerLogger
+  onClaim?: (job: StoreJob) => void
+}): Promise<boolean> {
   const claimed = claimNextResearchJob()
   if (!claimed) return false
+  options.onClaim?.(claimed.job)
   await processJob(claimed.job, claimed.runs, options)
   return true
 }

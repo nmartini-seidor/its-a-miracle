@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 type SchemaOption = {
   id: string
@@ -23,8 +24,11 @@ export function CatalogSchemaSelect({ productId, value, schemas }: { productId: 
     })
 
     if (!response.ok) {
+      // Roll back the optimistic selection AND tell the operator why — this used to revert silently.
       setSelectedSchemaId(value)
       setIsSaving(false)
+      const body = await response.json().catch(() => ({}))
+      toast.error(body.error ?? "Could not update the schema assignment.")
       return
     }
 

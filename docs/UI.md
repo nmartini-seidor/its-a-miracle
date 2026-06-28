@@ -47,11 +47,11 @@ Columns:
 - Source status and stale flag.
 - Last synced/enriched date.
 
-Score bands:
-- 0-39: red/destructive semantic presentation.
-- 40-69: amber/warning presentation.
-- 70-84: neutral/informational presentation.
-- 85-100: success/positive presentation.
+Score bands (match `lib/scoring.ts`; the band name is **yellow**, not "amber"):
+- 0-24 (red): red/destructive semantic presentation.
+- 25-69 (yellow): yellow/warning presentation.
+- 70-89 (blue): blue/informational presentation.
+- 90-100 (green): green/success presentation.
 
 ## Product detail screen
 Tabs using shadcn `Tabs`:

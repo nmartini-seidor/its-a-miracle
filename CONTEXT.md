@@ -55,6 +55,10 @@ The input contract handed to a Research Runner for one Job: the product baseline
 **Worker**:
 The single long-lived local process that picks up queued Research Jobs, spawns their Runners, and owns timeout/cancel/concurrency. Sole executor of research; survives Next dev-server reloads.
 
+**Research intake**:
+The operator-controlled gate (Settings) on whether _new_ Research Jobs may be created — **Enabled** or **Paused**. While paused, no new Job is queued; Jobs already queued or in-flight still drain. Distinct from the **Worker** being _offline_ (the executor process is unreachable) and from _no runners available_ (the Worker is up but no agent CLI is installed/logged in). These three are the operator-facing reasons research may not be progressing.
+_Avoid_: "research off" / "fake research mode" (ambiguous between paused intake, worker offline, and no runners).
+
 **Snapshot**:
 A captured pull of real Mirakl product data (via the gated sync script) used to seed the catalog, so demos run on genuine Mirakl data without live per-run ingestion.
 
@@ -65,4 +69,4 @@ _Avoid_: export, publish (publish implies live, which submission does not guaran
 ## Flagged ambiguities
 
 - **"Schema"** overloaded between the per-category attribute contract and the database/Supabase sense.
-- **Legacy code naming**: the existing code stores jobs in a `researchRuns` array and uses "run"/"job" interchangeably. Now that Job and Run are distinct (a Job owns N Runs), this naming should be migrated when the store is reworked.
+- **Legacy code naming**: the store rework landed — **Job** and **Run** are now distinct entities backed by distinct SQLite tables (`research_jobs`, `runner_runs`). The only remaining vestige is the `StoredState.researchRuns` field name in `server/store.ts`, which should be renamed when convenient.

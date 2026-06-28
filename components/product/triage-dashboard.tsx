@@ -41,7 +41,7 @@ const sortOptions: { id: TriageSortId; label: string; Icon: LucideIcon; iconClas
   { id: "category-asc", label: "Category", Icon: FolderTreeIcon, iconClassName: "text-violet-500" },
 ]
 
-export function TriageDashboard({ products }: { products: ProductRecord[] }) {
+export function TriageDashboard({ products, researchPaused = false }: { products: ProductRecord[]; researchPaused?: boolean }) {
   const router = useRouter()
   const [activeFilter, setActiveFilter] = useState<TriageFilterId>("all")
   const [activeSort, setActiveSort] = useState<TriageSortId>("score-asc")
@@ -135,7 +135,13 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 px-1 sm:flex-row sm:items-center sm:justify-between">
-        {queueStatus ? <p className="text-sm text-rose-700">{queueStatus}</p> : <div aria-hidden="true" />}
+        {queueStatus ? (
+          <p className="text-sm text-rose-700">{queueStatus}</p>
+        ) : researchPaused ? (
+          <p className="text-sm font-medium text-amber-700">Research paused in Settings — enable it to queue new jobs.</p>
+        ) : (
+          <div aria-hidden="true" />
+        )}
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           {selectionMode && !queuePending && (
             <Button type="button" size="lg" variant="ghost" onClick={cancelResearchSelection} className="rounded-full">
@@ -147,7 +153,8 @@ export function TriageDashboard({ products }: { products: ProductRecord[] }) {
             type="button"
             size="lg"
             variant="default"
-            disabled={!hasProducts || queuePending || (selectionMode && selectedCount === 0)}
+            disabled={!hasProducts || queuePending || researchPaused || (selectionMode && selectedCount === 0)}
+            title={researchPaused ? "Research intake is paused in Settings" : undefined}
             onClick={selectionMode ? queueResearchForSelectedProducts : startResearchSelection}
             className={cn(
               "rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400 px-5 text-white shadow-[0_14px_34px_rgba(168,85,247,0.28)] hover:from-fuchsia-600 hover:via-violet-600 hover:to-sky-500 hover:shadow-[0_18px_42px_rgba(168,85,247,0.34)]",

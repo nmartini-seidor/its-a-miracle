@@ -16,7 +16,7 @@ NAVY = RGBColor(7, 13, 31)
 MUTED = RGBColor(82, 94, 116)
 LIGHT = RGBColor(246, 249, 252)
 GREEN = RGBColor(19, 180, 115)
-ORANGE = RGBColor(242, 164, 61)
+AMBER = RGBColor(242, 164, 61)
 
 
 SLIDES = [
@@ -294,7 +294,7 @@ def build():
             add_image(slide, item["image"])
         else:
             for i, (label, color) in enumerate([
-                ("Coste manual", ORANGE),
+                ("Coste manual", AMBER),
                 ("Datos incompletos", BLUE),
                 ("Riesgo de publicacion", GREEN),
             ]):

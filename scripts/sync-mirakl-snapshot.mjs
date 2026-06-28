@@ -19,10 +19,17 @@ function requireToken() {
   return token
 }
 
+// Mirrors server/mirakl-request.ts `miraklAuthHeader` — kept inline because this CLI runs under
+// plain `node` (no type-stripping) and so cannot import the .ts helper at runtime. Default `raw`
+// (Mirakl static-key convention); MIRAKL_AUTH_SCHEME=bearer switches to `Bearer <token>` (ADR 0007).
+function miraklAuthHeader(token) {
+  return process.env.MIRAKL_AUTH_SCHEME === "bearer" ? `Bearer ${token}` : token
+}
+
 function authHeaders(token) {
   return {
     Accept: "application/json",
-    Authorization: `Bearer ${token}`,
+    Authorization: miraklAuthHeader(token),
   }
 }
 
@@ -71,6 +78,9 @@ async function fetchSourceStatusCsv(token, providerId, status) {
 async function main() {
   requireLiveReadApproval()
   const token = requireToken()
+  // Log the resolved host for auditability (ADR 0007 item 9). Goes to stderr so stdout stays the
+  // snapshot path only. This read stays flag-gated (AGENTS.md permits an approved prod read).
+  console.error(`[sync-mirakl] resolved host: ${new URL(MIRAKL_BASE_URL).hostname} (auth scheme: ${process.env.MIRAKL_AUTH_SCHEME === "bearer" ? "bearer" : "raw"})`)
   await mkdir(OUTPUT_DIR, { recursive: true })
 
   const shops = await fetchShops(token)

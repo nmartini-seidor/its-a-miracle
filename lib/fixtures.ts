@@ -713,7 +713,6 @@ export const demoSettings: SettingsSnapshot = {
   miraklBaseUrl: "https://seidor-dev.mirakl.net",
   environment: "demo",
   fakeResearchMode: true,
-  defaultResearchDelaySeconds: 5,
   maxEvidencePerProduct: 4,
   defaultCandidateConfidence: "medium",
   autoAssignSchemaByCategory: true,

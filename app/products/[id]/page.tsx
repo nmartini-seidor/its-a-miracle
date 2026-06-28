@@ -16,7 +16,7 @@ import { formatEnumLabel } from "@/lib/labels"
 import type { ContractFieldId, EvidenceRecord } from "@/lib/types"
 import { buildReviewFieldRows, getCompetingCandidatesByField, isFieldConflicted } from "@/lib/product-review"
 import { cn } from "@/lib/utils"
-import { getProduct, getSchemaById } from "@/server/data"
+import { getDemoSettings, getProduct, getSchemaById } from "@/server/data"
 
 const RUNNER_LABELS: Record<string, string> = { cursor: "Cursor", codex: "Codex", claude: "Claude" }
 
@@ -42,7 +42,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   if (!product) notFound()
 
-  const schema = await getSchemaById(product.schemaId)
+  const [schema, settings] = await Promise.all([getSchemaById(product.schemaId), getDemoSettings()])
   const evidenceById = new Map(product.evidence.map((evidence) => [evidence.id, evidence]))
   const reviewRows = buildReviewFieldRows(product, schema)
   // Group every in-play candidate by field so competing values from different runners surface as a
@@ -81,7 +81,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         }
         actions={
           <div className="flex flex-wrap items-start justify-end gap-2">
-            <ResearchButton productId={product.id} />
+            <ResearchButton productId={product.id} researchPaused={!settings.fakeResearchMode} />
             <SyncMiraklButton productId={product.id} canSync={acceptedCandidateIds.length > 0} />
           </div>
         }

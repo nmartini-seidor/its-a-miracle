@@ -21,6 +21,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (!result) return NextResponse.json({ error: "Product not found" }, { status: 404 })
   return NextResponse.json({
     syncedFields: result.syncedFields,
+    // Accepted fields with no known Mirakl attribute code were excluded from the import rather than
+    // shipped under a fake code (ADR 0007); surface them so the drop is never silent.
+    unmappedFields: miraklImport.unmappedFields,
     qualityScore: result.product.qualityScore,
     listingStatus: result.product.listingStatus,
     miraklImportId: miraklImport.importId,

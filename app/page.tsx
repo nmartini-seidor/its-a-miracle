@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge"
 import { PageHeader, PageShell, MetricStrip } from "@/components/app/page-chrome"
 import { TriageDashboard } from "@/components/product/triage-dashboard"
-import { listProducts } from "@/server/data"
+import { getDemoSettings, listProducts } from "@/server/data"
 
 export default async function DashboardPage() {
-  const products = await listProducts()
+  const [products, settings] = await Promise.all([listProducts(), getDemoSettings()])
   const productsNeedingReview = products.filter((product) => product.listingStatus !== "READY_FOR_REVIEW")
   const candidateCount = products.reduce((acc, product) => acc + product.candidates.length, 0)
   const evidenceCount = products.reduce((acc, product) => acc + product.evidence.length, 0)
@@ -27,7 +27,7 @@ export default async function DashboardPage() {
         ]}
       />
 
-      <TriageDashboard products={products} />
+      <TriageDashboard products={products} researchPaused={!settings.fakeResearchMode} />
     </PageShell>
   )
 }

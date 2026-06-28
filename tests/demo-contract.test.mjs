@@ -14,7 +14,12 @@ const {
 const { heroProduct, products, schemas } = await import('../lib/fixtures.ts')
 const { applyReviewDecisionToProduct, buildExportPreview } = await import('../server/store.ts')
 
-const skippedScanDirs = new Set(['.git', '.next', '.omx', 'node_modules'])
+// Skip gitignored, never-shipped trees: generated state (`data`, `output`) whose churning sqlite
+// files (data/.test-dbs/*.sqlite-shm) otherwise race statSync mid-walk and crash the scan before it
+// can report anything, plus local agent tooling (`.agents`). These are .gitignored and never ship,
+// so excluding them doesn't weaken the guard, which protects *committed* source from the forbidden
+// legacy brand token.
+const skippedScanDirs = new Set(['.git', '.next', '.omx', 'node_modules', 'data', 'output', '.agents'])
 const forbiddenBrandToken = String.fromCharCode(111, 114, 97, 110, 103, 101)
 
 function collectForbiddenBrandReferences(dir = '.') {

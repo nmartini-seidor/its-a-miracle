@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { isDevMiraklHost, probeMiraklAuth, resolveMiraklHost } from "@/server/mirakl-request"
 
 function normalizeMiraklBaseUrl(value: unknown) {
   if (typeof value !== "string") return null
@@ -22,38 +23,41 @@ export async function POST(request: Request) {
 
   const miraklBaseUrl = normalizeMiraklBaseUrl((body as Record<string, unknown>).miraklBaseUrl)
   const operatorKey = (body as Record<string, unknown>).operatorKey
+  const allowNonDevHost = (body as Record<string, unknown>).allowNonDevHost === true
 
   if (!miraklBaseUrl) return NextResponse.json({ error: "Enter a valid MIRAKL URL." }, { status: 400 })
   if (typeof operatorKey !== "string" || operatorKey.trim().length === 0) {
     return NextResponse.json({ error: "Enter a MIRAKL operator key." }, { status: 400 })
   }
 
+  // Dev-by-default host guard (ADR 0007 item 9). This route used to accept an arbitrary host from
+  // the body with zero checks; now a non-dev host needs an explicit, logged `allowNonDevHost` flag.
+  const host = resolveMiraklHost(miraklBaseUrl)
+  if (!isDevMiraklHost(miraklBaseUrl) && !allowNonDevHost) {
+    console.warn(`[mirakl-connectivity] refused non-dev host "${host}" without allowNonDevHost`)
+    return NextResponse.json(
+      { error: `Refusing to probe non-dev Mirakl host "${host}" without explicit approval. Use the dev tenant or pass allowNonDevHost.`, code: "NON_DEV_HOST" },
+      { status: 403 },
+    )
+  }
+  console.info(`[mirakl-connectivity] probing host "${host}" (allowNonDevHost=${allowNonDevHost})`)
+
   const checkUrl = new URL("/api/shops", miraklBaseUrl)
   checkUrl.searchParams.set("max", "1")
 
-  try {
-    const response = await fetch(checkUrl, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${operatorKey.trim()}`,
-      },
-      cache: "no-store",
-      signal: AbortSignal.timeout(8000),
-    })
-
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `MIRAKL connectivity failed with HTTP ${response.status}.` },
-        { status: 424 },
-      )
-    }
-  } catch {
-    return NextResponse.json({ error: "MIRAKL connectivity check could not reach the endpoint." }, { status: 424 })
+  // Try the configured auth scheme first, then the other (raw ⇆ bearer), and report the winner.
+  const probe = await probeMiraklAuth(checkUrl, operatorKey.trim())
+  if (!probe.ok) {
+    return NextResponse.json(
+      { error: probe.status ? `MIRAKL connectivity failed with HTTP ${probe.status}.` : "MIRAKL connectivity check could not reach the endpoint." },
+      { status: 424 },
+    )
   }
 
   return NextResponse.json({
     connected: true,
     miraklBaseUrl,
-    message: "MIRAKL connectivity confirmed.",
+    authScheme: probe.scheme,
+    message: `MIRAKL connectivity confirmed (auth scheme: ${probe.scheme}).`,
   })
 }

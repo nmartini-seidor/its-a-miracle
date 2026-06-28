@@ -218,23 +218,31 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
   async function saveSettings() {
     setSaving(true)
     setStatus(null)
-    const response = await fetch("/api/settings", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    })
-    const body = await response.json()
-    setSaving(false)
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      })
+      // Guard the parse so a non-JSON response can't throw and leave the Save button spinning forever.
+      const body = await response.json().catch(() => ({}))
 
-    if (!response.ok) {
-      setStatus(body.error ?? "Settings could not be saved.")
-      return
+      if (!response.ok) {
+        setStatus(body.error ?? "Settings could not be saved.")
+        return
+      }
+
+      if (body.settings) {
+        setSettings(body.settings)
+        setSavedSettings(body.settings)
+      }
+      setStatus(body.message ?? "Workspace settings saved.")
+      router.refresh()
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Settings could not be saved.")
+    } finally {
+      setSaving(false)
     }
-
-    setSettings(body.settings)
-    setSavedSettings(body.settings)
-    setStatus(body.message ?? "Workspace settings saved.")
-    router.refresh()
   }
 
   function updateIntegrationForm<Key extends keyof typeof integrationForm>(key: Key, value: (typeof integrationForm)[Key]) {
@@ -468,26 +476,13 @@ export function SettingsTabs({ initialSettings, schemas, aggregators }: Settings
 
         <TabsContent value="research" className="m-0">
           <div className="divide-y divide-slate-200/80">
-            <FieldRow label="Research jobs" description="Enable or pause evidence collection controls for product review workflows.">
+            <FieldRow label="Research intake" description="Enable or pause whether reviewers can queue new product research jobs.">
               <CheckboxControl
                 checked={settings.fakeResearchMode}
                 onChange={(checked) => updateSetting("fakeResearchMode", checked)}
                 label={settings.fakeResearchMode ? "Enabled" : "Paused"}
-                description="When enabled, reviewers can queue product research jobs from product detail pages."
+                description="When paused, no new Research Jobs are queued; jobs already queued or in flight still finish."
               />
-            </FieldRow>
-            <FieldRow label="Default job delay" description="Seconds used for queued and running state timing before completion.">
-              <div className="flex max-w-xs items-center gap-3">
-                <TextInput
-                  type="number"
-                  min={5}
-                  max={300}
-                  value={settings.defaultResearchDelaySeconds}
-                  onChange={(event) => updateSetting("defaultResearchDelaySeconds", Number(event.target.value))}
-                  aria-label="Default research delay seconds"
-                />
-                <span className="text-sm text-slate-600">seconds</span>
-              </div>
             </FieldRow>
             <FieldRow label="Max evidence per product" description="Limit how much supporting material appears per product review.">
               <TextInput

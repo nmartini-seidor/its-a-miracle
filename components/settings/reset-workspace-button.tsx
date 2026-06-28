@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { getMockProductImportDurationMs } from "@/lib/mock-timing"
 import { cn } from "@/lib/utils"
 
-const fakeImportProductCount = 55
-const fakeImportDurationMs = getMockProductImportDurationMs()
-const fakeQualityAnalysisDurationMs = Math.max(750, Math.round(fakeImportDurationMs * 0.2))
-const fakeProductImportDurationMs = Math.max(1, fakeImportDurationMs - fakeQualityAnalysisDurationMs)
-const fakeImportStepMs = Math.ceil(fakeProductImportDurationMs / fakeImportProductCount)
-const fakeQualityAnalysisSteps = 5
+// Presentation-only pacing for the branded progress bar. The import is a single sub-second, atomic
+// POST (importDemoProducts) — there is no real per-product stream to report — so we animate a
+// time-driven bar toward 90% and then snap to 100% with the REAL imported count from the API. No
+// fabricated per-product fraction and no fake "Analyzing…" phase: the bar makes no count claims.
+const importDurationMs = getMockProductImportDurationMs()
+const PROGRESS_STEPS = 30
+const PROGRESS_CEILING = 90
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -30,51 +31,54 @@ export function ResetWorkspaceButton({
   const router = useRouter()
   const [status, setStatus] = useState<string | null>(null)
   const [pendingAction, setPendingAction] = useState<"reset" | "import" | null>(null)
-  const [importedProducts, setImportedProducts] = useState(0)
   const [importProgress, setImportProgress] = useState(0)
 
   async function runResetAction() {
     setPendingAction("reset")
     setStatus(null)
-    const response = await fetch("/api/workspace/reset", { method: "POST" })
-    const body = await response.json()
-    setStatus(response.ok ? body.message : body.error ?? "Workspace action failed")
-    setPendingAction(null)
-    if (response.ok) router.refresh()
+    try {
+      const response = await fetch("/api/workspace/reset", { method: "POST" })
+      // Guard the parse: a non-JSON response (e.g. a 502 HTML page) must not throw and leave the
+      // button stuck in "reset" forever — same robustness as runImportAction below.
+      const body = await response.json().catch(() => ({}))
+      setStatus(response.ok ? body.message ?? "Workspace cleared." : body.error ?? "Workspace action failed")
+      if (response.ok) router.refresh()
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Workspace action failed")
+    } finally {
+      setPendingAction(null)
+    }
   }
 
   async function runImportAction() {
     setPendingAction("import")
-    setImportedProducts(0)
     setImportProgress(0)
-    setStatus(`Found ${fakeImportProductCount} products. Preparing import…`)
+    setStatus("Importing product data…")
 
-    for (let productIndex = 1; productIndex <= fakeImportProductCount; productIndex += 1) {
-      await wait(fakeImportStepMs)
-      setImportedProducts(productIndex)
-      setImportProgress(Math.round((productIndex / fakeImportProductCount) * 85))
-      setStatus(`Found ${fakeImportProductCount} products. Importing product ${productIndex}/${fakeImportProductCount}…`)
+    // Fire the real import immediately; normalize success/failure up front so the awaited result
+    // never leaves an unhandled rejection while the branded bar paces toward the ceiling.
+    const importRequest = fetch("/api/workspace/import", { method: "POST" }).then(
+      async (response) => ({ ok: response.ok, body: await response.json().catch(() => ({})) }),
+      (error) => ({ ok: false, body: { error: error instanceof Error ? error.message : "Workspace action failed" } }),
+    )
+
+    const stepMs = Math.max(16, Math.round(importDurationMs / PROGRESS_STEPS))
+    for (let step = 1; step <= PROGRESS_STEPS; step += 1) {
+      await wait(stepMs)
+      setImportProgress(Math.min(PROGRESS_CEILING, Math.round((step / PROGRESS_STEPS) * PROGRESS_CEILING)))
     }
 
-    for (let analysisStep = 1; analysisStep <= fakeQualityAnalysisSteps; analysisStep += 1) {
-      await wait(fakeQualityAnalysisDurationMs / fakeQualityAnalysisSteps)
-      setImportProgress(85 + analysisStep * 3)
-      setStatus(`Analyzing Product Data Quality… checking completeness, warnings, and candidate readiness ${analysisStep}/${fakeQualityAnalysisSteps}.`)
-    }
-
-    setStatus("Finalizing product data import…")
-    const response = await fetch("/api/workspace/import", { method: "POST" })
-    const body = await response.json()
-
-    if (!response.ok) {
+    const { ok, body } = await importRequest
+    if (!ok) {
+      // No fabricated number on the unhappy path — just the real error.
       setStatus(body.error ?? "Workspace action failed")
+      setImportProgress(0)
       setPendingAction(null)
       return
     }
 
-    setImportedProducts(body.importedCount ?? fakeImportProductCount)
     setImportProgress(100)
-    setStatus(body.message)
+    setStatus(body.message) // the API's real message, e.g. "Imported N electronics products…"
     setPendingAction(null)
     router.refresh()
   }
@@ -92,7 +96,7 @@ export function ResetWorkspaceButton({
         )}
         <Button type="button" onClick={runImportAction} disabled={pendingAction !== null}>
           <DatabaseIcon data-icon="inline-start" />
-          {importing ? `Importing ${importedProducts}/${fakeImportProductCount}` : "Import Product data"}
+          {importing ? "Importing…" : "Import Product data"}
         </Button>
       </div>
       {!compact && (

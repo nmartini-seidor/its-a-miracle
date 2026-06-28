@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2Icon, SaveIcon } from "lucide-react"
+import { toast } from "sonner"
 import { AuthorityScoreMeter, AuthorityTierBadge } from "@/components/aggregator/authority-tier"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -79,10 +80,17 @@ export function AggregatorConfigurationForm({ aggregator, evidence }: { aggregat
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-    const body = await response.json()
+    const body = await response.json().catch(() => ({}))
     setSaving(false)
-    setStatus(response.ok ? body.message : body.error ?? "Aggregator could not be saved.")
-    if (response.ok) router.refresh()
+    // Distinct success/error feedback (these used to render identically), with inline status kept.
+    if (response.ok) {
+      setStatus(body.message ?? "Aggregator saved.")
+      toast.success(body.message ?? "Aggregator saved.")
+      router.refresh()
+    } else {
+      setStatus(body.error ?? "Aggregator could not be saved.")
+      toast.error(body.error ?? "Aggregator could not be saved.")
+    }
   }
 
   return (

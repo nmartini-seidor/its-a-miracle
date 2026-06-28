@@ -1,6 +1,6 @@
 import { aggregators, schemas } from "../lib/fixtures.ts"
 import { MOCK_DOMAIN_CONTRACT_VERSION } from "../lib/demo-contract.ts"
-import { getStoredProduct, getStoredSettings, listResearchRuns, listStoredAggregators, listStoredProducts, listStoredSchemas } from "./store.ts"
+import { getStoredProduct, getStoredSettings, getWorkerSnapshot, listResearchRuns, listStoredAggregators, listStoredProducts, listStoredSchemas } from "./store.ts"
 
 export async function listProducts() {
   return listStoredProducts()
@@ -36,4 +36,9 @@ export async function getSchemaBySlug(slug: string) {
 
 export async function listResearchJobs() {
   return listResearchRuns()
+}
+
+// Worker liveness snapshot (ADR 0006) for the Research-page banner's initial server render.
+export async function getWorkerStatus() {
+  return getWorkerSnapshot()
 }

@@ -21,16 +21,22 @@ export function SyncMiraklButton({ productId, canSync = false }: { productId: st
   async function syncWithMirakl() {
     setStatus(null)
     setPhase("syncing")
-    const response = await fetch(`/api/products/${productId}/sync`, { method: "POST" })
-    const body = await response.json()
-    if (response.ok) {
-      setResult({ importId: body.miraklImportId, importStatus: readImportStatus(body.miraklImportStatus), syncedFields: body.syncedFields })
-      setPhase("done")
-      router.refresh()
-      return
+    try {
+      const response = await fetch(`/api/products/${productId}/sync`, { method: "POST" })
+      // Guard the parse so a non-JSON response can't throw and pin the button in the "syncing" phase.
+      const body = await response.json().catch(() => ({}))
+      if (response.ok) {
+        setResult({ importId: body.miraklImportId, importStatus: readImportStatus(body.miraklImportStatus), syncedFields: body.syncedFields })
+        setPhase("done")
+        router.refresh()
+        return
+      }
+      setPhase("idle")
+      setStatus(body.error ?? "Mirakl sync failed")
+    } catch (error) {
+      setPhase("idle")
+      setStatus(error instanceof Error ? error.message : "Mirakl sync failed")
     }
-    setPhase("idle")
-    setStatus(body.error ?? "Mirakl sync failed")
   }
 
   if (phase === "done" && result) {

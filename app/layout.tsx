@@ -5,6 +5,7 @@ import Link from "next/link"
 import { UserRoundIcon } from "lucide-react"
 import { MobileNav } from "@/components/app/mobile-nav"
 import { TopNav } from "@/components/app/top-nav"
+import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <MobileNav />
           {children}
         </div>
+        <Toaster richColors closeButton />
       </body>
     </html>
   )

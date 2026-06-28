@@ -68,7 +68,10 @@ test('attribute sync draft for the Switch 2 product excludes name image descript
     assert.equal(draft.headers.includes('ean'), false)
     assert.equal(draft.headers.includes('dimensions_mm'), true)
     assert.equal(draft.headers.includes('storage_gb'), true)
-    assert.equal(draft.headers.includes('gaming_feature'), true)
+    // `connectivity` has no real Mirakl code in the committed config — the invented `gaming_feature`
+    // code was removed (ADR 0007). It must NOT appear as a header; it is surfaced as unmapped.
+    assert.equal(draft.headers.includes('gaming_feature'), false)
+    assert.equal(draft.unmappedFields.includes('connectivity'), true)
     assert.equal(draft.csv.includes('Nintendo Consola Nintendo Switch 2'), false)
     assert.equal(draft.csv.includes('1239051890745'), false)
   } finally {
@@ -112,6 +115,7 @@ test('live Mirakl attribute sync posts multipart product import and polls status
     MIRAKL_SYNC_CATEGORY_CODE: process.env.MIRAKL_SYNC_CATEGORY_CODE,
     MIRAKL_SYNC_POLL_ATTEMPTS: process.env.MIRAKL_SYNC_POLL_ATTEMPTS,
     MIRAKL_SYNC_POLL_DELAY_MS: process.env.MIRAKL_SYNC_POLL_DELAY_MS,
+    MIRAKL_AUTH_SCHEME: process.env.MIRAKL_AUTH_SCHEME,
   }
   const calls = []
 
@@ -120,13 +124,15 @@ test('live Mirakl attribute sync posts multipart product import and polls status
   process.env.MIRAKL_SYNC_CATEGORY_CODE = 'test_gaming_category'
   process.env.MIRAKL_SYNC_POLL_ATTEMPTS = '2'
   process.env.MIRAKL_SYNC_POLL_DELAY_MS = '0'
+  process.env.MIRAKL_AUTH_SCHEME = 'raw'
 
   globalThis.fetch = async (url, init) => {
     calls.push({ url: String(url), init })
     if (String(url).endsWith('/api/products/imports')) {
       const csv = await init.body.get('file').text()
       assert.equal(init.method, 'POST')
-      assert.equal(init.headers.Authorization, 'Bearer test-operator-token')
+      // Default scheme is raw (ADR 0007): the static operator key is sent as-is, not `Bearer …`.
+      assert.equal(init.headers.Authorization, 'test-operator-token')
       assert.equal(init.body.get('operator_format'), 'true')
       assert.equal(init.body.get('shop'), '2005')
       assert.equal(csv.startsWith('category;shop_sku;weight_g'), true)

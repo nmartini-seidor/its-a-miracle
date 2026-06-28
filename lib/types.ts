@@ -173,8 +173,10 @@ export interface ExportPreview {
 export interface SettingsSnapshot {
   miraklBaseUrl: string
   environment: "demo"
+  // Research intake gate (ADR 0006): true = Enabled (operators may queue new Research Jobs),
+  // false = Paused. The storage key keeps its legacy name to avoid a silent un-pause on upgrade;
+  // the operator-facing label is "Enabled/Paused".
   fakeResearchMode: boolean
-  defaultResearchDelaySeconds: number
   maxEvidencePerProduct: number
   defaultCandidateConfidence: ConfidenceLevel
   autoAssignSchemaByCategory: boolean
